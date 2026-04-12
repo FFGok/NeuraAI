@@ -6,10 +6,7 @@ const fetch = (...args) =>
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ENV'den al (GÜVENLİ)
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
-
-// 🔥 FREE DEĞİL → PARALI AMA UCUZ VE SINIRSIZ
 const MODEL = "openai/gpt-3.5-turbo";
 
 app.use(express.json({ limit: "10mb" }));
@@ -20,7 +17,6 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
-// 🔥 BACKEND SPAM KORUMA (GERÇEK KORUMA)
 let kullaniciSonMesaj = {};
 
 app.post("/chat", async (req, res) => {
@@ -31,7 +27,25 @@ app.post("/chat", async (req, res) => {
       return res.json({ reply: "Boş mesaj gönderme." });
     }
 
-    // 🧠 IP ile spam koruma
+    const m = message.toLowerCase().trim();
+
+    // Seni kim yaptı sorusuna özel net cevap
+    if (
+      m.includes("seni kim yaptı") ||
+      m.includes("kim yaptı seni") ||
+      m.includes("seni kim yapti") ||
+      m.includes("kim yapti seni") ||
+      m.includes("seni kim yarattı") ||
+      m.includes("seni kim yaratti") ||
+      m.includes("geliştiricin kim") ||
+      m.includes("gelistiricin kim") ||
+      m.includes("sahibin kim")
+    ) {
+      return res.json({
+        reply: "Beni Göktürk Arslan yaptı 😎"
+      });
+    }
+
     const ip = req.ip;
     const simdi = Date.now();
 
@@ -44,7 +58,7 @@ app.post("/chat", async (req, res) => {
     kullaniciSonMesaj[ip] = simdi;
 
     let sistemMesaji =
-      "Sen NeuraAI adlı yardımcı bir yapay zekasın. Türkçe konuş. Samimi ol ama cringe olma. Doğal, net ve yardımcı ol.";
+      "Sen NeuraAI adlı yardımcı bir yapay zekasın. Türkçe konuş. Samimi ol ama abartma. Doğal, net ve yardımcı ol.";
 
     if (mode === "uzun") {
       sistemMesaji += " Daha detaylı cevap ver.";
@@ -85,7 +99,6 @@ app.post("/chat", async (req, res) => {
       "Cevap gelmedi.";
 
     return res.json({ reply });
-
   } catch (err) {
     console.error("Server hata:", err);
     return res.json({
@@ -94,6 +107,9 @@ app.post("/chat", async (req, res) => {
   }
 });
 
+app.listen(PORT, () => {
+  console.log(`Server çalışıyor: http://localhost:${PORT}`);
+});
 app.listen(PORT, () => {
   console.log(`Server çalışıyor: http://localhost:${PORT}`);
 });
