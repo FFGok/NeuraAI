@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NeuraAI</title>
 
+<link rel="manifest" href="/manifest.json?v=7">
+<meta name="theme-color" content="#050505">
+<link rel="apple-touch-icon" href="/icon-192.png">
+
 <style>
 *{
   box-sizing:border-box;
@@ -639,6 +643,14 @@ input.addEventListener("keydown", function(e){
 window.addEventListener("resize", () => {
   chat.scrollTop = chat.scrollHeight;
 });
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch(err => {
+      console.log("Service Worker hata:", err);
+    });
+  });
+}
 
 yukleKayit();
 </script>
