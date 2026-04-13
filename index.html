@@ -484,14 +484,15 @@ async function fotografAnalizEt(kullaniciMesaji){
   const loading = yaziyorEfektiGoster();
 
   try{
-    const file = fotoInput.files[0];
-    const formData = new FormData();
-    formData.append("message", kullaniciMesaji || "Bu görseli analiz et.");
-    if(file) formData.append("image", file);
-
     const res = await fetch("/chat-image", {
       method: "POST",
-      body: formData
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        message: kullaniciMesaji || "Bu görseli analiz et.",
+        image: secilenFoto
+      })
     });
 
     const data = await res.json();
@@ -520,8 +521,8 @@ async function gonder(){
   const simdi = Date.now();
   const fark = simdi - sonMesajZamani;
 
-  if (fark < 3000) { 
-    const kalanSn = Math.ceil((3000 - fark) / 1000); 
+  if (fark < 3000) {
+    const kalanSn = Math.ceil((3000 - fark) / 1000);
     cevap(`Biraz yavaş 😄 Yeni mesaj için ${kalanSn} saniye bekle.`);
     cooldownBaslat();
     return;
