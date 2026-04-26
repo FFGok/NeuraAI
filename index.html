@@ -306,7 +306,25 @@ body::before{
 }
 </style>
 </head>
+
 <body>
+
+<!-- LOGIN EKRANI BURAYA -->
+<div id="loginModal" style="
+position:fixed;
+inset:0;
+background:#000;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+z-index:9999;
+color:white;
+">
+<h2>Giriş Yap</h2>
+<button onclick="googleLogin()">Google ile devam et</button>
+</div>
+
 
 <div class="kutu">
   <div class="ust">
@@ -653,6 +671,32 @@ if ("serviceWorker" in navigator) {
 }
 
 yukleKayit();
+function googleLogin(){
+  const provider = new firebase.auth.GoogleAuthProvider();
+
+  auth.signInWithPopup(provider)
+    .then(() => {
+      document.getElementById("loginModal").style.display = "none";
+    })
+    .catch(err => {
+      alert(err.message);
+    });
+}
+</script>
+<script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-auth-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCI15f7xDyIQrhM3ap9-_e0RSHsgTJIg-o",
+  authDomain: "neuraai-1.firebaseapp.com",
+  projectId: "neuraai-1",
+  storageBucket: "neuraai-1.firebasestorage.app",
+  messagingSenderId: "129454765065",
+  appId: "1:129454765065:web:5bb2016dc33f857de8f4d8"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
 </script>
 </body>
 </html>
