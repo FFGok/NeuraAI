@@ -695,8 +695,23 @@ const firebaseConfig = {
   messagingSenderId: "129454765065",
   appId: "1:129454765065:web:5bb2016dc33f857de8f4d8"
 };
+
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
+
+// GOOGLE LOGIN
+function googleLogin(){
+  const provider = new firebase.auth.GoogleAuthProvider();
+
+  auth.signInWithPopup(provider)
+    .then(() => {
+      document.getElementById("loginModal").style.display = "none";
+    })
+    .catch(err => {
+      alert(err.message);
+      console.log(err);
+    });
+}
 </script>
 </body>
 </html>
