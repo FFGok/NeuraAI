@@ -671,18 +671,8 @@ if ("serviceWorker" in navigator) {
 }
 
 yukleKayit();
-function googleLogin(){
-  const provider = new firebase.auth.GoogleAuthProvider();
-
-  auth.signInWithPopup(provider)
-    .then(() => {
-      document.getElementById("loginModal").style.display = "none";
-    })
-    .catch(err => {
-      alert(err.message);
-    });
-}
 </script>
+
 <script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-auth-compat.js"></script>
 
@@ -699,7 +689,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 
-// GOOGLE LOGIN
 function googleLogin(){
   const provider = new firebase.auth.GoogleAuthProvider();
 
