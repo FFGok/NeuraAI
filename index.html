@@ -130,6 +130,7 @@ body::before{
 .chat::-webkit-scrollbar{
   width:8px;
 }
+
 .chat::-webkit-scrollbar-thumb{
   background:rgba(255,255,255,0.18);
   border-radius:20px;
@@ -264,6 +265,111 @@ body::before{
   display:none;
 }
 
+.loginModal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.92);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+}
+
+.loginBox{
+  width:90%;
+  max-width:390px;
+  background:#101010;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:24px;
+  padding:26px;
+  text-align:center;
+  box-shadow:0 25px 70px rgba(0,0,0,.65);
+  position:relative;
+}
+
+.loginBox h2{
+  margin:8px 0 10px;
+  font-size:24px;
+}
+
+.loginBox p{
+  color:#aaa;
+  font-size:14px;
+  line-height:1.45;
+  margin-bottom:20px;
+}
+
+.loginBtn{
+  width:100%;
+  padding:14px;
+  margin:7px 0;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.14);
+  background:#181818;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.loginBtn:hover{
+  background:#222;
+}
+
+.google{
+  background:#fff;
+  color:#111;
+}
+
+.ayrac{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  color:#777;
+  font-size:12px;
+  margin:18px 0;
+}
+
+.ayrac::before,
+.ayrac::after{
+  content:"";
+  flex:1;
+  height:1px;
+  background:#333;
+}
+
+.emailInput{
+  width:100%;
+  padding:14px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.14);
+  background:#0b0b0b;
+  color:white;
+  outline:none;
+  margin-bottom:12px;
+}
+
+.devamBtn{
+  width:100%;
+  padding:14px;
+  border-radius:999px;
+  border:none;
+  background:white;
+  color:black;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.loginClose{
+  position:absolute;
+  top:12px;
+  right:14px;
+  background:transparent;
+  color:white;
+  border:none;
+  font-size:24px;
+  cursor:pointer;
+}
+
 @keyframes fadeIn{
   from{opacity:0;transform:translateY(8px)}
   to{opacity:1;transform:translateY(0)}
@@ -309,22 +415,23 @@ body::before{
 
 <body>
 
-<!-- LOGIN EKRANI BURAYA -->
-<div id="loginModal" style="
-position:fixed;
-inset:0;
-background:#000;
-display:flex;
-flex-direction:column;
-justify-content:center;
-align-items:center;
-z-index:9999;
-color:white;
-">
-<h2>Giriş Yap</h2>
-<button onclick="googleLogin()">Google ile devam et</button>
-</div>
+<div id="loginModal" class="loginModal">
+  <div class="loginBox">
+    <button class="loginClose" onclick="kapatLogin()">×</button>
 
+    <h2>Oturum aç veya kaydol</h2>
+    <p>Daha akıllı yanıtlar alabilir, görsel yükleyebilir ve NeuraAI deneyimini daha kişisel kullanabilirsin.</p>
+
+    <button class="loginBtn google" onclick="googleLogin()">Google ile devam et</button>
+    <button class="loginBtn" onclick="yakinda()">Apple ile devam et</button>
+    <button class="loginBtn" onclick="yakinda()">Telefonla devam et</button>
+
+    <div class="ayrac"><span>YA DA</span></div>
+
+    <input class="emailInput" placeholder="E-posta adresi">
+    <button class="devamBtn" onclick="yakinda()">Devam</button>
+  </div>
+</div>
 
 <div class="kutu">
   <div class="ust">
@@ -701,6 +808,22 @@ function googleLogin(){
       console.log(err);
     });
 }
+
+function yakinda(){
+  alert("Bu özellik yakında gelecek 🚧");
+}
+
+function kapatLogin(){
+  document.getElementById("loginModal").style.display = "none";
+}
+
+auth.onAuthStateChanged(user => {
+  if(user){
+    document.getElementById("loginModal").style.display = "none";
+  }else{
+    document.getElementById("loginModal").style.display = "flex";
+  }
+});
 </script>
 </body>
 </html>
