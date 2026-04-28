@@ -663,9 +663,10 @@ async function fotografAnalizEt(kullaniciMesaji){
     const data = await res.json();
     yaziyorEfektiKapat(loading);
 
-    if(data.reply){
-      cevap(data.reply);
-    }else{
+   if(data.reply){
+  cevap(data.reply);
+  mesajKaydet(mesaj, data.reply);
+}else{
       cevap("Fotoğraf analizi cevabı boş döndü.");
     }
   }catch(err){
@@ -782,7 +783,7 @@ yukleKayit();
 
 <script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-auth-compat.js"></script>
-
+<script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore-compat.js"></script>
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyCI15f7xDylQrhM3ap9-_eoRSHsgTJIg-o",
@@ -795,7 +796,7 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
-
+const db = firebase.firestore();
 function googleLogin(){
   const provider = new firebase.auth.GoogleAuthProvider();
 
@@ -816,7 +817,23 @@ function yakinda(){
 function kapatLogin(){
   document.getElementById("loginModal").style.display = "none";
 }
+async function mesajKaydet(kullaniciMesaji, aiCevabi){
+  const user = auth.currentUser;
 
+  try{
+    await db.collection("messages").add({
+      userEmail: user ? user.email : "giris_yok",
+      userName: user ? user.displayName : "Bilinmeyen kullanıcı",
+      message: kullaniciMesaji,
+      aiReply: aiCevabi,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    console.log("Mesaj kaydedildi 🔥");
+  }catch(err){
+    console.error("Mesaj kaydetme hatası:", err);
+  }
+}
 auth.onAuthStateChanged(user => {
   if(user){
     document.getElementById("loginModal").style.display = "none";
