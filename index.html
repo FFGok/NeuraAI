@@ -478,7 +478,7 @@ let secilenFoto = null;
 let cevapModu = localStorage.getItem("neura_mod") || "normal";
 let sonMesajZamani = 0;
 let cooldownTimer = null;
-
+let sohbetGecmisi = [];
 function temizleMetin(m){
   return (m || "").toLowerCase().replace(/\s+/g, " ").trim();
 }
@@ -655,16 +655,23 @@ async function fotografAnalizEt(kullaniciMesaji){
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        message: kullaniciMesaji || "Bu görseli analiz et.",
-        image: secilenFoto
-      })
+  message: mesaj,
+  messages: sohbetGecmisi.concat([
+    { role: "user", content: mesaj }
+  ]),
+  mode: cevapModu
+})
     });
 
     const data = await res.json();
     yaziyorEfektiKapat(loading);
 
-   if(data.reply){
+if(data.reply){
   cevap(data.reply);
+
+  sohbetGecmisi.push({ role: "user", content: mesaj });
+  sohbetGecmisi.push({ role: "assistant", content: data.reply });
+
   mesajKaydet(mesaj, data.reply);
 }else{
       cevap("Fotoğraf analizi cevabı boş döndü.");
