@@ -47,11 +47,32 @@ app.post("/chat", async (req, res) => {
     kullaniciVerisi[ip].mesajSayisi++;
 
     // BURAYA KENDİ AI API'N VAR (sen zaten kurmuştun)
-    const sonMesaj = Array.isArray(messages)
-  ? messages.map(m => `${m.role}: ${m.content}`).join("\n")
+      ? messages.map(m => `${m.role}: ${m.content}`).join("\n")
   : message;
 
-const reply = `(${kullaniciVerisi[ip].plus ? "PLUS" : "NORMAL"}) Önceki konuşmayı görüyorum:\n${sonMesaj}`;
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+
+const aiRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer SENİN_API_KEYİN",
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    model: "openai/gpt-3.5-turbo",
+    messages: [
+      {
+        role: "system",
+        content: "Sen NeuraAI adında samimi Türkçe konuşan bir yapay zekasın. Önceki konuşmaları dikkate al ama kullanıcıya teknik şeyler söyleme."
+      },
+      ...(Array.isArray(messages) ? messages : [{ role: "user", content: message }])
+    ]
+  })
+});
+
+const aiData = await aiRes.json();
+
+const reply = aiData.choices?.[0]?.message?.content || "Cevap alınamadı.";
 
     return res.json({
       reply,
