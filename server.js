@@ -1,200 +1,119 @@
 const express = require("express");
-const path = require("path");
-const fetch = (...args) =>
-  import("node-fetch").then(({ default: fetch }) => fetch(...args));
+
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+app.use(express.json({ limit: "10mb" }));
 
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+app.set("trust proxy", true);
 
-// Sohbet için ucuz model
-const CHAT_MODEL = "openai/gpt-3.5-turbo";
 
-// Fotoğraf için görsel destekli model
-const VISION_MODEL = "openai/gpt-4o-mini";
-
-app.use(express.json({ limit: "20mb" }));
-app.use(express.urlencoded({ extended: true, limit: "20mb" }));
-app.use(express.static(__dirname));
-
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
-});
-
-// Basit spam koruma
 let kullaniciSonMesaj = {};
-
-function spamKontrol(ip, beklemeMs = 3000) {
-  const simdi = Date.now();
-
-  if (kullaniciSonMesaj[ip] && simdi - kullaniciSonMesaj[ip] < beklemeMs) {
-    return false;
-  }
-
-  kullaniciSonMesaj[ip] = simdi;
-  return true;
-}
+let kullaniciVerisi = {};
 
 app.post("/chat", async (req, res) => {
   try {
-    const { message, mode } = req.body || {};
-
-    if (!message || !message.trim()) {
-      return res.json({ reply: "Boş mesaj gönderme." });
-    }
-
-    const m = message.toLowerCase().trim();
-
-    // Özel cevap
-    if (
-      m.includes("seni kim yaptı") ||
-      m.includes("kim yaptı seni") ||
-      m.includes("seni kim yapti") ||
-      m.includes("kim yapti seni") ||
-      m.includes("seni kim yarattı") ||
-      m.includes("seni kim yaratti") ||
-      m.includes("geliştiricin kim") ||
-      m.includes("gelistiricin kim") ||
-      m.includes("sahibin kim")
-    ) {
-      return res.json({
-        reply: "Beni Göktürk Arslan yaptı 😎"
-      });
-    }
+    const { message, messages, mode, plus } = req.body || {};
 
     const ip = req.ip;
-    if (!spamKontrol(ip, 3000)) {
+    const simdi = Date.now();
+
+    if (!kullaniciVerisi[ip]) {
+      kullaniciVerisi[ip] = {
+        plus: false,
+        mesajSayisi: 0,
+        fotoSayisi: 0
+      };
+    }
+
+    kullaniciVerisi[ip].plus = plus === false;
+
+    // spam koruma
+    if (kullaniciSonMesaj[ip] && simdi - kullaniciSonMesaj[ip] < 3000) {
       return res.json({
         reply: "Biraz yavaş 😄 3 saniye bekle."
       });
     }
 
-    let sistemMesaji =
-      "Sen NeuraAI adlı yardımcı bir yapay zekasın. Türkçe konuş. Samimi ol ama abartma. Doğal, net ve yardımcı ol.";
+    kullaniciSonMesaj[ip] = simdi;
 
-    if (mode === "uzun") {
-      sistemMesaji += " Daha detaylı ve açıklayıcı cevap ver.";
-    } else if (mode === "kisa") {
-      sistemMesaji += " Çok kısa ve net cevap ver.";
-    }
+    const mesajLimiti = kullaniciVerisi[ip].plus ? Infinity : 50;
 
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": "http://localhost:3000",
-        "X-Title": "NeuraAI"
-      },
-      body: JSON.stringify({
-        model: CHAT_MODEL,
-        messages: [
-          { role: "system", content: sistemMesaji },
-          { role: "user", content: message }
-        ],
-        temperature: 0.7,
-        max_tokens: 300
-      })
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      console.log("Chat hata:", JSON.stringify(data, null, 2));
+    if (kullaniciVerisi[ip].mesajSayisi >= mesajLimiti) {
       return res.json({
-        reply: "AI şu an meşgul 😕 biraz sonra tekrar dene."
+        reply: "Mesaj hakkın bitti. PLUS ile sınırsız mesaj var."
       });
     }
 
-    const reply =
-      data?.choices?.[0]?.message?.content?.trim() ||
-      "Cevap gelmedi.";
+    kullaniciVerisi[ip].mesajSayisi++;
 
-    return res.json({ reply });
-  } catch (err) {
-    console.error("Chat server hata:", err);
+    // BURAYA KENDİ AI API'N VAR (sen zaten kurmuştun)
+    const sonMesaj = Array.isArray(messages)
+  ? messages.map(m => `${m.role}: ${m.content}`).join("\n")
+  : message;
+
+const reply = `(${kullaniciVerisi[ip].plus ? "PLUS" : "NORMAL"}) Önceki konuşmayı görüyorum:\n${sonMesaj}`;
+
     return res.json({
-      reply: "Bağlantı hatası."
+      reply,
+      kalanMesaj: kullaniciVerisi[ip].plus
+        ? "Sınırsız"
+        : 50 - kullaniciVerisi[ip].mesajSayisi
     });
+
+  } catch (err) {
+    console.error(err);
+    res.json({ reply: "Hata oluştu." });
   }
 });
 
 app.post("/chat-image", async (req, res) => {
   try {
-    const { message, image } = req.body || {};
-
-    if (!image) {
-      return res.json({
-        reply: "Fotoğraf gelmedi."
-      });
-    }
+    const { message, image, plus } = req.body || {};
 
     const ip = req.ip;
-    if (!spamKontrol(ip, 3000)) {
+    const simdi = Date.now();
+
+    if (!kullaniciVerisi[ip]) {
+      kullaniciVerisi[ip] = {
+        plus: false,
+        mesajSayisi: 0,
+        fotoSayisi: 0
+      };
+    }
+
+    kullaniciVerisi[ip].plus = plus === true;
+
+    if (kullaniciSonMesaj[ip] && simdi - kullaniciSonMesaj[ip] < 3000) {
       return res.json({
         reply: "Biraz yavaş 😄 3 saniye bekle."
       });
     }
 
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": "http://localhost:3000",
-        "X-Title": "NeuraAI"
-      },
-      body: JSON.stringify({
-        model: VISION_MODEL,
-        messages: [
-          {
-            role: "system",
-            content:
-              "Sen NeuraAI adlı yardımcı bir yapay zekasın. Kullanıcının gönderdiği görseli Türkçe, net ve doğal şekilde analiz et."
-          },
-          {
-            role: "user",
-            content: [
-              {
-                type: "text",
-                text: message || "Bu görseli analiz et."
-              },
-              {
-                type: "image_url",
-                image_url: {
-                  url: image
-                }
-              }
-            ]
-          }
-        ],
-        max_tokens: 300
-      })
-    });
+    kullaniciSonMesaj[ip] = simdi;
 
-    const data = await response.json();
+    const fotoLimiti = kullaniciVerisi[ip].plus ? 50 : 10;
 
-    if (!response.ok) {
-      console.log("Vision hata:", JSON.stringify(data, null, 2));
+    if (kullaniciVerisi[ip].fotoSayisi >= fotoLimiti) {
       return res.json({
-        reply: "Fotoğraf analizi şu an çalışmadı."
+        reply: "Fotoğraf hakkın bitti."
       });
     }
 
-    const reply =
-      data?.choices?.[0]?.message?.content?.trim() ||
-      "Görsel analiz edilemedi.";
+    kullaniciVerisi[ip].fotoSayisi++;
 
-    return res.json({ reply });
-  } catch (err) {
-    console.error("Fotoğraf server hata:", err);
     return res.json({
-      reply: "Fotoğraf analizinde hata oldu."
+      reply: `(${kullaniciVerisi[ip].plus ? "PLUS" : "NORMAL"}) Foto analiz edildi`,
+      kalanFoto: fotoLimiti - kullaniciVerisi[ip].fotoSayisi
     });
+
+  } catch (err) {
+    console.error(err);
+    res.json({ reply: "Foto hata." });
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server çalışıyor: http://localhost:${PORT}`);
+app.use(express.static(__dirname));
+
+app.listen(3000, () => {
+  console.log("Server çalışıyor 🚀");
 });
