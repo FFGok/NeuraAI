@@ -46,16 +46,14 @@ app.post("/chat", async (req, res) => {
 
     kullaniciVerisi[ip].mesajSayisi++;
 
-    // BURAYA KENDİ AI API'N VAR (sen zaten kurmuştun)
-      ? messages.map(m => `${m.role}: ${m.content}`).join("\n")
-  : message;
+    
 
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+
 
 const aiRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
   method: "POST",
   headers: {
-    "Authorization": "Bearer SENİN_API_KEYİN",
+    "Authorization": "Bearer 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,
     "Content-Type": "application/json"
   },
   body: JSON.stringify({
