@@ -1,3 +1,7 @@
+app.use((req, res) => {
+  res.send("Site bakımda 🚧 Daha sonra gel.");
+});
+
 const express = require("express");
 
 
@@ -53,7 +57,7 @@ app.post("/chat", async (req, res) => {
 const aiRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
   method: "POST",
   headers: {
-    "Authorization": "Bearer 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,
+   "Authorization": `Bearer ${process.env.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}`
     "Content-Type": "application/json"
   },
   body: JSON.stringify({
@@ -130,7 +134,7 @@ app.post("/chat-image", async (req, res) => {
     res.json({ reply: "Foto hata." });
   }
 });
-
+  
 app.use(express.static(__dirname));
 
 app.listen(3000, () => {
