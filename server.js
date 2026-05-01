@@ -20,7 +20,9 @@ app.post("/chat", async (req, res) => {
     }
 
     if (!process.env.OPENROUTER_API_KEY) {
-      return res.json({ reply: "AI API key ayarlanmamış. Render Environment kontrol et." });
+      return res.json({
+        reply: "AI API key ayarlanmamış. Render Environment kontrol et."
+      });
     }
 
     if (!kullaniciVerisi[ip]) {
@@ -121,6 +123,18 @@ app.post("/chat-image", async (req, res) => {
     const ip = req.ip;
     const simdi = Date.now();
 
+    if (!image) {
+      return res.json({
+        reply: "Fotoğraf gelmedi kanka."
+      });
+    }
+
+    if (!process.env.OPENROUTER_API_KEY) {
+      return res.json({
+        reply: "AI API key ayarlanmamış. Render Environment kontrol et."
+      });
+    }
+
     if (!kullaniciVerisi[ip]) {
       kullaniciVerisi[ip] = {
         mesajSayisi: 0,
@@ -149,14 +163,60 @@ app.post("/chat-image", async (req, res) => {
 
     kullaniciVerisi[ip].fotoSayisi++;
 
+    const aiRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "openai/gpt-4o-mini",
+        max_tokens: 350,
+        messages: [
+          {
+            role: "system",
+            content: "Sen NeuraAI adında Türkçe konuşan samimi ve net bir görsel analiz asistanısın. Görselde ne olduğunu açıkla. Emin olmadığın şeyleri kesinmiş gibi söyleme."
+          },
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: message || "Bu görseli analiz et."
+              },
+              {
+                type: "image_url",
+                image_url: {
+                  url: image
+                }
+              }
+            ]
+          }
+        ]
+      })
+    });
+
+    const aiData = await aiRes.json();
+
+    if (!aiRes.ok) {
+      console.error("Foto analiz OpenRouter hata:", aiData);
+      return res.json({
+        reply: "Fotoğraf analizinde AI tarafında sorun oldu."
+      });
+    }
+
+    const reply = aiData.choices?.[0]?.message?.content || "Fotoğraf analizi cevabı alınamadı.";
+
     return res.json({
-      reply: "Fotoğraf alındı. Görsel analiz sistemi şu an geliştirme aşamasında.",
+      reply,
       kalanFoto: fotoLimiti - kullaniciVerisi[ip].fotoSayisi
     });
 
   } catch (err) {
     console.error(err);
-    res.json({ reply: "Foto hata." });
+    res.json({
+      reply: "Foto hata."
+    });
   }
 });
 
