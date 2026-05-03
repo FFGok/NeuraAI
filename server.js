@@ -1,3 +1,6 @@
+const fetch = (...args) =>
+  import("node-fetch").then(({ default: fetch }) => fetch(...args));
+
 const express = require("express");
 
 const app = express();
@@ -20,16 +23,11 @@ app.post("/chat", async (req, res) => {
     }
 
     if (!process.env.OPENROUTER_API_KEY) {
-      return res.json({
-        reply: "AI API key ayarlanmamış. Render Environment kontrol et."
-      });
+      return res.json({ reply: "AI API key ayarlanmamış." });
     }
 
     if (!kullaniciVerisi[ip]) {
-      kullaniciVerisi[ip] = {
-        mesajSayisi: 0,
-        fotoSayisi: 0
-      };
+      kullaniciVerisi[ip] = { mesajSayisi: 0, fotoSayisi: 0 };
     }
 
     if (!kullaniciLimit[ip]) {
@@ -40,21 +38,15 @@ app.post("/chat", async (req, res) => {
     kullaniciLimit[ip] = kullaniciLimit[ip].filter(t => simdi - t < 60000);
 
     if (kullaniciLimit[ip].length > 12) {
-      return res.json({
-        reply: "Çok hızlı gidiyorsun 😅 1 dakika sonra tekrar dene."
-      });
+      return res.json({ reply: "Çok hızlı gidiyorsun 😅 1 dakika sonra tekrar dene." });
     }
 
     if (kullaniciSonMesaj[ip] && simdi - kullaniciSonMesaj[ip].time < 3000) {
-      return res.json({
-        reply: "Biraz yavaş 😄 3 saniye bekle."
-      });
+      return res.json({ reply: "Biraz yavaş 😄 3 saniye bekle." });
     }
 
     if (kullaniciSonMesaj[ip] && kullaniciSonMesaj[ip].text === message) {
-      return res.json({
-        reply: "Aynı mesajı tekrar tekrar gönderme kanka 😄"
-      });
+      return res.json({ reply: "Aynı mesajı tekrar tekrar gönderme kanka 😄" });
     }
 
     kullaniciSonMesaj[ip] = {
@@ -65,15 +57,13 @@ app.post("/chat", async (req, res) => {
     const mesajLimiti = 50;
 
     if (kullaniciVerisi[ip].mesajSayisi >= mesajLimiti) {
-      return res.json({
-        reply: "Mesaj hakkın bitti. Daha sonra tekrar dene."
-      });
+      return res.json({ reply: "Mesaj hakkın bitti. Daha sonra tekrar dene." });
     }
 
     kullaniciVerisi[ip].mesajSayisi++;
 
     const hafiza = Array.isArray(messages) && messages.length > 0
-      ? messages.slice(-10)
+      ? messages.slice(-20)
       : [{ role: "user", content: message }];
 
     const aiRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -83,7 +73,7 @@ app.post("/chat", async (req, res) => {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "openai/gpt-3.5-turbo",
+        model: "openai/gpt-4o-mini",
         max_tokens: mode === "uzun" ? 350 : 180,
         messages: [
           {
@@ -99,9 +89,7 @@ app.post("/chat", async (req, res) => {
 
     if (!aiRes.ok) {
       console.error("OpenRouter hata:", aiData);
-      return res.json({
-        reply: "AI tarafında bir sorun oldu. Biraz sonra tekrar dene."
-      });
+      return res.json({ reply: "AI tarafında bir sorun oldu. Biraz sonra tekrar dene." });
     }
 
     const reply = aiData.choices?.[0]?.message?.content || "Cevap alınamadı.";
@@ -124,41 +112,34 @@ app.post("/chat-image", async (req, res) => {
     const simdi = Date.now();
 
     if (!image) {
-      return res.json({
-        reply: "Fotoğraf gelmedi kanka."
-      });
+      return res.json({ reply: "Fotoğraf gelmedi kanka." });
+    }
+
+    if (image.length > 5_000_000) {
+      return res.json({ reply: "Fotoğraf çok büyük kanka 😅 Daha küçük at." });
     }
 
     if (!process.env.OPENROUTER_API_KEY) {
-      return res.json({
-        reply: "AI API key ayarlanmamış. Render Environment kontrol et."
-      });
+      return res.json({ reply: "AI API key ayarlanmamış." });
     }
 
     if (!kullaniciVerisi[ip]) {
-      kullaniciVerisi[ip] = {
-        mesajSayisi: 0,
-        fotoSayisi: 0
-      };
+      kullaniciVerisi[ip] = { mesajSayisi: 0, fotoSayisi: 0 };
     }
 
     if (kullaniciSonMesaj[ip] && simdi - kullaniciSonMesaj[ip].time < 3000) {
-      return res.json({
-        reply: "Biraz yavaş 😄 3 saniye bekle."
-      });
+      return res.json({ reply: "Biraz yavaş 😄 3 saniye bekle." });
     }
 
     kullaniciSonMesaj[ip] = {
       time: simdi,
-      text: message || "foto"
+      text: message || "görsel"
     };
 
     const fotoLimiti = 10;
 
     if (kullaniciVerisi[ip].fotoSayisi >= fotoLimiti) {
-      return res.json({
-        reply: "Fotoğraf hakkın bitti."
-      });
+      return res.json({ reply: "Fotoğraf hakkın bitti." });
     }
 
     kullaniciVerisi[ip].fotoSayisi++;
@@ -200,9 +181,7 @@ app.post("/chat-image", async (req, res) => {
 
     if (!aiRes.ok) {
       console.error("Foto analiz OpenRouter hata:", aiData);
-      return res.json({
-        reply: "Fotoğraf analizinde AI tarafında sorun oldu."
-      });
+      return res.json({ reply: "Fotoğraf analizinde AI tarafında sorun oldu." });
     }
 
     const reply = aiData.choices?.[0]?.message?.content || "Fotoğraf analizi cevabı alınamadı.";
@@ -214,9 +193,7 @@ app.post("/chat-image", async (req, res) => {
 
   } catch (err) {
     console.error(err);
-    res.json({
-      reply: "Foto hata."
-    });
+    res.json({ reply: "Foto hata." });
   }
 });
 
