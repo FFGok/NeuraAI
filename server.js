@@ -27,7 +27,7 @@ app.post("/chat", async (req, res) => {
     }
 
     if (!kullaniciVerisi[ip]) {
-      kullaniciVerisi[ip] = { mesajSayisi: 0, fotoSayisi: 0, resimSayisi: 0 };
+      kullaniciVerisi[ip] = { mesajSayisi: 0, fotoSayisi: 0 };
     }
 
     if (!kullaniciLimit[ip]) {
@@ -78,8 +78,7 @@ app.post("/chat", async (req, res) => {
         messages: [
           {
             role: "system",
-            content:
-              "Sen NeuraAI adında Türkçe konuşan samimi, net ve yardımcı bir yapay zekasın. Önceki konuşmaları dikkate al. Kullanıcı 'onu', 'az önceki', 'bununla', 'sonucu' gibi şeyler derse önceki mesajlardan anlam çıkar. Kullanıcıya asla 'önceki konuşmayı görüyorum' veya teknik açıklama söyleme. Normal, doğal cevap ver."
+            content: "Sen NeuraAI adında Türkçe konuşan samimi, net ve yardımcı bir yapay zekasın. Önceki konuşmaları dikkate al. Kullanıcı 'onu', 'az önceki', 'bununla', 'sonucu' gibi şeyler derse önceki mesajlardan anlam çıkar. Kullanıcıya asla 'önceki konuşmayı görüyorum' veya teknik açıklama söyleme. Normal, doğal cevap ver."
           },
           ...hafiza
         ]
@@ -125,7 +124,7 @@ app.post("/chat-image", async (req, res) => {
     }
 
     if (!kullaniciVerisi[ip]) {
-      kullaniciVerisi[ip] = { mesajSayisi: 0, fotoSayisi: 0, resimSayisi: 0 };
+      kullaniciVerisi[ip] = { mesajSayisi: 0, fotoSayisi: 0 };
     }
 
     if (kullaniciSonMesaj[ip] && simdi - kullaniciSonMesaj[ip].time < 3000) {
@@ -157,8 +156,7 @@ app.post("/chat-image", async (req, res) => {
         messages: [
           {
             role: "system",
-            content:
-              "Sen NeuraAI adında Türkçe konuşan samimi ve net bir görsel analiz asistanısın. Görselde ne olduğunu açıkla. Emin olmadığın şeyleri kesinmiş gibi söyleme."
+            content: "Sen NeuraAI adında Türkçe konuşan samimi ve net bir görsel analiz asistanısın. Görselde ne olduğunu açıkla. Emin olmadığın şeyleri kesinmiş gibi söyleme."
           },
           {
             role: "user",
@@ -198,7 +196,6 @@ app.post("/chat-image", async (req, res) => {
     res.json({ reply: "Foto hata." });
   }
 });
-
 app.post("/generate-image", async (req, res) => {
   try {
     const { prompt } = req.body || {};
@@ -209,16 +206,13 @@ app.post("/generate-image", async (req, res) => {
 
     const image = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
 
-    return res.json({
-      image
-    });
+    return res.json({ image });
 
   } catch (err) {
     console.error(err);
     res.json({ reply: "Görsel üretme hatası oluştu." });
   }
 });
-
 app.use(express.static(__dirname));
 
 app.listen(3000, () => {
