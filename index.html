@@ -10,146 +10,303 @@
 <link rel="apple-touch-icon" href="/icon-192.png">
 
 <style>
-*{ box-sizing:border-box; }
-html, body{ height:100%; overflow:hidden; }
+*{
+  box-sizing:border-box;
+}
+
+html, body{
+  height:100%;
+  overflow:hidden;
+}
+
 body{
-  margin:0; font-family:Arial,sans-serif;
+  margin:0;
+  font-family:Arial,sans-serif;
   background:
-    radial-gradient(circle at top left, rgba(163,73,255,.28), transparent 30%),
-    radial-gradient(circle at top right, rgba(93,0,255,.18), transparent 28%),
-    radial-gradient(circle at bottom, rgba(255,0,170,.12), transparent 30%),
-    linear-gradient(135deg,#050505 0%,#0d0718 35%,#140821 65%,#050505 100%);
-  display:flex; justify-content:center; align-items:center;
-  min-height:100vh; color:white; overflow:hidden;
+    radial-gradient(circle at top left, rgba(163, 73, 255, 0.28), transparent 30%),
+    radial-gradient(circle at top right, rgba(93, 0, 255, 0.18), transparent 28%),
+    radial-gradient(circle at bottom, rgba(255, 0, 170, 0.12), transparent 30%),
+    linear-gradient(135deg, #050505 0%, #0d0718 35%, #140821 65%, #050505 100%);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+  color:white;
+  overflow:hidden;
 }
+
 body::before{
-  content:""; position:fixed; inset:0;
+  content:"";
+  position:fixed;
+  inset:0;
   background:
-    radial-gradient(circle at 20% 20%, rgba(180,80,255,.08), transparent 18%),
-    radial-gradient(circle at 80% 30%, rgba(90,0,255,.08), transparent 20%),
-    radial-gradient(circle at 50% 80%, rgba(255,0,140,.06), transparent 22%);
-  pointer-events:none; filter:blur(20px);
+    radial-gradient(circle at 20% 20%, rgba(180, 80, 255, 0.08), transparent 18%),
+    radial-gradient(circle at 80% 30%, rgba(90, 0, 255, 0.08), transparent 20%),
+    radial-gradient(circle at 50% 80%, rgba(255, 0, 140, 0.06), transparent 22%);
+  pointer-events:none;
+  filter:blur(20px);
 }
+
 .kutu{
-  width:92%; max-width:980px; height:88vh;
-  background:rgba(7,7,12,.78); border-radius:24px;
-  display:flex; flex-direction:column; backdrop-filter:blur(16px);
-  overflow:hidden; border:1px solid rgba(255,255,255,.08);
-  box-shadow:0 25px 60px rgba(0,0,0,.50),0 0 40px rgba(125,0,255,.08);
-  position:relative; z-index:1;
+  width:92%;
+  max-width:980px;
+  height:88vh;
+  background:rgba(7,7,12,0.78);
+  border-radius:24px;
+  display:flex;
+  flex-direction:column;
+  backdrop-filter:blur(16px);
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,0.08);
+  box-shadow:
+    0 25px 60px rgba(0,0,0,0.50),
+    0 0 40px rgba(125, 0, 255, 0.08);
+  position:relative;
+  z-index:1;
 }
+
 .ust{
-  padding:16px 18px; display:flex; justify-content:space-between; align-items:center;
-  gap:10px; border-bottom:1px solid rgba(255,255,255,.06); flex-wrap:wrap;
-  background:linear-gradient(to right, rgba(255,255,255,.02), rgba(255,255,255,.01));
+  padding:16px 18px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  flex-wrap:wrap;
+  background:linear-gradient(to right, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
 }
-.baslikAlan{ display:flex; flex-direction:column; }
-.baslik{ font-size:24px; font-weight:bold; letter-spacing:.3px; }
-.altBaslik{ font-size:13px; color:#cfcfcf; margin-top:4px; min-height:16px; }
-.ustButonlar{ display:flex; gap:8px; flex-wrap:wrap; }
+
+.baslikAlan{
+  display:flex;
+  flex-direction:column;
+}
+
+.baslik{
+  font-size:24px;
+  font-weight:bold;
+  letter-spacing:.3px;
+}
+
+.altBaslik{
+  font-size:13px;
+  color:#cfcfcf;
+  margin-top:4px;
+  min-height:16px;
+}
+
+.ustButonlar{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
 .ustButonlar button{
-  background:rgba(255,255,255,.06); color:white; border:1px solid rgba(255,255,255,.09);
-  border-radius:12px; padding:10px 12px; cursor:pointer; transition:.15s ease;
+  background:rgba(255,255,255,0.06);
+  color:white;
+  border:1px solid rgba(255,255,255,0.09);
+  border-radius:12px;
+  padding:10px 12px;
+  cursor:pointer;
+  transition:.15s ease;
 }
-.ustButonlar button:hover{ background:rgba(180,80,255,.16); border-color:rgba(180,80,255,.30); }
+
+.ustButonlar button:hover{
+  background:rgba(180, 80, 255, 0.16);
+  border-color:rgba(180, 80, 255, 0.30);
+}
+
 .chat{
-  flex:1; overflow-y:auto; padding:18px; padding-bottom:90px;
-  display:flex; flex-direction:column; gap:12px;
-  -webkit-overflow-scrolling:touch; scroll-behavior:smooth;
+  flex:1;
+  overflow-y:auto;
+  padding:18px;
+  padding-bottom:90px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  -webkit-overflow-scrolling:touch;
+  scroll-behavior:smooth;
 }
-.chat::-webkit-scrollbar{ width:8px; }
-.chat::-webkit-scrollbar-thumb{ background:rgba(255,255,255,.18); border-radius:20px; }
-.satir{ display:flex; width:100%; animation:fadeIn .18s ease; }
-.user{ justify-content:flex-end; }
-.ai{ justify-content:flex-start; }
-.sistem{ justify-content:center; }
+
+.chat::-webkit-scrollbar{
+  width:8px;
+}
+.chat::-webkit-scrollbar-thumb{
+  background:rgba(255,255,255,0.18);
+  border-radius:20px;
+}
+
+.satir{
+  display:flex;
+  width:100%;
+  animation:fadeIn .18s ease;
+}
+
+.user{justify-content:flex-end}
+.ai{justify-content:flex-start}
+.sistem{justify-content:center}
+
 .balon{
-  max-width:76%; padding:12px 14px; border-radius:18px; line-height:1.45;
-  word-wrap:break-word; white-space:pre-wrap;
+  max-width:76%;
+  padding:12px 14px;
+  border-radius:18px;
+  line-height:1.45;
+  word-wrap:break-word;
+  white-space:pre-wrap;
 }
+
 .user .balon{
-  background:linear-gradient(135deg,#7b2cff 0%,#3d7cff 100%);
-  border-bottom-right-radius:6px; box-shadow:0 8px 20px rgba(61,124,255,.18);
+  background:linear-gradient(135deg, #7b2cff 0%, #3d7cff 100%);
+  border-bottom-right-radius:6px;
+  box-shadow:0 8px 20px rgba(61,124,255,0.18);
 }
-.ai .balon{ background:rgba(255,255,255,.10); border-bottom-left-radius:6px; color:#f3f3f3; }
-.sistem .balon{ background:rgba(255,255,255,.06); color:#ddd; font-size:13px; text-align:center; }
-.balon img{ max-width:100%; margin-top:10px; display:block; border-radius:14px; border:1px solid rgba(255,255,255,.08); }
-.yaziyor{ opacity:.82; font-style:italic; }
+
+.ai .balon{
+  background:rgba(255,255,255,0.10);
+  border-bottom-left-radius:6px;
+  color:#f3f3f3;
+}
+
+.sistem .balon{
+  background:rgba(255,255,255,0.06);
+  color:#ddd;
+  font-size:13px;
+  text-align:center;
+}
+
+.balon img{
+  max-width:100%;
+  margin-top:10px;
+  display:block;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,0.08);
+}
+
+.yaziyor{
+  opacity:.82;
+  font-style:italic;
+}
+
 .onizleme{
-  display:none; align-items:center; gap:12px; padding:12px 16px;
-  border-top:1px solid rgba(255,255,255,.05); background:rgba(255,255,255,.03);
+  display:none;
+  align-items:center;
+  gap:12px;
+  padding:12px 16px;
+  border-top:1px solid rgba(255,255,255,0.05);
+  background:rgba(255,255,255,0.03);
 }
-.onizleme img{ width:72px; height:72px; object-fit:cover; border-radius:12px; border:1px solid rgba(255,255,255,.10); }
-.onizlemeYazi{ flex:1; color:#ddd; font-size:14px; }
+
+.onizleme img{
+  width:72px;
+  height:72px;
+  object-fit:cover;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,0.10);
+}
+
+.onizlemeYazi{
+  flex:1;
+  color:#ddd;
+  font-size:14px;
+}
+
 .alt{
-  display:flex; align-items:center; gap:10px; padding:12px;
-  border-top:1px solid rgba(255,255,255,.06); background:rgba(0,0,0,.22);
-  position:sticky; bottom:0; z-index:5; padding-bottom:calc(12px + env(safe-area-inset-bottom,0px));
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:12px;
+  border-top:1px solid rgba(255,255,255,0.06);
+  background:rgba(0,0,0,0.22);
+  position:sticky;
+  bottom:0;
+  z-index:5;
+  padding-bottom:calc(12px + env(safe-area-inset-bottom, 0px));
 }
+
 #input{
-  flex:1; padding:14px; border-radius:14px; border:none; outline:none;
-  background:rgba(255,255,255,.05); color:white; font-size:15px;
-  border:1px solid rgba(255,255,255,.06);
+  flex:1;
+  padding:14px;
+  border-radius:14px;
+  border:none;
+  outline:none;
+  background:rgba(255,255,255,0.05);
+  color:white;
+  font-size:15px;
+  border:1px solid rgba(255,255,255,0.06);
 }
-#input::placeholder{ color:#aaa; }
+
+#input::placeholder{
+  color:#aaa;
+}
+
 .alt button,.dosyaLabel,.onizleme button{
-  padding:12px 14px; border:none; border-radius:14px; background:white; color:black;
-  font-weight:bold; cursor:pointer; transition:.15s ease;
+  padding:12px 14px;
+  border:none;
+  border-radius:14px;
+  background:white;
+  color:black;
+  font-weight:bold;
+  cursor:pointer;
+  transition:.15s ease;
 }
-.alt button:hover,.dosyaLabel:hover,.onizleme button:hover{ transform:translateY(-1px); opacity:.95; }
-.alt button:disabled{ opacity:.55; cursor:not-allowed; transform:none; }
-#fotoInput{ display:none; }
-.loginModal{
-  position:fixed; inset:0; background:rgba(0,0,0,.92);
-  display:flex; justify-content:center; align-items:center; z-index:9999;
+
+.alt button:hover,.dosyaLabel:hover,.onizleme button:hover{
+  transform:translateY(-1px);
+  opacity:.95;
 }
-.loginBox{
-  width:90%; max-width:390px; background:#101010; border:1px solid rgba(255,255,255,.12);
-  border-radius:24px; padding:26px; text-align:center; box-shadow:0 25px 70px rgba(0,0,0,.65); position:relative;
+
+.alt button:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+  transform:none;
 }
-.loginBox h2{ margin:8px 0 10px; font-size:24px; }
-.loginBox p{ color:#aaa; font-size:14px; line-height:1.45; margin-bottom:20px; }
-.loginBtn{
-  width:100%; padding:14px; margin:7px 0; border-radius:999px;
-  border:1px solid rgba(255,255,255,.14); background:#181818; color:white; font-weight:bold; cursor:pointer;
+
+#fotoInput{
+  display:none;
 }
-.loginBtn:hover{ background:#222; }
-.google{ background:#fff; color:#111; }
-.ayrac{ display:flex; align-items:center; gap:12px; color:#777; font-size:12px; margin:18px 0; }
-.ayrac::before,.ayrac::after{ content:""; flex:1; height:1px; background:#333; }
-.emailInput{
-  width:100%; padding:14px; border-radius:999px; border:1px solid rgba(255,255,255,.14);
-  background:#0b0b0b; color:white; outline:none; margin-bottom:12px;
+
+@keyframes fadeIn{
+  from{opacity:0;transform:translateY(8px)}
+  to{opacity:1;transform:translateY(0)}
 }
-.devamBtn{ width:100%; padding:14px; border-radius:999px; border:none; background:white; color:black; font-weight:bold; cursor:pointer; }
-.loginClose{ position:absolute; top:12px; right:14px; background:transparent; color:white; border:none; font-size:24px; cursor:pointer; }
-@keyframes fadeIn{ from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
 @media (max-width:700px){
-  body{ align-items:stretch; }
-  .kutu{ width:100%; max-width:none; height:100dvh; border-radius:0; }
-  .balon{ max-width:88%; }
-  .ust{ padding:14px; }
-  .chat{ padding:14px; padding-bottom:95px; }
-  .alt{ padding:10px; gap:8px; padding-bottom:calc(10px + env(safe-area-inset-bottom,0px)); }
-  #input{ font-size:16px; }
+  body{
+    align-items:stretch;
+  }
+
+  .kutu{
+    width:100%;
+    max-width:none;
+    height:100dvh;
+    border-radius:0;
+  }
+
+  .balon{
+    max-width:88%;
+  }
+
+  .ust{
+    padding:14px;
+  }
+
+  .chat{
+    padding:14px;
+    padding-bottom:95px;
+  }
+
+  .alt{
+    padding:10px;
+    gap:8px;
+    padding-bottom:calc(10px + env(safe-area-inset-bottom, 0px));
+  }
+
+  #input{
+    font-size:16px;
+  }
 }
 </style>
 </head>
 <body>
-
-<div id="loginModal" class="loginModal">
-  <div class="loginBox">
-    <button class="loginClose" onclick="kapatLogin()">×</button>
-    <h2>Oturum aç veya kaydol</h2>
-    <p>Daha akıllı yanıtlar alabilir, görsel yükleyebilir ve NeuraAI deneyimini daha kişisel kullanabilirsin.</p>
-    <button class="loginBtn google" onclick="googleLogin()">Google ile devam et</button>
-    <button class="loginBtn" onclick="yakinda()">Apple ile devam et</button>
-    <button class="loginBtn" onclick="yakinda()">Telefonla devam et</button>
-    <div class="ayrac"><span>YA DA</span></div>
-    <input class="emailInput" placeholder="E-posta adresi">
-    <button class="devamBtn" onclick="yakinda()">Devam</button>
-  </div>
-</div>
 
 <div class="kutu">
   <div class="ust">
@@ -157,6 +314,7 @@ body::before{
       <div class="baslik">NeuraAI</div>
       <div class="altBaslik" id="durumYazi"></div>
     </div>
+
     <div class="ustButonlar">
       <button onclick="sohbetiTemizle()">Temizle</button>
       <button onclick="kaydet()">Kaydet</button>
@@ -177,6 +335,8 @@ body::before{
     <label for="fotoInput" class="dosyaLabel">Fotoğraf</label>
     <input type="file" id="fotoInput" accept="image/*">
     <input id="input" placeholder="Mesaj yaz...">
+<button type="button" onclick="sesAcKapat()" id="sesBtn">🔊</button>
+<button type="button" onclick="mikrofonBaslat()">🎤</button>
     <button id="gonderBtn" type="button" onclick="gonder()">Gönder</button>
   </div>
 </div>
@@ -195,42 +355,98 @@ let secilenFoto = null;
 let cevapModu = localStorage.getItem("neura_mod") || "normal";
 let sonMesajZamani = 0;
 let cooldownTimer = null;
-let sohbetGecmisi = JSON.parse(localStorage.getItem("neura_memory") || "[]");
+let sesAcik = true;
 
-function temizleMetin(m){ return (m || "").toLowerCase().replace(/\s+/g," ").trim(); }
+function sesliOku(text){
+  if(!sesAcik) return;
+  if(!text) return;
+
+  speechSynthesis.cancel();
+
+  const ses = new SpeechSynthesisUtterance(text);
+  ses.lang = "tr-TR";
+  ses.rate = 1;
+  ses.pitch = 1;
+
+  speechSynthesis.speak(ses);
+}
+
+function sesAcKapat(){
+  sesAcik = !sesAcik;
+  document.getElementById("sesBtn").innerText = sesAcik ? "🔊" : "🔇";
+
+  if(!sesAcik){
+    speechSynthesis.cancel();
+  }
+}
+
+function mikrofonBaslat(){
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if(!SpeechRecognition){
+    cevap("Tarayıcın mikrofonla yazmayı desteklemiyor kanka.");
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
+  recognition.lang = "tr-TR";
+  recognition.interimResults = false;
+
+  recognition.start();
+  durumYazi.innerText = "Dinliyorum 🎤";
+
+  recognition.onresult = function(event){
+    input.value = event.results[0][0].transcript;
+    durumYazi.innerText = "";
+    gonder();
+  };
+
+  recognition.onerror = function(){
+    durumYazi.innerText = "";
+    cevap("Mikrofon tarafında sorun oldu kanka.");
+  };
+}
+function temizleMetin(m){
+  return (m || "").toLowerCase().replace(/\s+/g, " ").trim();
+}
 
 function mesajEkle(text, kim, foto = null, extraClass = ""){
   const satir = document.createElement("div");
   satir.className = "satir " + kim;
+
   const balon = document.createElement("div");
   balon.className = "balon " + extraClass;
+
   if(text){
     const yazi = document.createElement("div");
     yazi.innerText = text;
     balon.appendChild(yazi);
   }
+
   if(foto){
-  const img = document.createElement("img");
-  img.src = foto;
-  img.alt = "Görsel";
+    const img = document.createElement("img");
+    img.src = foto;
+    img.alt = "Gönderilen fotoğraf";
+    balon.appendChild(img);
+  }
 
-  img.style.cursor = "pointer"; // imleç değişsin
-  img.onclick = () => window.open(foto, "_blank"); // tıklayınca aç
-
-  balon.appendChild(img);
-}
   satir.appendChild(balon);
   chat.appendChild(satir);
   chat.scrollTop = chat.scrollHeight;
   return satir;
 }
 
-function cevap(text){ mesajEkle(text,"ai"); }
-function sistemMesaji(text){ mesajEkle(text,"sistem"); }
+function cevap(text){
+  mesajEkle(text, "ai");
+  sesliOku(text);
+}
+
+function sistemMesaji(text){
+  mesajEkle(text, "sistem");
+}
 
 function kaydet(){
   localStorage.setItem("neura_chat", chat.innerHTML);
-  localStorage.setItem("neura_memory", JSON.stringify(sohbetGecmisi));
   sistemMesaji("Sohbet kaydedildi.");
 }
 
@@ -246,22 +462,31 @@ function yukleKayit(){
 
 function sohbetiTemizle(){
   chat.innerHTML = "";
-  sohbetGecmisi = [];
   localStorage.removeItem("neura_chat");
-  localStorage.removeItem("neura_memory");
   sistemMesaji("Sohbet temizlendi.");
 }
 
-function kisaMod(){ cevapModu="kisa"; localStorage.setItem("neura_mod",cevapModu); sistemMesaji("Kısa cevap modu açıldı."); }
-function uzunMod(){ cevapModu="uzun"; localStorage.setItem("neura_mod",cevapModu); sistemMesaji("Uzun cevap modu açıldı."); }
+function kisaMod(){
+  cevapModu = "kisa";
+  localStorage.setItem("neura_mod", cevapModu);
+  sistemMesaji("Kısa cevap modu açıldı.");
+}
+
+function uzunMod(){
+  cevapModu = "uzun";
+  localStorage.setItem("neura_mod", cevapModu);
+  sistemMesaji("Uzun cevap modu açıldı.");
+}
 
 function yaziyorEfektiGoster(){
   durumYazi.innerText = "Yanıt hazırlanıyor...";
-  return mesajEkle("NeuraAI yazıyor...","ai",null,"yaziyor");
+  return mesajEkle("NeuraAI yazıyor...", "ai", null, "yaziyor");
 }
 
 function yaziyorEfektiKapat(el){
-  if(!cooldownTimer) durumYazi.innerText = "";
+  if (!cooldownTimer) {
+    durumYazi.innerText = "";
+  }
   if(el) el.remove();
 }
 
@@ -275,29 +500,37 @@ function fotoTemizle(){
 
 function cooldownBaslat(){
   gonderBtn.disabled = true;
-  if(cooldownTimer) clearInterval(cooldownTimer);
+
+  if (cooldownTimer) {
+    clearInterval(cooldownTimer);
+  }
+
   cooldownTimer = setInterval(() => {
     const kalanMs = 3000 - (Date.now() - sonMesajZamani);
     const kalanSn = Math.ceil(kalanMs / 1000);
-    if(kalanMs <= 0){
+
+    if (kalanMs <= 0) {
       clearInterval(cooldownTimer);
       cooldownTimer = null;
       gonderBtn.disabled = false;
       durumYazi.innerText = "";
       return;
     }
+
     durumYazi.innerText = `Yeni mesaj için ${kalanSn} saniye bekle`;
-  },200);
+  }, 200);
 }
 
 fotoInput.addEventListener("change", function(e){
   const file = e.target.files[0];
   if(!file) return;
+
   if(!file.type.startsWith("image/")){
     sistemMesaji("Lütfen sadece fotoğraf seç.");
     fotoTemizle();
     return;
   }
+
   const reader = new FileReader();
   reader.onload = function(ev){
     secilenFoto = ev.target.result;
@@ -309,54 +542,79 @@ fotoInput.addEventListener("change", function(e){
 });
 
 function kufurKontrol(m){
-  const kufurler = ["salak","aptal","mal","gerizekalı","gerizekali","orospu","piç","pic","amk","aq","siktir","oç","oc","fuck","shit","bitch","asshole","idiot","moron"];
+  const kufurler = [
+    "salak","aptal","mal","gerizekalı","gerizekali",
+    "orospu","piç","pic","amk","aq","siktir","oç","oc",
+    "fuck","shit","bitch","asshole","idiot","moron"
+  ];
   return kufurler.some(k => m.includes(k));
 }
 
 function randomMesajMi(m){
-  const temiz = m.replace(/[^a-zçğıöşü]/gi,"");
+  const temiz = m.replace(/[^a-zçğıöşü]/gi, "");
   if(temiz.length < 6) return false;
+
   const sesliler = "aeıioöuü";
   let sesliSayisi = 0;
-  for(const harf of temiz){ if(sesliler.includes(harf.toLowerCase())) sesliSayisi++; }
+
+  for(const harf of temiz){
+    if(sesliler.includes(harf.toLowerCase())) sesliSayisi++;
+  }
+
   const oran = sesliSayisi / temiz.length;
-  if(temiz.length > 8 && oran < .20) return true;
+  if(temiz.length > 8 && oran < 0.20) return true;
   if(/(.)\1{5,}/i.test(temiz)) return true;
+
   return false;
 }
 
 async function fotografAnalizEt(kullaniciMesaji){
-  if(!secilenFoto){ cevap("Önce bir fotoğraf seçmen lazım."); return; }
+  if(!secilenFoto){
+    cevap("Önce bir fotoğraf seçmen lazım.");
+    return;
+  }
+
   const loading = yaziyorEfektiGoster();
+
   try{
-    const res = await fetch("/chat-image",{
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
+    const res = await fetch("/chat-image", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify({
         message: kullaniciMesaji || "Bu görseli analiz et.",
         image: secilenFoto
       })
     });
+
     const data = await res.json();
     yaziyorEfektiKapat(loading);
-    if(data.reply) cevap(data.reply);
-    else cevap("Fotoğraf analizi cevabı boş döndü.");
+
+    if(data.reply){
+      cevap(data.reply);
+    }else{
+      cevap("Fotoğraf analizi cevabı boş döndü.");
+    }
   }catch(err){
     yaziyorEfektiKapat(loading);
     cevap("Fotoğrafı aldım ama analiz tarafında bir sorun oldu.");
     console.error(err);
   }
+
   fotoTemizle();
 }
 
 async function gonder(){
   const mesaj = input.value.trim();
   const m = temizleMetin(mesaj);
+
   if(!mesaj && !secilenFoto) return;
 
   const simdi = Date.now();
   const fark = simdi - sonMesajZamani;
-  if(fark < 3000){
+
+  if (fark < 3000) {
     const kalanSn = Math.ceil((3000 - fark) / 1000);
     cevap(`Biraz yavaş 😄 Yeni mesaj için ${kalanSn} saniye bekle.`);
     cooldownBaslat();
@@ -365,50 +623,67 @@ async function gonder(){
 
   sonMesajZamani = simdi;
   cooldownBaslat();
+
   input.value = "";
   mesajEkle(mesaj || "Fotoğraf gönderildi", "user", secilenFoto);
 
-  if(randomMesajMi(m)){ cevap("Klavye mi takıldı 😄 Ne demek istediğini biraz daha açık yaz."); fotoTemizle(); return; }
-  if(kufurKontrol(m)){ cevap("Burada duralım. Böyle konuşunca devam edemem. Düzgün yazarsan yardımcı olurum."); fotoTemizle(); return; }
-  if(m.includes("uzun cevap ver")){ uzunMod(); fotoTemizle(); return; }
-  if(m.includes("kısa cevap ver") || m.includes("kisa cevap ver")){ kisaMod(); fotoTemizle(); return; }
+  if(randomMesajMi(m)){
+    cevap("Klavye mi takıldı 😄 Ne demek istediğini biraz daha açık yaz.");
+    fotoTemizle();
+    return;
+  }
+
+  if(kufurKontrol(m)){
+    cevap("Burada duralım. Böyle konuşunca devam edemem. Düzgün yazarsan yardımcı olurum.");
+    fotoTemizle();
+    return;
+  }
+
+  if(m.includes("uzun cevap ver")){
+    uzunMod();
+    fotoTemizle();
+    return;
+  }
+
+  if(m.includes("kısa cevap ver") || m.includes("kisa cevap ver")){
+    kisaMod();
+    fotoTemizle();
+    return;
+  }
 
   if(secilenFoto){
     await fotografAnalizEt(mesaj || "Bu görseli analiz et.");
     return;
   }
-if(m.includes("çiz") || m.includes("ciz")){
-  let prompt = mesaj
+if(m.includes("çiz") || m.includes("ciz")) {
+  const prompt = mesaj
     .replace(/neuraai/gi, "")
     .replace(/çiz/gi, "")
     .replace(/ciz/gi, "")
-    .trim();
-
-  if(!prompt){
-    prompt = "creative digital art";
-  }
-
+    .trim() || "creative digital art";
   const loading = yaziyorEfektiGoster();
 
-  try{
+  try {
     const res = await fetch("/generate-image", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ prompt })
+      body: JSON.stringify({
+        prompt: prompt
+      })
     });
 
     const data = await res.json();
     yaziyorEfektiKapat(loading);
 
     if(data.image){
-      mesajEkle("Görsel hazır kanka 🖼️ Tıklayıp büyütebilirsin.", "ai", data.image);
+      mesajEkle("Görsel hazır kanka 🖼️", "ai", data.image);
     }else{
       cevap(data.reply || "Görsel üretilemedi.");
     }
 
-  }catch(err){
+  } catch(err) {
     yaziyorEfektiKapat(loading);
     cevap("Görsel üretirken bağlantı hatası oldu.");
     console.error(err);
@@ -418,28 +693,24 @@ if(m.includes("çiz") || m.includes("ciz")){
   return;
 }
   const loading = yaziyorEfektiGoster();
-  const gecmis = sohbetGecmisi.concat([{ role:"user", content:mesaj }]);
 
   try{
-    const res = await fetch("/chat",{
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
+    const res = await fetch("/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify({
         message: mesaj,
-        messages: gecmis,
         mode: cevapModu
       })
     });
+
     const data = await res.json();
     yaziyorEfektiKapat(loading);
 
     if(data.reply){
       cevap(data.reply);
-      sohbetGecmisi.push({ role:"user", content:mesaj });
-      sohbetGecmisi.push({ role:"assistant", content:data.reply });
-      if(sohbetGecmisi.length > 20) sohbetGecmisi = sohbetGecmisi.slice(-20);
-      localStorage.setItem("neura_memory", JSON.stringify(sohbetGecmisi));
-      mesajKaydet(mesaj, data.reply);
     }else{
       cevap("Cevap gelmedi.");
     }
@@ -448,69 +719,29 @@ if(m.includes("çiz") || m.includes("ciz")){
     cevap("Bağlantı hatası.");
     console.error(err);
   }
+
   fotoTemizle();
 }
 
-input.addEventListener("keydown", function(e){ if(e.key === "Enter") gonder(); });
-window.addEventListener("resize", () => { chat.scrollTop = chat.scrollHeight; });
+input.addEventListener("keydown", function(e){
+  if(e.key === "Enter"){
+    gonder();
+  }
+});
 
-if("serviceWorker" in navigator){
+window.addEventListener("resize", () => {
+  chat.scrollTop = chat.scrollHeight;
+});
+
+if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js").catch(err => console.log("Service Worker hata:", err));
+    navigator.serviceWorker.register("/sw.js").catch(err => {
+      console.log("Service Worker hata:", err);
+    });
   });
 }
 
 yukleKayit();
-</script>
-
-<script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore-compat.js"></script>
-
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyCI15f7xDylQrhM3ap9-_eoRSHsgTJIg-o",
-  authDomain: "neuraai-1.firebaseapp.com",
-  projectId: "neuraai-1",
-  storageBucket: "neuraai-1.firebasestorage.app",
-  messagingSenderId: "129454765065",
-  appId: "1:129454765065:web:5bb2016dc33f857de8f4d8"
-};
-
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-
-function googleLogin(){
-  const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider)
-    .then(() => { document.getElementById("loginModal").style.display = "none"; })
-    .catch(err => { alert(err.message); console.log(err); });
-}
-
-function yakinda(){ alert("Bu özellik yakında gelecek 🚧"); }
-function kapatLogin(){ document.getElementById("loginModal").style.display = "none"; }
-
-async function mesajKaydet(kullaniciMesaji, aiCevabi){
-  const user = auth.currentUser;
-  try{
-    await db.collection("messages").add({
-      userEmail: user ? user.email : "giris_yok",
-      userName: user ? user.displayName : "Bilinmeyen kullanıcı",
-      message: kullaniciMesaji,
-      aiReply: aiCevabi,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    console.log("Mesaj kaydedildi 🔥");
-  }catch(err){
-    console.error("Mesaj kaydetme hatası:", err);
-  }
-}
-
-auth.onAuthStateChanged(user => {
-  if(user){ document.getElementById("loginModal").style.display = "none"; }
-  else{ document.getElementById("loginModal").style.display = "flex"; }
-});
 </script>
 </body>
 </html>
