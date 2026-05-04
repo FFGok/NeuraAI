@@ -78,7 +78,8 @@ app.post("/chat", async (req, res) => {
         messages: [
           {
             role: "system",
-            content: "Sen NeuraAI adında Türkçe konuşan samimi, net ve yardımcı bir yapay zekasın. Önceki konuşmaları dikkate al. Kullanıcı 'onu', 'az önceki', 'bununla', 'sonucu' gibi şeyler derse önceki mesajlardan anlam çıkar. Kullanıcıya asla 'önceki konuşmayı görüyorum' veya teknik açıklama söyleme. Normal, doğal cevap ver."
+            content:
+              "Sen NeuraAI adında Türkçe konuşan samimi, net ve yardımcı bir yapay zekasın. Önceki konuşmaları dikkate al. Kullanıcı 'onu', 'az önceki', 'bununla', 'sonucu' gibi şeyler derse önceki mesajlardan anlam çıkar. Kullanıcıya asla 'önceki konuşmayı görüyorum' veya teknik açıklama söyleme. Normal, doğal cevap ver."
           },
           ...hafiza
         ]
@@ -156,7 +157,8 @@ app.post("/chat-image", async (req, res) => {
         messages: [
           {
             role: "system",
-            content: "Sen NeuraAI adında Türkçe konuşan samimi ve net bir görsel analiz asistanısın. Görselde ne olduğunu açıkla. Emin olmadığın şeyleri kesinmiş gibi söyleme."
+            content:
+              "Sen NeuraAI adında Türkçe konuşan samimi ve net bir görsel analiz asistanısın. Görselde ne olduğunu açıkla. Emin olmadığın şeyleri kesinmiş gibi söyleme."
           },
           {
             role: "user",
@@ -200,61 +202,15 @@ app.post("/chat-image", async (req, res) => {
 app.post("/generate-image", async (req, res) => {
   try {
     const { prompt } = req.body || {};
-    const ip = req.ip;
 
     if (!prompt || prompt.trim().length < 1) {
       return res.json({ reply: "Ne çizelim kanka? 😄" });
     }
 
-    if (!process.env.OPENROUTER_API_KEY) {
-      return res.json({ reply: "API key yok." });
-    }
-
-    if (!kullaniciVerisi[ip]) {
-      kullaniciVerisi[ip] = { mesajSayisi: 0, fotoSayisi: 0, resimSayisi: 0 };
-    }
-
-    if (kullaniciVerisi[ip].resimSayisi === undefined) {
-      kullaniciVerisi[ip].resimSayisi = 0;
-    }
-
-    const resimLimiti = 3;
-
-    if (kullaniciVerisi[ip].resimSayisi >= resimLimiti) {
-      return res.json({ reply: "Görsel hakkın bitti kanka 😅" });
-    }
-
-    kullaniciVerisi[ip].resimSayisi++;
-
-    const aiRes = await fetch("https://openrouter.ai/api/v1/images/generations", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: "openai/dall-e-3",
-        prompt,
-        size: "1024x1024"
-      })
-    });
-
-    const data = await aiRes.json();
-
-    if (!aiRes.ok) {
-      console.error("Görsel üretme hatası:", data);
-      return res.json({ reply: "Görsel üretilemedi kanka." });
-    }
-
-    const image = data.data?.[0]?.url;
-
-    if (!image) {
-      return res.json({ reply: "Görsel geldi ama link alınamadı." });
-    }
+    const image = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
 
     return res.json({
-      image,
-      kalanResim: resimLimiti - kullaniciVerisi[ip].resimSayisi
+      image
     });
 
   } catch (err) {
