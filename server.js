@@ -27,7 +27,7 @@ app.post("/chat", async (req, res) => {
     }
 
     if (!kullaniciVerisi[ip]) {
-      kullaniciVerisi[ip] = { mesajSayisi: 0, fotoSayisi: 0 };
+      kullaniciVerisi[ip] = { mesajSayisi: 0, fotoSayisi: 0, resimSayisi: 0 };
     }
 
     if (!kullaniciLimit[ip]) {
@@ -124,7 +124,7 @@ app.post("/chat-image", async (req, res) => {
     }
 
     if (!kullaniciVerisi[ip]) {
-      kullaniciVerisi[ip] = { mesajSayisi: 0, fotoSayisi: 0 };
+      kullaniciVerisi[ip] = { mesajSayisi: 0, fotoSayisi: 0, resimSayisi: 0 };
     }
 
     if (kullaniciSonMesaj[ip] && simdi - kullaniciSonMesaj[ip].time < 3000) {
@@ -194,6 +194,72 @@ app.post("/chat-image", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.json({ reply: "Foto hata." });
+  }
+});
+
+app.post("/generate-image", async (req, res) => {
+  try {
+    const { prompt } = req.body || {};
+    const ip = req.ip;
+
+    if (!prompt || prompt.trim().length < 1) {
+      return res.json({ reply: "Ne çizelim kanka? 😄" });
+    }
+
+    if (!process.env.OPENROUTER_API_KEY) {
+      return res.json({ reply: "API key yok." });
+    }
+
+    if (!kullaniciVerisi[ip]) {
+      kullaniciVerisi[ip] = { mesajSayisi: 0, fotoSayisi: 0, resimSayisi: 0 };
+    }
+
+    if (kullaniciVerisi[ip].resimSayisi === undefined) {
+      kullaniciVerisi[ip].resimSayisi = 0;
+    }
+
+    const resimLimiti = 3;
+
+    if (kullaniciVerisi[ip].resimSayisi >= resimLimiti) {
+      return res.json({ reply: "Görsel hakkın bitti kanka 😅" });
+    }
+
+    kullaniciVerisi[ip].resimSayisi++;
+
+    const aiRes = await fetch("https://openrouter.ai/api/v1/images/generations", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "openai/dall-e-3",
+        prompt,
+        size: "1024x1024"
+      })
+    });
+
+    const data = await aiRes.json();
+
+    if (!aiRes.ok) {
+      console.error("Görsel üretme hatası:", data);
+      return res.json({ reply: "Görsel üretilemedi kanka." });
+    }
+
+    const image = data.data?.[0]?.url;
+
+    if (!image) {
+      return res.json({ reply: "Görsel geldi ama link alınamadı." });
+    }
+
+    return res.json({
+      image,
+      kalanResim: resimLimiti - kullaniciVerisi[ip].resimSayisi
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.json({ reply: "Görsel üretme hatası oluştu." });
   }
 });
 
