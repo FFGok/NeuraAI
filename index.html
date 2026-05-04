@@ -380,41 +380,53 @@ function sesAcKapat(){
   }
 }
 
+let recognition;
+
 function mikrofonBaslat(){
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
   if(!SpeechRecognition){
-    cevap("Tarayıcın mikrofonla yazmayı desteklemiyor kanka.");
+    cevap("Tarayıcın desteklemiyor kanka 😄 Chrome kullan.");
     return;
   }
 
-  const recognition = new SpeechRecognition();
-  recognition.lang = "tr-TR";
-  recognition.interimResults = false;
+  if(!recognition){
+    recognition = new SpeechRecognition();
+    recognition.lang = "tr-TR";
+    recognition.interimResults = false;
 
-  recognition.start();
-  durumYazi.innerText = "Dinliyorum 🎤";
+    recognition.onresult = function(event){
+      input.value = event.results[0][0].transcript;
+      durumYazi.innerText = "";
+      gonder();
+    };
 
-  recognition.onresult = function(event){
-    input.value = event.results[0][0].transcript;
-    durumYazi.innerText = "";
-    gonder();
-  };
+    recognition.onerror = function(event){
+      durumYazi.innerText = "";
+      console.log("HATA:", event.error);
 
- recognition.onerror = function(event){
-  durumYazi.innerText = "";
-  console.log("Mikrofon hatası:", event.error);
+      if(event.error === "not-allowed"){
+        cevap("Mikrofon izni yok kanka 🎤");
+      } else if(event.error === "no-speech"){
+        cevap("Hiçbir şey duyamadım 😄");
+      } else if(event.error === "audio-capture"){
+        cevap("Mikrofon bulunamadı kanka.");
+      } else {
+        cevap("Mikrofon hata: " + event.error);
+      }
+    };
 
-  if(event.error === "not-allowed"){
-    cevap("Mikrofon izni verilmemiş kanka 🎤");
-  }else if(event.error === "no-speech"){
-    cevap("Ses duyamadım kanka, biraz daha yüksek konuş 😄");
-  }else if(event.error === "audio-capture"){
-    cevap("Bilgisayar mikrofonu algılayamadı kanka.");
-  }else{
-    cevap("Mikrofon hata verdi: " + event.error);
+    recognition.onend = function(){
+      durumYazi.innerText = "";
+    };
   }
-};
+
+  try{
+    recognition.start();
+    durumYazi.innerText = "Dinliyorum 🎤";
+  }catch(err){
+    console.log("Start error:", err);
+  }
 }
 function temizleMetin(m){
   return (m || "").toLowerCase().replace(/\s+/g, " ").trim();
