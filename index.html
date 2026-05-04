@@ -401,10 +401,20 @@ function mikrofonBaslat(){
     gonder();
   };
 
-  recognition.onerror = function(){
-    durumYazi.innerText = "";
-    cevap("Mikrofon tarafında sorun oldu kanka.");
-  };
+ recognition.onerror = function(event){
+  durumYazi.innerText = "";
+  console.log("Mikrofon hatası:", event.error);
+
+  if(event.error === "not-allowed"){
+    cevap("Mikrofon izni verilmemiş kanka 🎤");
+  }else if(event.error === "no-speech"){
+    cevap("Ses duyamadım kanka, biraz daha yüksek konuş 😄");
+  }else if(event.error === "audio-capture"){
+    cevap("Bilgisayar mikrofonu algılayamadı kanka.");
+  }else{
+    cevap("Mikrofon hata verdi: " + event.error);
+  }
+};
 }
 function temizleMetin(m){
   return (m || "").toLowerCase().replace(/\s+/g, " ").trim();
