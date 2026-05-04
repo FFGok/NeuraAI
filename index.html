@@ -424,11 +424,15 @@ function mesajEkle(text, kim, foto = null, extraClass = ""){
   }
 
   if(foto){
-    const img = document.createElement("img");
-    img.src = foto;
-    img.alt = "Gönderilen fotoğraf";
-    balon.appendChild(img);
-  }
+  const img = document.createElement("img");
+  img.src = foto;
+  img.alt = "Görsel";
+
+  img.style.cursor = "pointer";
+  img.onclick = () => window.open(foto, "_blank");
+
+  balon.appendChild(img);
+}
 
   satir.appendChild(balon);
   chat.appendChild(satir);
@@ -656,12 +660,15 @@ async function gonder(){
     return;
   }
 if(m.includes("çiz") || m.includes("ciz")) {
-  const prompt = mesaj
+
+  const loading = yaziyorEfektiGoster();
+
+  const prompt = (mesaj
     .replace(/neuraai/gi, "")
     .replace(/çiz/gi, "")
     .replace(/ciz/gi, "")
-    .trim() || "creative digital art";
-  const loading = yaziyorEfektiGoster();
+    .trim() + " high quality, detailed, 4k, cinematic lighting, ultra realistic"
+  ) || "creative digital art";
 
   try {
     const res = await fetch("/generate-image", {
@@ -669,9 +676,7 @@ if(m.includes("çiz") || m.includes("ciz")) {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        prompt: prompt
-      })
+      body: JSON.stringify({ prompt })
     });
 
     const data = await res.json();
