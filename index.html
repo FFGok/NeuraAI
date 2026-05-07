@@ -357,6 +357,15 @@ let sonMesajZamani = 0;
 let cooldownTimer = null;
 let sesAcik = true;
 
+let mevcutSesler = [];
+
+function sesleriYukle(){
+  mevcutSesler = speechSynthesis.getVoices();
+}
+
+speechSynthesis.onvoiceschanged = sesleriYukle;
+sesleriYukle();
+
 function sesliOku(text){
   if(!sesAcik) return;
   if(!text) return;
@@ -365,8 +374,21 @@ function sesliOku(text){
 
   const ses = new SpeechSynthesisUtterance(text);
   ses.lang = "tr-TR";
-  ses.rate = 1;
-  ses.pitch = 1;
+
+  // Daha doğal konuşma ayarları
+  ses.rate = 0.92;
+  ses.pitch = 1.05;
+  ses.volume = 1;
+
+  const iyiSes =
+    mevcutSesler.find(s => s.lang === "tr-TR" && s.name.toLowerCase().includes("google")) ||
+    mevcutSesler.find(s => s.lang === "tr-TR") ||
+    mevcutSesler.find(s => s.lang.toLowerCase().startsWith("tr")) ||
+    mevcutSesler[0];
+
+  if(iyiSes){
+    ses.voice = iyiSes;
+  }
 
   speechSynthesis.speak(ses);
 }
