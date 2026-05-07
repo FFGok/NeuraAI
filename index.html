@@ -373,17 +373,18 @@ function sesliOku(text){
   speechSynthesis.cancel();
 
   const ses = new SpeechSynthesisUtterance(text);
+
   ses.lang = "tr-TR";
 
-  // Daha doğal konuşma ayarları
-  ses.rate = 0.92;
-  ses.pitch = 1.05;
+  // En doğal erkek ses ayarları
+  ses.rate = 0.88;
+  ses.pitch = 0.82;
   ses.volume = 1;
 
+  // Microsoft Tolga erkek sesi
   const iyiSes =
-    mevcutSesler.find(s => s.lang === "tr-TR" && s.name.toLowerCase().includes("google")) ||
+    mevcutSesler.find(s => s.name.includes("Microsoft Tolga")) ||
     mevcutSesler.find(s => s.lang === "tr-TR") ||
-    mevcutSesler.find(s => s.lang.toLowerCase().startsWith("tr")) ||
     mevcutSesler[0];
 
   if(iyiSes){
