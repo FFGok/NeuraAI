@@ -356,7 +356,7 @@ let cevapModu = localStorage.getItem("neura_mod") || "normal";
 let sonMesajZamani = 0;
 let cooldownTimer = null;
 let sesAcik = true;
-
+let sohbetGecmisi = [];
 let mevcutSesler = [];
 
 function sesleriYukle(){
@@ -631,11 +631,11 @@ async function fotografAnalizEt(kullaniciMesaji){
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        message: kullaniciMesaji || "Bu görseli analiz et.",
-        image: secilenFoto
-      })
-    });
+body: JSON.stringify({
+  message: kullaniciMesaji || "Bu görseli analiz et.",
+  image: secilenFoto
+})
+});
 
     const data = await res.json();
     yaziyorEfektiKapat(loading);
@@ -743,27 +743,38 @@ if(m.includes("çiz") || m.includes("ciz")) {
   return;
 }
   const loading = yaziyorEfektiGoster();
-
+sohbetGecmisi.push({
+  role: "user",
+  content: mesaj
+});
   try{
     const res = await fetch("/chat", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        message: mesaj,
-        mode: cevapModu
-      })
-    });
+     body: JSON.stringify({
+  message: mesaj,
+  mode: cevapModu,
+  messages: sohbetGecmisi
+})
+});
 
     const data = await res.json();
     yaziyorEfektiKapat(loading);
 
-    if(data.reply){
-      cevap(data.reply);
-    }else{
-      cevap("Cevap gelmedi.");
-    }
+   if(data.reply){
+  sohbetGecmisi.push({
+    role: "assistant",
+    content: data.reply
+  });
+
+  sohbetGecmisi = sohbetGecmisi.slice(-20);
+
+  cevap(data.reply);
+}else{
+  cevap("Cevap gelmedi.");
+}
   }catch(err){
     yaziyorEfektiKapat(loading);
     cevap("Bağlantı hatası.");
