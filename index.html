@@ -10,9 +10,7 @@
 <link rel="apple-touch-icon" href="/icon-192.png">
 
 <style>
-*{
-  box-sizing:border-box;
-}
+*{ box-sizing:border-box; }
 
 html, body{
   height:100%;
@@ -32,7 +30,6 @@ body{
   align-items:center;
   min-height:100vh;
   color:white;
-  overflow:hidden;
 }
 
 body::before{
@@ -58,9 +55,7 @@ body::before{
   backdrop-filter:blur(16px);
   overflow:hidden;
   border:1px solid rgba(255,255,255,0.08);
-  box-shadow:
-    0 25px 60px rgba(0,0,0,0.50),
-    0 0 40px rgba(125, 0, 255, 0.08);
+  box-shadow:0 25px 60px rgba(0,0,0,0.50),0 0 40px rgba(125,0,255,0.08);
   position:relative;
   z-index:1;
 }
@@ -73,26 +68,10 @@ body::before{
   gap:10px;
   border-bottom:1px solid rgba(255,255,255,0.06);
   flex-wrap:wrap;
-  background:linear-gradient(to right, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
 }
 
-.baslikAlan{
-  display:flex;
-  flex-direction:column;
-}
-
-.baslik{
-  font-size:24px;
-  font-weight:bold;
-  letter-spacing:.3px;
-}
-
-.altBaslik{
-  font-size:13px;
-  color:#cfcfcf;
-  margin-top:4px;
-  min-height:16px;
-}
+.baslik{ font-size:24px; font-weight:bold; }
+.altBaslik{ font-size:13px; color:#cfcfcf; margin-top:4px; min-height:16px; }
 
 .ustButonlar{
   display:flex;
@@ -107,12 +86,6 @@ body::before{
   border-radius:12px;
   padding:10px 12px;
   cursor:pointer;
-  transition:.15s ease;
-}
-
-.ustButonlar button:hover{
-  background:rgba(180, 80, 255, 0.16);
-  border-color:rgba(180, 80, 255, 0.30);
 }
 
 .chat{
@@ -123,27 +96,13 @@ body::before{
   display:flex;
   flex-direction:column;
   gap:12px;
-  -webkit-overflow-scrolling:touch;
   scroll-behavior:smooth;
 }
 
-.chat::-webkit-scrollbar{
-  width:8px;
-}
-.chat::-webkit-scrollbar-thumb{
-  background:rgba(255,255,255,0.18);
-  border-radius:20px;
-}
-
-.satir{
-  display:flex;
-  width:100%;
-  animation:fadeIn .18s ease;
-}
-
-.user{justify-content:flex-end}
-.ai{justify-content:flex-start}
-.sistem{justify-content:center}
+.satir{ display:flex; width:100%; animation:fadeIn .18s ease; }
+.user{ justify-content:flex-end; }
+.ai{ justify-content:flex-start; }
+.sistem{ justify-content:center; }
 
 .balon{
   max-width:76%;
@@ -157,13 +116,11 @@ body::before{
 .user .balon{
   background:linear-gradient(135deg, #7b2cff 0%, #3d7cff 100%);
   border-bottom-right-radius:6px;
-  box-shadow:0 8px 20px rgba(61,124,255,0.18);
 }
 
 .ai .balon{
   background:rgba(255,255,255,0.10);
   border-bottom-left-radius:6px;
-  color:#f3f3f3;
 }
 
 .sistem .balon{
@@ -178,13 +135,9 @@ body::before{
   margin-top:10px;
   display:block;
   border-radius:14px;
-  border:1px solid rgba(255,255,255,0.08);
 }
 
-.yaziyor{
-  opacity:.82;
-  font-style:italic;
-}
+.yaziyor{ opacity:.82; font-style:italic; }
 
 .onizleme{
   display:none;
@@ -200,7 +153,6 @@ body::before{
   height:72px;
   object-fit:cover;
   border-radius:12px;
-  border:1px solid rgba(255,255,255,0.10);
 }
 
 .onizlemeYazi{
@@ -219,14 +171,12 @@ body::before{
   position:sticky;
   bottom:0;
   z-index:5;
-  padding-bottom:calc(12px + env(safe-area-inset-bottom, 0px));
 }
 
 #input{
   flex:1;
   padding:14px;
   border-radius:14px;
-  border:none;
   outline:none;
   background:rgba(255,255,255,0.05);
   color:white;
@@ -234,9 +184,7 @@ body::before{
   border:1px solid rgba(255,255,255,0.06);
 }
 
-#input::placeholder{
-  color:#aaa;
-}
+#input::placeholder{ color:#aaa; }
 
 .alt button,.dosyaLabel,.onizleme button{
   padding:12px 14px;
@@ -246,33 +194,72 @@ body::before{
   color:black;
   font-weight:bold;
   cursor:pointer;
-  transition:.15s ease;
 }
 
-.alt button:hover,.dosyaLabel:hover,.onizleme button:hover{
-  transform:translateY(-1px);
-  opacity:.95;
+#fotoInput{ display:none; }
+
+.guvenlikYazi{
+  position:fixed;
+  bottom:6px;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:12px;
+  color:#aaa;
+  z-index:999;
+  text-align:center;
+  width:100%;
+  padding:0 10px;
 }
 
-.alt button:disabled{
-  opacity:.55;
-  cursor:not-allowed;
-  transform:none;
+.guvenlikYazi span{
+  color:white;
+  cursor:pointer;
+  text-decoration:underline;
 }
 
-#fotoInput{
+.popupArka{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.75);
   display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+  padding:20px;
+}
+
+.popup{
+  max-width:520px;
+  width:100%;
+  background:#111;
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:22px;
+  padding:24px;
+  color:white;
+  box-shadow:0 20px 60px rgba(0,0,0,0.5);
+}
+
+.popup h2{ margin-top:0; }
+.popup ul{ padding-left:20px; }
+
+.popup button{
+  margin-top:14px;
+  padding:12px 18px;
+  border:none;
+  border-radius:12px;
+  background:white;
+  color:black;
+  font-weight:bold;
+  cursor:pointer;
 }
 
 @keyframes fadeIn{
-  from{opacity:0;transform:translateY(8px)}
-  to{opacity:1;transform:translateY(0)}
+  from{ opacity:0; transform:translateY(8px); }
+  to{ opacity:1; transform:translateY(0); }
 }
 
 @media (max-width:700px){
-  body{
-    align-items:stretch;
-  }
+  body{ align-items:stretch; }
 
   .kutu{
     width:100%;
@@ -281,31 +268,23 @@ body::before{
     border-radius:0;
   }
 
-  .balon{
-    max-width:88%;
-  }
-
-  .ust{
-    padding:14px;
-  }
-
-  .chat{
-    padding:14px;
-    padding-bottom:95px;
-  }
+  .balon{ max-width:88%; }
 
   .alt{
     padding:10px;
     gap:8px;
-    padding-bottom:calc(10px + env(safe-area-inset-bottom, 0px));
   }
 
-  #input{
-    font-size:16px;
+  #input{ font-size:16px; }
+
+  .guvenlikYazi{
+    font-size:10px;
+    bottom:3px;
   }
 }
 </style>
 </head>
+
 <body>
 
 <div class="kutu">
@@ -320,6 +299,7 @@ body::before{
       <button onclick="kaydet()">Kaydet</button>
       <button onclick="kisaMod()">Kısa Mod</button>
       <button onclick="uzunMod()">Uzun Mod</button>
+      <button onclick="window.location.href='/admin.html'">Admin Giriş</button>
     </div>
   </div>
 
@@ -335,9 +315,36 @@ body::before{
     <label for="fotoInput" class="dosyaLabel">Fotoğraf</label>
     <input type="file" id="fotoInput" accept="image/*">
     <input id="input" placeholder="Mesaj yaz...">
-<button type="button" onclick="sesAcKapat()" id="sesBtn">🔊</button>
-<button type="button" onclick="mikrofonBaslat()">🎤</button>
+    <button type="button" onclick="sesAcKapat()" id="sesBtn">🔊</button>
+    <button type="button" onclick="mikrofonBaslat()">🎤</button>
     <button id="gonderBtn" type="button" onclick="gonder()">Gönder</button>
+  </div>
+</div>
+
+<div class="guvenlikYazi">
+  NeuraAI Güvenlik şartlarından dolayı IP'nizi ve konuştuğunuz sohbetleri görebilir.
+  <span onclick="guvenlikAc()">Tıklayın.</span>
+</div>
+
+<div class="popupArka" id="popupArka">
+  <div class="popup">
+    <h2>NeuraAI Güvenlik Bilgilendirmesi</h2>
+    <p>
+      NeuraAI sistemi; güvenlik, spam engelleme, geliştirme ve kötüye kullanımı önlemek amacıyla:
+    </p>
+    <ul>
+      <li>IP adresinizi</li>
+      <li>Gönderdiğiniz mesajları</li>
+      <li>Gönderdiğiniz görselleri</li>
+      <li>Kullanım istatistiklerinizi</li>
+    </ul>
+    <p>
+      geçici veya kalıcı şekilde kayıt altına alabilir.
+    </p>
+    <p>
+      Sistem kötüye kullanım, spam, saldırı veya güvenlik ihlallerini tespit etmek amacıyla admin panel üzerinden denetlenebilir.
+    </p>
+    <button onclick="guvenlikKapat()">Tamam</button>
   </div>
 </div>
 
@@ -359,6 +366,14 @@ let sesAcik = true;
 let sohbetGecmisi = [];
 let mevcutSesler = [];
 
+function guvenlikAc(){
+  document.getElementById("popupArka").style.display = "flex";
+}
+
+function guvenlikKapat(){
+  document.getElementById("popupArka").style.display = "none";
+}
+
 function sesleriYukle(){
   mevcutSesler = speechSynthesis.getVoices();
 }
@@ -367,29 +382,22 @@ speechSynthesis.onvoiceschanged = sesleriYukle;
 sesleriYukle();
 
 function sesliOku(text){
-  if(!sesAcik) return;
-  if(!text) return;
+  if(!sesAcik || !text) return;
 
   speechSynthesis.cancel();
 
   const ses = new SpeechSynthesisUtterance(text);
-
   ses.lang = "tr-TR";
-
-  // En doğal erkek ses ayarları
   ses.rate = 0.88;
   ses.pitch = 0.82;
   ses.volume = 1;
 
-  // Microsoft Tolga erkek sesi
   const iyiSes =
     mevcutSesler.find(s => s.name.includes("Microsoft Tolga")) ||
     mevcutSesler.find(s => s.lang === "tr-TR") ||
     mevcutSesler[0];
 
-  if(iyiSes){
-    ses.voice = iyiSes;
-  }
+  if(iyiSes) ses.voice = iyiSes;
 
   speechSynthesis.speak(ses);
 }
@@ -397,10 +405,7 @@ function sesliOku(text){
 function sesAcKapat(){
   sesAcik = !sesAcik;
   document.getElementById("sesBtn").innerText = sesAcik ? "🔊" : "🔇";
-
-  if(!sesAcik){
-    speechSynthesis.cancel();
-  }
+  if(!sesAcik) speechSynthesis.cancel();
 }
 
 let recognition;
@@ -426,17 +431,10 @@ function mikrofonBaslat(){
 
     recognition.onerror = function(event){
       durumYazi.innerText = "";
-      console.log("HATA:", event.error);
-
-      if(event.error === "not-allowed"){
-        cevap("Mikrofon izni yok kanka 🎤");
-      } else if(event.error === "no-speech"){
-        cevap("Hiçbir şey duyamadım 😄");
-      } else if(event.error === "audio-capture"){
-        cevap("Mikrofon bulunamadı kanka.");
-      } else {
-        cevap("Mikrofon hata: " + event.error);
-      }
+      if(event.error === "not-allowed") cevap("Mikrofon izni yok kanka 🎤");
+      else if(event.error === "no-speech") cevap("Hiçbir şey duyamadım 😄");
+      else if(event.error === "audio-capture") cevap("Mikrofon bulunamadı kanka.");
+      else cevap("Mikrofon hata: " + event.error);
     };
 
     recognition.onend = function(){
@@ -451,6 +449,7 @@ function mikrofonBaslat(){
     console.log("Start error:", err);
   }
 }
+
 function temizleMetin(m){
   return (m || "").toLowerCase().replace(/\s+/g, " ").trim();
 }
@@ -469,15 +468,13 @@ function mesajEkle(text, kim, foto = null, extraClass = ""){
   }
 
   if(foto){
-  const img = document.createElement("img");
-  img.src = foto;
-  img.alt = "Görsel";
-
-  img.style.cursor = "pointer";
-  img.onclick = () => window.open(foto, "_blank");
-
-  balon.appendChild(img);
-}
+    const img = document.createElement("img");
+    img.src = foto;
+    img.alt = "Görsel";
+    img.style.cursor = "pointer";
+    img.onclick = () => window.open(foto, "_blank");
+    balon.appendChild(img);
+  }
 
   satir.appendChild(balon);
   chat.appendChild(satir);
@@ -505,13 +502,14 @@ function yukleKayit(){
     chat.innerHTML = kayit;
     chat.scrollTop = chat.scrollHeight;
   }else{
-    cevap("Merhaba, ben NeuraAI. Yaz bana, istersen fotoğraf da gönderebilirsin.");
+    cevap("Merhaba, ben NeuraAI. Bugün ne yapalım?");
   }
 }
 
 function sohbetiTemizle(){
   chat.innerHTML = "";
   localStorage.removeItem("neura_chat");
+  sohbetGecmisi = [];
   sistemMesaji("Sohbet temizlendi.");
 }
 
@@ -533,9 +531,7 @@ function yaziyorEfektiGoster(){
 }
 
 function yaziyorEfektiKapat(el){
-  if (!cooldownTimer) {
-    durumYazi.innerText = "";
-  }
+  if (!cooldownTimer) durumYazi.innerText = "";
   if(el) el.remove();
 }
 
@@ -550,9 +546,7 @@ function fotoTemizle(){
 function cooldownBaslat(){
   gonderBtn.disabled = true;
 
-  if (cooldownTimer) {
-    clearInterval(cooldownTimer);
-  }
+  if (cooldownTimer) clearInterval(cooldownTimer);
 
   cooldownTimer = setInterval(() => {
     const kalanMs = 3000 - (Date.now() - sonMesajZamani);
@@ -628,23 +622,18 @@ async function fotografAnalizEt(kullaniciMesaji){
   try{
     const res = await fetch("/chat-image", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-body: JSON.stringify({
-  message: kullaniciMesaji || "Bu görseli analiz et.",
-  image: secilenFoto
-})
-});
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message: kullaniciMesaji || "Bu görseli analiz et.",
+        image: secilenFoto
+      })
+    });
 
     const data = await res.json();
     yaziyorEfektiKapat(loading);
 
-    if(data.reply){
-      cevap(data.reply);
-    }else{
-      cevap("Fotoğraf analizi cevabı boş döndü.");
-    }
+    if(data.reply) cevap(data.reply);
+    else cevap("Fotoğraf analizi cevabı boş döndü.");
   }catch(err){
     yaziyorEfektiKapat(loading);
     cevap("Fotoğrafı aldım ama analiz tarafında bir sorun oldu.");
@@ -704,77 +693,71 @@ async function gonder(){
     await fotografAnalizEt(mesaj || "Bu görseli analiz et.");
     return;
   }
-if(m.includes("çiz") || m.includes("ciz")) {
+
+  if(m.includes("çiz") || m.includes("ciz")) {
+    const loading = yaziyorEfektiGoster();
+
+    const prompt = (mesaj
+      .replace(/neuraai/gi, "")
+      .replace(/çiz/gi, "")
+      .replace(/ciz/gi, "")
+      .trim() + " high quality, detailed, 4k, cinematic lighting, ultra realistic"
+    ) || "creative digital art";
+
+    try {
+      const res = await fetch("/generate-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt })
+      });
+
+      const data = await res.json();
+      yaziyorEfektiKapat(loading);
+
+      if(data.image) mesajEkle("Görsel hazır kanka 🖼️", "ai", data.image);
+      else cevap(data.reply || "Görsel üretilemedi.");
+    } catch(err) {
+      yaziyorEfektiKapat(loading);
+      cevap("Görsel üretirken bağlantı hatası oldu.");
+      console.error(err);
+    }
+
+    fotoTemizle();
+    return;
+  }
 
   const loading = yaziyorEfektiGoster();
 
-  const prompt = (mesaj
-    .replace(/neuraai/gi, "")
-    .replace(/çiz/gi, "")
-    .replace(/ciz/gi, "")
-    .trim() + " high quality, detailed, 4k, cinematic lighting, ultra realistic"
-  ) || "creative digital art";
+  sohbetGecmisi.push({
+    role: "user",
+    content: mesaj
+  });
 
-  try {
-    const res = await fetch("/generate-image", {
+  try{
+    const res = await fetch("/chat", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ prompt })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message: mesaj,
+        mode: cevapModu,
+        messages: sohbetGecmisi
+      })
     });
 
     const data = await res.json();
     yaziyorEfektiKapat(loading);
 
-    if(data.image){
-      mesajEkle("Görsel hazır kanka 🖼️", "ai", data.image);
+    if(data.reply){
+      sohbetGecmisi.push({
+        role: "assistant",
+        content: data.reply
+      });
+
+      sohbetGecmisi = sohbetGecmisi.slice(-20);
+      cevap(data.reply);
     }else{
-      cevap(data.reply || "Görsel üretilemedi.");
+      cevap("Cevap gelmedi.");
     }
-
-  } catch(err) {
-    yaziyorEfektiKapat(loading);
-    cevap("Görsel üretirken bağlantı hatası oldu.");
-    console.error(err);
-  }
-
-  fotoTemizle();
-  return;
-}
-  const loading = yaziyorEfektiGoster();
-sohbetGecmisi.push({
-  role: "user",
-  content: mesaj
-});
-  try{
-    const res = await fetch("/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-     body: JSON.stringify({
-  message: mesaj,
-  mode: cevapModu,
-  messages: sohbetGecmisi
-})
-});
-
-    const data = await res.json();
-    yaziyorEfektiKapat(loading);
-
-   if(data.reply){
-  sohbetGecmisi.push({
-    role: "assistant",
-    content: data.reply
-  });
-
-  sohbetGecmisi = sohbetGecmisi.slice(-20);
-
-  cevap(data.reply);
-}else{
-  cevap("Cevap gelmedi.");
-}
   }catch(err){
     yaziyorEfektiKapat(loading);
     cevap("Bağlantı hatası.");
@@ -785,9 +768,7 @@ sohbetGecmisi.push({
 }
 
 input.addEventListener("keydown", function(e){
-  if(e.key === "Enter"){
-    gonder();
-  }
+  if(e.key === "Enter") gonder();
 });
 
 window.addEventListener("resize", () => {
