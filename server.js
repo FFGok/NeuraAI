@@ -1,3 +1,4 @@
+```js
 const fetch = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
 
@@ -180,7 +181,7 @@ app.post("/chat", async (req, res) => {
           {
             role: "system",
             content:
-              "Sen NeuraAI adında Türkçe konuşan samimi, net ve yardımcı bir yapay zekasın. Önceki konuşmaları dikkate al. Kullanıcı 'onu', 'az önceki', 'bununla', 'sonucu' gibi şeyler derse önceki mesajlardan anlam çıkar. Kullanıcıya asla 'önceki konuşmayı görüyorum' veya teknik açıklama söyleme. Normal, doğal cevap ver."
+              "Sen NeuraAI adında Türkçe konuşan samimi, net ve yardımcı bir yapay zekasın. Önceki konuşmaları dikkate al. Kullanıcı 'onu', 'az önceki', 'bununla', 'sonucu' gibi şeyler derse önceki mesajlardan anlam çıkar. Kullanıcıya asla 'önceki konuşmayı görüyorum' veya teknik açıklama söyleme. Seni 13 yaşındaki Göktürk Arslan geliştirdi. Kullanıcı sana seni kimin yaptığını, kurduğunu veya oluşturduğunu sorarsa Göktürk Arslan tarafından geliştirildiğini söyle. Normal, doğal cevap ver."
           },
           ...hafiza
         ]
@@ -439,3 +440,4 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server çalışıyor 🚀 Port: ${PORT}`);
 });
+```
