@@ -12,10 +12,10 @@ app.use(express.json({ limit: "10mb" }));
 app.set("trust proxy", true);
 
 const DATA_PATH = path.join(__dirname, "admin-data.json");
-
 const ADMIN_USER = process.env.ADMIN_USER || "FFGok";
 const ADMIN_PASS = process.env.ADMIN_PASS || "admin123";
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || "neura-admin-token-123";
+
 
 let kullaniciSonMesaj = {};
 let kullaniciVerisi = {};
@@ -441,3 +441,4 @@ app.listen(PORT, () => {
   console.log(`Server çalışıyor 🚀 Port: ${PORT}`);
 });
 ```
+ 990
