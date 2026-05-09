@@ -404,11 +404,119 @@ body::before{
     bottom:3px;
   }
 }
+.splashScreen{
+  position:fixed;
+  inset:0;
+  background:black;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:999999;
+
+  animation:splashFade 1s ease forwards;
+  animation-delay:2.7s;
+}
+
+.splashScreen img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+
+  animation:
+    splashZoom 3s ease forwards,
+    splashFloat 4s ease-in-out infinite,
+    splashGlow 2s ease-in-out infinite;
+}
+
+@keyframes splashZoom{
+
+  0%{
+    transform:scale(1);
+    opacity:0;
+  }
+
+  20%{
+    opacity:1;
+  }
+
+  100%{
+    transform:scale(1.06);
+    opacity:1;
+  }
+}
+
+@keyframes splashFloat{
+
+  0%{
+    transform:
+      scale(1)
+      translateY(0px)
+      translateX(0px);
+  }
+
+  25%{
+    transform:
+      scale(1.02)
+      translateY(-4px)
+      translateX(2px);
+  }
+
+  50%{
+    transform:
+      scale(1.03)
+      translateY(0px)
+      translateX(-2px);
+  }
+
+  75%{
+    transform:
+      scale(1.02)
+      translateY(3px)
+      translateX(2px);
+  }
+
+  100%{
+    transform:
+      scale(1)
+      translateY(0px)
+      translateX(0px);
+  }
+}
+
+@keyframes splashGlow{
+
+  0%{
+    filter:
+      brightness(1)
+      drop-shadow(0 0 10px #ff00ff);
+  }
+
+  50%{
+    filter:
+      brightness(1.1)
+      drop-shadow(0 0 28px #ff00ff);
+  }
+
+  100%{
+    filter:
+      brightness(1)
+      drop-shadow(0 0 10px #ff00ff);
+  }
+}
+
+@keyframes splashFade{
+  to{
+    opacity:0;
+    visibility:hidden;
+  }
+}
 </style>
 </head>
 
 <body>
-
+<div class="splashScreen">
+  <img src="splash.png">
+</div>
 <div class="kutu">
   <div class="solPanel">
     <div class="solUst">
