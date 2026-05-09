@@ -51,7 +51,7 @@ body::before{
   background:rgba(7,7,12,0.78);
   border-radius:24px;
   display:flex;
-  flex-direction:column;
+  flex-direction:row;
   backdrop-filter:blur(16px);
   overflow:hidden;
   border:1px solid rgba(255,255,255,0.08);
@@ -59,7 +59,61 @@ body::before{
   position:relative;
   z-index:1;
 }
+.solPanel{
+  width:260px;
+  background:rgba(0,0,0,0.22);
+  border-right:1px solid rgba(255,255,255,0.06);
+  display:flex;
+  flex-direction:column;
+  padding:14px;
+  gap:12px;
+}
 
+.anaAlan{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+}
+
+.yeniSohbetBtn{
+  background:linear-gradient(135deg,#7b2cff,#3d7cff);
+  color:white;
+  border:none;
+  border-radius:14px;
+  padding:14px;
+  font-weight:bold;
+  cursor:pointer;
+  font-size:15px;
+}
+
+.gecmisBaslik{
+  color:#bbb;
+  font-size:13px;
+  margin-top:6px;
+}
+
+.sohbetListesi{
+  flex:1;
+  overflow-y:auto;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.sohbetItem{
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.05);
+  border-radius:12px;
+  padding:12px;
+  cursor:pointer;
+  transition:.2s;
+  color:white;
+  font-size:14px;
+}
+
+.sohbetItem:hover{
+  background:rgba(255,255,255,0.10);
+}
 .ust{
   padding:16px 18px;
   display:flex;
@@ -288,6 +342,13 @@ body::before{
 <body>
 
 <div class="kutu">
+<div class="solPanel">
+  <button class="yeniSohbetBtn" onclick="yeniSohbet()">+ Yeni Sohbet</button>
+  <div class="gecmisBaslik">Sohbetler</div>
+  <div id="sohbetListesi" class="sohbetListesi"></div>
+</div>
+
+<div class="anaAlan">
   <div class="ust">
     <div class="baslikAlan">
       <div class="baslik">NeuraAI</div>
