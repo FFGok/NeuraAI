@@ -544,14 +544,33 @@ ses.rate = 0.92;
 ses.pitch = 0.78;
 ses.volume = 1;
 
-  const iyiSes =
-    mevcutSesler.find(s => s.name.includes("Microsoft Tolga")) ||
-    mevcutSesler.find(s => s.lang === "tr-TR") ||
-    mevcutSesler.find(s => s.lang && s.lang.startsWith("tr")) ||
-    mevcutSesler[0];
+const iyiSes =
+  mevcutSesler.find(s =>
+    s.name.toLowerCase().includes("tolga")
+  ) ||
+
+  mevcutSesler.find(s =>
+    s.name.toLowerCase().includes("ahmet")
+  ) ||
+
+  mevcutSesler.find(s =>
+    s.name.toLowerCase().includes("turkish")
+  ) ||
+
+  mevcutSesler.find(s =>
+    s.lang === "tr-TR"
+  ) ||
+
+  mevcutSesler.find(s =>
+    s.lang && s.lang.startsWith("tr")
+  ) ||
+
+  mevcutSesler[0];
 
   if(iyiSes) ses.voice = iyiSes;
-
+if(iyiSes){
+  ses.voiceURI = iyiSes.voiceURI;
+}
   speechSynthesis.speak(ses);
 }
 
