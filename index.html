@@ -482,8 +482,45 @@ function mesajEkle(text, kim, foto = null, extraClass = ""){
   return satir;
 }
 
-function cevap(text){
-  mesajEkle(text, "ai");
+async function cevap(text){
+
+  const satir = document.createElement("div");
+  satir.className = "satir ai";
+
+  const balon = document.createElement("div");
+  balon.className = "balon";
+
+  const yazi = document.createElement("div");
+
+  balon.appendChild(yazi);
+  satir.appendChild(balon);
+  chat.appendChild(satir);
+
+  chat.scrollTop = chat.scrollHeight;
+
+  let mevcut = "";
+
+  for(let i = 0; i < text.length; i++){
+
+    mevcut += text[i];
+    yazi.innerText = mevcut;
+
+    chat.scrollTop = chat.scrollHeight;
+
+    let hiz = 12;
+
+    if(
+      text[i] === "." ||
+      text[i] === "," ||
+      text[i] === "!" ||
+      text[i] === "?"
+    ){
+      hiz = 45;
+    }
+
+    await new Promise(r => setTimeout(r, hiz));
+  }
+
   sesliOku(text);
 }
 
