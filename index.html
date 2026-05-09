@@ -497,7 +497,7 @@ async function cevap(text){
   chat.appendChild(satir);
 
   chat.scrollTop = chat.scrollHeight;
-
+ sesliOku(text); 
   let mevcut = "";
 
   for(let i = 0; i < text.length; i++){
@@ -521,7 +521,7 @@ async function cevap(text){
     await new Promise(r => setTimeout(r, hiz));
   }
 
-  sesliOku(text);
+  
 }
 
 function sistemMesaji(text){
