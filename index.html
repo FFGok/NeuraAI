@@ -46,7 +46,7 @@ body::before{
 
 .kutu{
   width:92%;
-  max-width:980px;
+  max-width:1120px;
   height:88vh;
   background:rgba(7,7,12,0.78);
   border-radius:24px;
@@ -59,6 +59,7 @@ body::before{
   position:relative;
   z-index:1;
 }
+
 .solPanel{
   width:260px;
   background:rgba(0,0,0,0.22);
@@ -71,6 +72,7 @@ body::before{
 
 .anaAlan{
   flex:1;
+  min-width:0;
   display:flex;
   flex-direction:column;
 }
@@ -109,11 +111,20 @@ body::before{
   transition:.2s;
   color:white;
   font-size:14px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 
 .sohbetItem:hover{
   background:rgba(255,255,255,0.10);
 }
+
+.sohbetItem.aktif{
+  background:rgba(123,44,255,0.26);
+  border-color:rgba(123,44,255,0.45);
+}
+
 .ust{
   padding:16px 18px;
   display:flex;
@@ -322,6 +333,21 @@ body::before{
     border-radius:0;
   }
 
+  .solPanel{
+    width:145px;
+    padding:10px;
+  }
+
+  .yeniSohbetBtn{
+    padding:11px;
+    font-size:13px;
+  }
+
+  .sohbetItem{
+    font-size:12px;
+    padding:10px;
+  }
+
   .balon{ max-width:88%; }
 
   .alt{
@@ -342,43 +368,44 @@ body::before{
 <body>
 
 <div class="kutu">
-<div class="solPanel">
-  <button class="yeniSohbetBtn" onclick="yeniSohbet()">+ Yeni Sohbet</button>
-  <div class="gecmisBaslik">Sohbetler</div>
-  <div id="sohbetListesi" class="sohbetListesi"></div>
-</div>
-
-<div class="anaAlan">
-  <div class="ust">
-    <div class="baslikAlan">
-      <div class="baslik">NeuraAI</div>
-      <div class="altBaslik" id="durumYazi"></div>
-    </div>
-
-    <div class="ustButonlar">
-      <button onclick="sohbetiTemizle()">Temizle</button>
-      <button onclick="kaydet()">Kaydet</button>
-      <button onclick="kisaMod()">Kısa Mod</button>
-      <button onclick="uzunMod()">Uzun Mod</button>
-      <button onclick="window.location.href='/admin.html'">Admin Giriş</button>
-    </div>
+  <div class="solPanel">
+    <button class="yeniSohbetBtn" onclick="yeniSohbet()">+ Yeni Sohbet</button>
+    <div class="gecmisBaslik">Sohbetler</div>
+    <div id="sohbetListesi" class="sohbetListesi"></div>
   </div>
 
-  <div id="chat" class="chat"></div>
+  <div class="anaAlan">
+    <div class="ust">
+      <div class="baslikAlan">
+        <div class="baslik">NeuraAI</div>
+        <div class="altBaslik" id="durumYazi"></div>
+      </div>
 
-  <div class="onizleme" id="onizleme">
-    <img id="onizlemeResim" src="" alt="Önizleme">
-    <div class="onizlemeYazi" id="onizlemeYazi">Fotoğraf seçildi</div>
-    <button type="button" onclick="fotoTemizle()">Kaldır</button>
-  </div>
+      <div class="ustButonlar">
+        <button onclick="sohbetiTemizle()">Temizle</button>
+        <button onclick="kaydet()">Kaydet</button>
+        <button onclick="kisaMod()">Kısa Mod</button>
+        <button onclick="uzunMod()">Uzun Mod</button>
+        <button onclick="window.location.href='/admin.html'">Admin Giriş</button>
+      </div>
+    </div>
 
-  <div class="alt">
-    <label for="fotoInput" class="dosyaLabel">Fotoğraf</label>
-    <input type="file" id="fotoInput" accept="image/*">
-    <input id="input" placeholder="Mesaj yaz...">
-    <button type="button" onclick="sesAcKapat()" id="sesBtn">🔊</button>
-    <button type="button" onclick="mikrofonBaslat()">🎤</button>
-    <button id="gonderBtn" type="button" onclick="gonder()">Gönder</button>
+    <div id="chat" class="chat"></div>
+
+    <div class="onizleme" id="onizleme">
+      <img id="onizlemeResim" src="" alt="Önizleme">
+      <div class="onizlemeYazi" id="onizlemeYazi">Fotoğraf seçildi</div>
+      <button type="button" onclick="fotoTemizle()">Kaldır</button>
+    </div>
+
+    <div class="alt">
+      <label for="fotoInput" class="dosyaLabel">Fotoğraf</label>
+      <input type="file" id="fotoInput" accept="image/*">
+      <input id="input" placeholder="Mesaj yaz...">
+      <button type="button" onclick="sesAcKapat()" id="sesBtn">🔊</button>
+      <button type="button" onclick="mikrofonBaslat()">🎤</button>
+      <button id="gonderBtn" type="button" onclick="gonder()">Gönder</button>
+    </div>
   </div>
 </div>
 
@@ -399,16 +426,13 @@ body::before{
       <li>Gönderdiğiniz görselleri</li>
       <li>Kullanım istatistiklerinizi</li>
     </ul>
-    <p>
-      geçici veya kalıcı şekilde kayıt altına alabilir.
-    </p>
+    <p>geçici veya kalıcı şekilde kayıt altına alabilir.</p>
     <p>
       Sistem kötüye kullanım, spam, saldırı veya güvenlik ihlallerini tespit etmek amacıyla admin panel üzerinden denetlenebilir.
     </p>
     <button onclick="guvenlikKapat()">Tamam</button>
   </div>
 </div>
-
 <script>
 const chat = document.getElementById("chat");
 const input = document.getElementById("input");
@@ -427,6 +451,11 @@ let sesAcik = true;
 let sohbetGecmisi = [];
 let mevcutSesler = [];
 
+let tumSohbetler = JSON.parse(localStorage.getItem("tum_sohbetler")) || [];
+let aktifSohbetId = localStorage.getItem("aktif_sohbet_id")
+  ? Number(localStorage.getItem("aktif_sohbet_id"))
+  : null;
+
 function guvenlikAc(){
   document.getElementById("popupArka").style.display = "flex";
 }
@@ -442,12 +471,22 @@ function sesleriYukle(){
 speechSynthesis.onvoiceschanged = sesleriYukle;
 sesleriYukle();
 
+function sesiTemizle(text){
+  return String(text || "")
+    .replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function sesliOku(text){
   if(!sesAcik || !text) return;
 
+  const okunacak = sesiTemizle(text);
+  if(!okunacak) return;
+
   speechSynthesis.cancel();
 
-  const ses = new SpeechSynthesisUtterance(text);
+  const ses = new SpeechSynthesisUtterance(okunacak);
   ses.lang = "tr-TR";
   ses.rate = 0.88;
   ses.pitch = 0.82;
@@ -475,7 +514,7 @@ function mikrofonBaslat(){
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
   if(!SpeechRecognition){
-    cevap("Tarayıcın desteklemiyor kanka 😄 Chrome kullan.");
+    cevap("Tarayıcın desteklemiyor kanka 😄 Chrome kullan.", false);
     return;
   }
 
@@ -492,10 +531,16 @@ function mikrofonBaslat(){
 
     recognition.onerror = function(event){
       durumYazi.innerText = "";
-      if(event.error === "not-allowed") cevap("Mikrofon izni yok kanka 🎤");
-      else if(event.error === "no-speech") cevap("Hiçbir şey duyamadım 😄");
-      else if(event.error === "audio-capture") cevap("Mikrofon bulunamadı kanka.");
-      else cevap("Mikrofon hata: " + event.error);
+
+      if(event.error === "not-allowed"){
+        cevap("Mikrofon izni yok kanka 🎤", false);
+      }else if(event.error === "no-speech"){
+        cevap("Hiçbir şey duyamadım 😄", false);
+      }else if(event.error === "audio-capture"){
+        cevap("Mikrofon bulunamadı kanka.", false);
+      }else{
+        cevap("Mikrofon hata: " + event.error, false);
+      }
     };
 
     recognition.onend = function(){
@@ -507,7 +552,7 @@ function mikrofonBaslat(){
     recognition.start();
     durumYazi.innerText = "Dinliyorum 🎤";
   }catch(err){
-    console.log("Start error:", err);
+    console.log(err);
   }
 }
 
@@ -539,11 +584,51 @@ function mesajEkle(text, kim, foto = null, extraClass = ""){
 
   satir.appendChild(balon);
   chat.appendChild(satir);
+
   chat.scrollTop = chat.scrollHeight;
+
   return satir;
 }
 
-async function cevap(text){
+function aktifSohbetBul(){
+  return tumSohbetler.find(s => s.id === aktifSohbetId);
+}
+
+function sohbetleriKaydet(){
+  localStorage.setItem(
+    "tum_sohbetler",
+    JSON.stringify(tumSohbetler)
+  );
+
+  if(aktifSohbetId){
+    localStorage.setItem(
+      "aktif_sohbet_id",
+      String(aktifSohbetId)
+    );
+  }
+}
+
+function mesajiSohbeteKaydet(text, kim, foto = null){
+
+  const aktif = aktifSohbetBul();
+
+  if(!aktif) return;
+
+  aktif.mesajlar.push({
+    text,
+    kim,
+    foto
+  });
+
+  if(kim === "user" && aktif.baslik === "Yeni Sohbet"){
+    aktif.baslik = (text || "Yeni Sohbet").slice(0, 28);
+  }
+
+  sohbetleriKaydet();
+  sohbetleriGoster();
+}
+
+async function cevap(text, kaydet = true){
 
   const satir = document.createElement("div");
   satir.className = "satir ai";
@@ -558,10 +643,16 @@ async function cevap(text){
   chat.appendChild(satir);
 
   chat.scrollTop = chat.scrollHeight;
- sesliOku(text); 
+
   let mevcut = "";
+  let sesBasladi = false;
 
   for(let i = 0; i < text.length; i++){
+
+    if(!sesBasladi && i >= 25){
+      sesliOku(text);
+      sesBasladi = true;
+    }
 
     mevcut += text[i];
     yazi.innerText = mevcut;
@@ -582,7 +673,98 @@ async function cevap(text){
     await new Promise(r => setTimeout(r, hiz));
   }
 
-  
+  if(!sesBasladi){
+    sesliOku(text);
+  }
+
+  if(kaydet){
+    mesajiSohbeteKaydet(text, "ai");
+  }
+}
+
+function sohbetleriGoster(){
+
+  const liste = document.getElementById("sohbetListesi");
+
+  liste.innerHTML = "";
+
+  tumSohbetler.forEach(sohbet => {
+
+    const item = document.createElement("div");
+
+    item.className =
+      "sohbetItem" +
+      (sohbet.id === aktifSohbetId ? " aktif" : "");
+
+    item.innerText = sohbet.baslik || "Yeni Sohbet";
+
+    item.onclick = () => sohbetAc(sohbet.id);
+
+    liste.appendChild(item);
+
+  });
+}
+
+function yeniSohbet(){
+
+  chat.innerHTML = "";
+  sohbetGecmisi = [];
+
+  aktifSohbetId = Date.now();
+
+  const yeni = {
+    id: aktifSohbetId,
+    baslik: "Yeni Sohbet",
+    mesajlar: []
+  };
+
+  tumSohbetler.unshift(yeni);
+
+  sohbetleriKaydet();
+  sohbetleriGoster();
+
+  cevap("Yeni sohbet başlatıldı 😄", false);
+}
+
+function sohbetAc(id){
+
+  const sohbet = tumSohbetler.find(
+    s => s.id === id
+  );
+
+  if(!sohbet) return;
+
+  aktifSohbetId = id;
+
+  localStorage.setItem(
+    "aktif_sohbet_id",
+    String(aktifSohbetId)
+  );
+
+  chat.innerHTML = "";
+
+  sohbet.mesajlar.forEach(m => {
+    mesajEkle(
+      m.text,
+      m.kim,
+      m.foto || null
+    );
+  });
+
+  sohbetGecmisi = sohbet.mesajlar
+    .filter(m =>
+      m.kim === "user" ||
+      m.kim === "ai"
+    )
+    .map(m => ({
+      role: m.kim === "user"
+        ? "user"
+        : "assistant",
+      content: m.text
+    }))
+    .slice(-20);
+
+  sohbetleriGoster();
 }
 
 function sistemMesaji(text){
@@ -590,24 +772,43 @@ function sistemMesaji(text){
 }
 
 function kaydet(){
-  localStorage.setItem("neura_chat", chat.innerHTML);
+  sohbetleriKaydet();
   sistemMesaji("Sohbet kaydedildi.");
 }
 
 function yukleKayit(){
-  const kayit = localStorage.getItem("neura_chat");
-  if(kayit){
-    chat.innerHTML = kayit;
-    chat.scrollTop = chat.scrollHeight;
-  }else{
-    cevap("Merhaba, ben NeuraAI. Bugün ne yapalım?");
+
+  if(tumSohbetler.length === 0){
+    yeniSohbet();
+    return;
   }
+
+  const varMi = tumSohbetler.some(
+    s => s.id === aktifSohbetId
+  );
+
+  if(!aktifSohbetId || !varMi){
+    aktifSohbetId = tumSohbetler[0].id;
+  }
+
+  sohbetAc(aktifSohbetId);
 }
 
 function sohbetiTemizle(){
+
+  const aktif = aktifSohbetBul();
+
   chat.innerHTML = "";
-  localStorage.removeItem("neura_chat");
   sohbetGecmisi = [];
+
+  if(aktif){
+    aktif.mesajlar = [];
+    aktif.baslik = "Yeni Sohbet";
+
+    sohbetleriKaydet();
+    sohbetleriGoster();
+  }
+
   sistemMesaji("Sohbet temizlendi.");
 }
 
@@ -622,266 +823,3 @@ function uzunMod(){
   localStorage.setItem("neura_mod", cevapModu);
   sistemMesaji("Uzun cevap modu açıldı.");
 }
-
-function yaziyorEfektiGoster(){
-  durumYazi.innerText = "Yanıt hazırlanıyor...";
-  return mesajEkle("NeuraAI yazıyor...", "ai", null, "yaziyor");
-}
-
-function yaziyorEfektiKapat(el){
-  if (!cooldownTimer) durumYazi.innerText = "";
-  if(el) el.remove();
-}
-
-function fotoTemizle(){
-  secilenFoto = null;
-  fotoInput.value = "";
-  onizleme.style.display = "none";
-  onizlemeResim.src = "";
-  onizlemeYazi.innerText = "";
-}
-
-function cooldownBaslat(){
-  gonderBtn.disabled = true;
-
-  if (cooldownTimer) clearInterval(cooldownTimer);
-
-  cooldownTimer = setInterval(() => {
-    const kalanMs = 3000 - (Date.now() - sonMesajZamani);
-    const kalanSn = Math.ceil(kalanMs / 1000);
-
-    if (kalanMs <= 0) {
-      clearInterval(cooldownTimer);
-      cooldownTimer = null;
-      gonderBtn.disabled = false;
-      durumYazi.innerText = "";
-      return;
-    }
-
-    durumYazi.innerText = `Yeni mesaj için ${kalanSn} saniye bekle`;
-  }, 200);
-}
-
-fotoInput.addEventListener("change", function(e){
-  const file = e.target.files[0];
-  if(!file) return;
-
-  if(!file.type.startsWith("image/")){
-    sistemMesaji("Lütfen sadece fotoğraf seç.");
-    fotoTemizle();
-    return;
-  }
-
-  const reader = new FileReader();
-  reader.onload = function(ev){
-    secilenFoto = ev.target.result;
-    onizlemeResim.src = secilenFoto;
-    onizlemeYazi.innerText = file.name;
-    onizleme.style.display = "flex";
-  };
-  reader.readAsDataURL(file);
-});
-
-function kufurKontrol(m){
-  const kufurler = [
-    "salak","aptal","mal","gerizekalı","gerizekali",
-    "orospu","piç","pic","amk","aq","siktir","oç","oc",
-    "fuck","shit","bitch","asshole","idiot","moron"
-  ];
-  return kufurler.some(k => m.includes(k));
-}
-
-function randomMesajMi(m){
-  const temiz = m.replace(/[^a-zçğıöşü]/gi, "");
-  if(temiz.length < 6) return false;
-
-  const sesliler = "aeıioöuü";
-  let sesliSayisi = 0;
-
-  for(const harf of temiz){
-    if(sesliler.includes(harf.toLowerCase())) sesliSayisi++;
-  }
-
-  const oran = sesliSayisi / temiz.length;
-  if(temiz.length > 8 && oran < 0.20) return true;
-  if(/(.)\1{5,}/i.test(temiz)) return true;
-
-  return false;
-}
-
-async function fotografAnalizEt(kullaniciMesaji){
-  if(!secilenFoto){
-    cevap("Önce bir fotoğraf seçmen lazım.");
-    return;
-  }
-
-  const loading = yaziyorEfektiGoster();
-
-  try{
-    const res = await fetch("/chat-image", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        message: kullaniciMesaji || "Bu görseli analiz et.",
-        image: secilenFoto
-      })
-    });
-
-    const data = await res.json();
-    yaziyorEfektiKapat(loading);
-
-    if(data.reply) cevap(data.reply);
-    else cevap("Fotoğraf analizi cevabı boş döndü.");
-  }catch(err){
-    yaziyorEfektiKapat(loading);
-    cevap("Fotoğrafı aldım ama analiz tarafında bir sorun oldu.");
-    console.error(err);
-  }
-
-  fotoTemizle();
-}
-
-async function gonder(){
-  const mesaj = input.value.trim();
-  const m = temizleMetin(mesaj);
-
-  if(!mesaj && !secilenFoto) return;
-
-  const simdi = Date.now();
-  const fark = simdi - sonMesajZamani;
-
-  if (fark < 3000) {
-    const kalanSn = Math.ceil((3000 - fark) / 1000);
-    cevap(`Biraz yavaş 😄 Yeni mesaj için ${kalanSn} saniye bekle.`);
-    cooldownBaslat();
-    return;
-  }
-
-  sonMesajZamani = simdi;
-  cooldownBaslat();
-
-  input.value = "";
-  mesajEkle(mesaj || "Fotoğraf gönderildi", "user", secilenFoto);
-
-  if(randomMesajMi(m)){
-    cevap("Klavye mi takıldı 😄 Ne demek istediğini biraz daha açık yaz.");
-    fotoTemizle();
-    return;
-  }
-
-  if(kufurKontrol(m)){
-    cevap("Burada duralım. Böyle konuşunca devam edemem. Düzgün yazarsan yardımcı olurum.");
-    fotoTemizle();
-    return;
-  }
-
-  if(m.includes("uzun cevap ver")){
-    uzunMod();
-    fotoTemizle();
-    return;
-  }
-
-  if(m.includes("kısa cevap ver") || m.includes("kisa cevap ver")){
-    kisaMod();
-    fotoTemizle();
-    return;
-  }
-
-  if(secilenFoto){
-    await fotografAnalizEt(mesaj || "Bu görseli analiz et.");
-    return;
-  }
-
-  if(m.includes("çiz") || m.includes("ciz")) {
-    const loading = yaziyorEfektiGoster();
-
-    const prompt = (mesaj
-      .replace(/neuraai/gi, "")
-      .replace(/çiz/gi, "")
-      .replace(/ciz/gi, "")
-      .trim() + " high quality, detailed, 4k, cinematic lighting, ultra realistic"
-    ) || "creative digital art";
-
-    try {
-      const res = await fetch("/generate-image", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt })
-      });
-
-      const data = await res.json();
-      yaziyorEfektiKapat(loading);
-
-      if(data.image) mesajEkle("Görsel hazır kanka 🖼️", "ai", data.image);
-      else cevap(data.reply || "Görsel üretilemedi.");
-    } catch(err) {
-      yaziyorEfektiKapat(loading);
-      cevap("Görsel üretirken bağlantı hatası oldu.");
-      console.error(err);
-    }
-
-    fotoTemizle();
-    return;
-  }
-
-  const loading = yaziyorEfektiGoster();
-
-  sohbetGecmisi.push({
-    role: "user",
-    content: mesaj
-  });
-
-  try{
-    const res = await fetch("/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        message: mesaj,
-        mode: cevapModu,
-        messages: sohbetGecmisi
-      })
-    });
-
-    const data = await res.json();
-    yaziyorEfektiKapat(loading);
-
-    if(data.reply){
-      sohbetGecmisi.push({
-        role: "assistant",
-        content: data.reply
-      });
-
-      sohbetGecmisi = sohbetGecmisi.slice(-20);
-      cevap(data.reply);
-    }else{
-      cevap("Cevap gelmedi.");
-    }
-  }catch(err){
-    yaziyorEfektiKapat(loading);
-    cevap("Bağlantı hatası.");
-    console.error(err);
-  }
-
-  fotoTemizle();
-}
-
-input.addEventListener("keydown", function(e){
-  if(e.key === "Enter") gonder();
-});
-
-window.addEventListener("resize", () => {
-  chat.scrollTop = chat.scrollHeight;
-});
-
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js").catch(err => {
-      console.log("Service Worker hata:", err);
-    });
-  });
-}
-
-yukleKayit();
-</script>
-</body>
-</html>
