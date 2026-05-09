@@ -667,9 +667,34 @@ function mesajiSohbeteKaydet(text, kim, foto = null){
 
   aktif.mesajlar.push({ text, kim, foto, zaman: Date.now() });
 
-  if(kim === "user" && aktif.baslik === "Yeni Sohbet"){
-    aktif.baslik = (text || "Yeni Sohbet").slice(0, 32);
+if(kim === "user" && aktif.baslik === "Yeni Sohbet"){
+
+  const t = (text || "").toLowerCase();
+
+  if(t.includes("selam") || t.includes("merhaba")){
+    aktif.baslik = "Selamlaşma Sohbeti";
+
+  }else if(t.includes("nasılsın") || t.includes("nasilsin")){
+    aktif.baslik = "Günlük Sohbet";
+
+  }else if(t.includes("minecraft")){
+    aktif.baslik = "Minecraft Sohbeti";
+
+  }else if(t.includes("python")){
+    aktif.baslik = "Python Öğrenme";
+
+  }else if(t.includes("yapay zeka") || t.includes("ai")){
+    aktif.baslik = "Yapay Zeka Sohbeti";
+
+  }else{
+
+    aktif.baslik =
+      text
+      .split(" ")
+      .slice(0,3)
+      .join(" ");
   }
+}
 
   sohbetleriKaydet();
   sohbetleriGoster();
@@ -720,16 +745,7 @@ async function cevap(text, kaydet = true){
     sesliOku(text);
   }
 
-  const btn = document.createElement("button");
-  btn.className = "kopyalaBtn";
-  btn.innerText = "Kopyala";
-  btn.onclick = () => {
-    navigator.clipboard.writeText(text).then(() => {
-      btn.innerText = "Kopyalandı";
-      setTimeout(() => btn.innerText = "Kopyala", 1200);
-    }).catch(() => {});
-  };
-  balon.appendChild(btn);
+
 
   if(kaydet){
     mesajiSohbeteKaydet(text, "ai");
