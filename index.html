@@ -11,127 +11,398 @@
 
 <style>
 *{ box-sizing:border-box; }
-html, body{ height:100%; overflow:hidden; }
+
+html, body{
+  height:100%;
+  overflow:hidden;
+}
+
 body{
-  margin:0; font-family:Arial,sans-serif;
+  margin:0;
+  font-family:Arial,sans-serif;
   background:
-    radial-gradient(circle at top left, rgba(163,73,255,.28), transparent 30%),
-    radial-gradient(circle at top right, rgba(93,0,255,.18), transparent 28%),
-    radial-gradient(circle at bottom, rgba(255,0,170,.12), transparent 30%),
-    linear-gradient(135deg,#050505 0%,#0d0718 35%,#140821 65%,#050505 100%);
-  display:flex; justify-content:center; align-items:center;
-  min-height:100vh; color:white; overflow:hidden;
+    radial-gradient(circle at top left, rgba(163, 73, 255, 0.28), transparent 30%),
+    radial-gradient(circle at top right, rgba(93, 0, 255, 0.18), transparent 28%),
+    radial-gradient(circle at bottom, rgba(255, 0, 170, 0.12), transparent 30%),
+    linear-gradient(135deg, #050505 0%, #0d0718 35%, #140821 65%, #050505 100%);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+  color:white;
 }
+
 body::before{
-  content:""; position:fixed; inset:0;
+  content:"";
+  position:fixed;
+  inset:0;
   background:
-    radial-gradient(circle at 20% 20%, rgba(180,80,255,.08), transparent 18%),
-    radial-gradient(circle at 80% 30%, rgba(90,0,255,.08), transparent 20%),
-    radial-gradient(circle at 50% 80%, rgba(255,0,140,.06), transparent 22%);
-  pointer-events:none; filter:blur(20px);
+    radial-gradient(circle at 20% 20%, rgba(180, 80, 255, 0.08), transparent 18%),
+    radial-gradient(circle at 80% 30%, rgba(90, 0, 255, 0.08), transparent 20%),
+    radial-gradient(circle at 50% 80%, rgba(255, 0, 140, 0.06), transparent 22%);
+  pointer-events:none;
+  filter:blur(20px);
 }
+
 .kutu{
-  width:92%; max-width:980px; height:88vh;
-  background:rgba(7,7,12,.78); border-radius:24px;
-  display:flex; flex-direction:column; backdrop-filter:blur(16px);
-  overflow:hidden; border:1px solid rgba(255,255,255,.08);
-  box-shadow:0 25px 60px rgba(0,0,0,.50),0 0 40px rgba(125,0,255,.08);
-  position:relative; z-index:1;
+  width:92%;
+  max-width:1120px;
+  height:88vh;
+  background:rgba(7,7,12,0.78);
+  border-radius:24px;
+  display:flex;
+  flex-direction:row;
+  backdrop-filter:blur(16px);
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,0.08);
+  box-shadow:0 25px 60px rgba(0,0,0,0.50),0 0 40px rgba(125,0,255,0.08);
+  position:relative;
+  z-index:1;
 }
+
+.solPanel{
+  width:260px;
+  background:rgba(0,0,0,0.24);
+  border-right:1px solid rgba(255,255,255,0.06);
+  display:flex;
+  flex-direction:column;
+  padding:14px;
+  gap:12px;
+}
+
+.solUst{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.yeniSohbetBtn{
+  background:linear-gradient(135deg,#7b2cff,#3d7cff);
+  color:white;
+  border:none;
+  border-radius:14px;
+  padding:14px;
+  font-weight:bold;
+  cursor:pointer;
+  font-size:15px;
+}
+
+.sidebarMiniBtn{
+  background:rgba(255,255,255,0.06);
+  color:#eee;
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:12px;
+  padding:10px;
+  cursor:pointer;
+  font-size:13px;
+}
+
+.gecmisBaslik{
+  color:#bbb;
+  font-size:13px;
+  margin-top:6px;
+}
+
+.sohbetListesi{
+  flex:1;
+  overflow-y:auto;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.sohbetItem{
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.05);
+  border-radius:12px;
+  padding:12px;
+  cursor:pointer;
+  transition:.2s;
+  color:white;
+  font-size:14px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.sohbetItem:hover{
+  background:rgba(255,255,255,0.10);
+}
+
+.sohbetItem.aktif{
+  background:rgba(123,44,255,0.26);
+  border-color:rgba(123,44,255,0.45);
+}
+
+.anaAlan{
+  flex:1;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+}
+
 .ust{
-  padding:16px 18px; display:flex; justify-content:space-between; align-items:center;
-  gap:10px; border-bottom:1px solid rgba(255,255,255,.06); flex-wrap:wrap;
-  background:linear-gradient(to right, rgba(255,255,255,.02), rgba(255,255,255,.01));
+  padding:16px 18px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  flex-wrap:wrap;
 }
-.baslikAlan{ display:flex; flex-direction:column; }
-.baslik{ font-size:24px; font-weight:bold; letter-spacing:.3px; }
+
+.baslik{ font-size:24px; font-weight:bold; }
 .altBaslik{ font-size:13px; color:#cfcfcf; margin-top:4px; min-height:16px; }
-.ustButonlar{ display:flex; gap:8px; flex-wrap:wrap; }
+
+.ustButonlar{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
 .ustButonlar button{
-  background:rgba(255,255,255,.06); color:white; border:1px solid rgba(255,255,255,.09);
-  border-radius:12px; padding:10px 12px; cursor:pointer; transition:.15s ease;
+  background:rgba(255,255,255,0.06);
+  color:white;
+  border:1px solid rgba(255,255,255,0.09);
+  border-radius:12px;
+  padding:10px 12px;
+  cursor:pointer;
 }
-.ustButonlar button:hover{ background:rgba(180,80,255,.16); border-color:rgba(180,80,255,.30); }
+
 .chat{
-  flex:1; overflow-y:auto; padding:18px; padding-bottom:90px;
-  display:flex; flex-direction:column; gap:12px;
-  -webkit-overflow-scrolling:touch; scroll-behavior:smooth;
+  flex:1;
+  overflow-y:auto;
+  padding:18px;
+  padding-bottom:140px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  scroll-behavior:smooth;
 }
-.chat::-webkit-scrollbar{ width:8px; }
-.chat::-webkit-scrollbar-thumb{ background:rgba(255,255,255,.18); border-radius:20px; }
+
 .satir{ display:flex; width:100%; animation:fadeIn .18s ease; }
 .user{ justify-content:flex-end; }
 .ai{ justify-content:flex-start; }
 .sistem{ justify-content:center; }
+
 .balon{
-  max-width:76%; padding:12px 14px; border-radius:18px; line-height:1.45;
-  word-wrap:break-word; white-space:pre-wrap;
+  max-width:76%;
+  padding:12px 14px;
+  border-radius:18px;
+  line-height:1.45;
+  word-wrap:break-word;
+  white-space:pre-wrap;
+  position:relative;
 }
+
 .user .balon{
-  background:linear-gradient(135deg,#7b2cff 0%,#3d7cff 100%);
-  border-bottom-right-radius:6px; box-shadow:0 8px 20px rgba(61,124,255,.18);
+  background:linear-gradient(135deg, #7b2cff 0%, #3d7cff 100%);
+  border-bottom-right-radius:6px;
 }
-.ai .balon{ background:rgba(255,255,255,.10); border-bottom-left-radius:6px; color:#f3f3f3; }
-.sistem .balon{ background:rgba(255,255,255,.06); color:#ddd; font-size:13px; text-align:center; }
-.balon img{ max-width:100%; margin-top:10px; display:block; border-radius:14px; border:1px solid rgba(255,255,255,.08); }
+
+.ai .balon{
+  background:rgba(255,255,255,0.10);
+  border-bottom-left-radius:6px;
+}
+
+.sistem .balon{
+  background:rgba(255,255,255,0.06);
+  color:#ddd;
+  font-size:13px;
+  text-align:center;
+}
+
+.balon img{
+  max-width:100%;
+  margin-top:10px;
+  display:block;
+  border-radius:14px;
+}
+
+.kopyalaBtn{
+  margin-top:8px;
+  background:rgba(255,255,255,0.08);
+  color:#ddd;
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:10px;
+  padding:6px 9px;
+  cursor:pointer;
+  font-size:12px;
+}
+
 .yaziyor{ opacity:.82; font-style:italic; }
+
 .onizleme{
-  display:none; align-items:center; gap:12px; padding:12px 16px;
-  border-top:1px solid rgba(255,255,255,.05); background:rgba(255,255,255,.03);
+  display:none;
+  align-items:center;
+  gap:12px;
+  padding:12px 16px;
+  border-top:1px solid rgba(255,255,255,0.05);
+  background:rgba(255,255,255,0.03);
 }
-.onizleme img{ width:72px; height:72px; object-fit:cover; border-radius:12px; border:1px solid rgba(255,255,255,.10); }
-.onizlemeYazi{ flex:1; color:#ddd; font-size:14px; }
+
+.onizleme img{
+  width:72px;
+  height:72px;
+  object-fit:cover;
+  border-radius:12px;
+}
+
+.onizlemeYazi{
+  flex:1;
+  color:#ddd;
+  font-size:14px;
+}
+
 .alt{
-  display:flex; align-items:center; gap:10px; padding:12px;
-  border-top:1px solid rgba(255,255,255,.06); background:rgba(0,0,0,.22);
-  position:sticky; bottom:0; z-index:5; padding-bottom:calc(12px + env(safe-area-inset-bottom,0px));
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:12px;
+  border-top:1px solid rgba(255,255,255,0.06);
+  background:rgba(0,0,0,0.22);
+  position:sticky;
+  bottom:0;
+  z-index:5;
 }
+
 #input{
-  flex:1; padding:14px; border-radius:14px; border:none; outline:none;
-  background:rgba(255,255,255,.05); color:white; font-size:15px;
-  border:1px solid rgba(255,255,255,.06);
+  flex:1;
+  padding:14px;
+  border-radius:14px;
+  outline:none;
+  background:rgba(255,255,255,0.05);
+  color:white;
+  font-size:15px;
+  border:1px solid rgba(255,255,255,0.06);
 }
+
 #input::placeholder{ color:#aaa; }
+
 .alt button,.dosyaLabel,.onizleme button{
-  padding:12px 14px; border:none; border-radius:14px; background:white; color:black;
-  font-weight:bold; cursor:pointer; transition:.15s ease;
+  padding:12px 14px;
+  border:none;
+  border-radius:14px;
+  background:white;
+  color:black;
+  font-weight:bold;
+  cursor:pointer;
 }
-.alt button:hover,.dosyaLabel:hover,.onizleme button:hover{ transform:translateY(-1px); opacity:.95; }
-.alt button:disabled{ opacity:.55; cursor:not-allowed; transform:none; }
+
+#gonderBtn:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+}
+
 #fotoInput{ display:none; }
-.loginModal{
-  position:fixed; inset:0; background:rgba(0,0,0,.92);
-  display:flex; justify-content:center; align-items:center; z-index:9999;
+
+.guvenlikYazi{
+  position:fixed;
+  bottom:6px;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:12px;
+  color:#aaa;
+  z-index:999;
+  text-align:center;
+  width:100%;
+  padding:0 10px;
 }
-.loginBox{
-  width:90%; max-width:390px; background:#101010; border:1px solid rgba(255,255,255,.12);
-  border-radius:24px; padding:26px; text-align:center; box-shadow:0 25px 70px rgba(0,0,0,.65); position:relative;
+
+.guvenlikYazi span{
+  color:white;
+  cursor:pointer;
+  text-decoration:underline;
 }
-.loginBox h2{ margin:8px 0 10px; font-size:24px; }
-.loginBox p{ color:#aaa; font-size:14px; line-height:1.45; margin-bottom:20px; }
-.loginBtn{
-  width:100%; padding:14px; margin:7px 0; border-radius:999px;
-  border:1px solid rgba(255,255,255,.14); background:#181818; color:white; font-weight:bold; cursor:pointer;
+
+.popupArka{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.75);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+  padding:20px;
 }
-.loginBtn:hover{ background:#222; }
-.google{ background:#fff; color:#111; }
-.ayrac{ display:flex; align-items:center; gap:12px; color:#777; font-size:12px; margin:18px 0; }
-.ayrac::before,.ayrac::after{ content:""; flex:1; height:1px; background:#333; }
-.emailInput{
-  width:100%; padding:14px; border-radius:999px; border:1px solid rgba(255,255,255,.14);
-  background:#0b0b0b; color:white; outline:none; margin-bottom:12px;
+
+.popup{
+  max-width:520px;
+  width:100%;
+  background:#111;
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:22px;
+  padding:24px;
+  color:white;
+  box-shadow:0 20px 60px rgba(0,0,0,0.5);
 }
-.devamBtn{ width:100%; padding:14px; border-radius:999px; border:none; background:white; color:black; font-weight:bold; cursor:pointer; }
-.loginClose{ position:absolute; top:12px; right:14px; background:transparent; color:white; border:none; font-size:24px; cursor:pointer; }
-@keyframes fadeIn{ from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+.popup h2{ margin-top:0; }
+.popup ul{ padding-left:20px; }
+
+.popup button{
+  margin-top:14px;
+  padding:12px 18px;
+  border:none;
+  border-radius:12px;
+  background:white;
+  color:black;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+@keyframes fadeIn{
+  from{ opacity:0; transform:translateY(8px); }
+  to{ opacity:1; transform:translateY(0); }
+}
+
 @media (max-width:700px){
   body{ align-items:stretch; }
-  .kutu{ width:100%; max-width:none; height:100dvh; border-radius:0; }
+
+  .kutu{
+    width:100%;
+    max-width:none;
+    height:100dvh;
+    border-radius:0;
+  }
+
+  .solPanel{
+    width:145px;
+    padding:10px;
+  }
+
+  .yeniSohbetBtn{
+    padding:11px;
+    font-size:13px;
+  }
+
+  .sidebarMiniBtn{
+    font-size:11px;
+    padding:8px;
+  }
+
+  .sohbetItem{
+    font-size:12px;
+    padding:10px;
+  }
+
   .balon{ max-width:88%; }
-  .ust{ padding:14px; }
-  .chat{ padding:14px; padding-bottom:95px; }
-  .alt{ padding:10px; gap:8px; padding-bottom:calc(10px + env(safe-area-inset-bottom,0px)); }
+
+  .alt{
+    padding:10px;
+    gap:8px;
+  }
+
   #input{ font-size:16px; }
+
+  .dosyaLabel{
+    display:none;
+  }
+
+  .guvenlikYazi{
+    font-size:10px;
+    bottom:3px;
+  }
 }
 .splashScreen{
   position:fixed;
@@ -141,7 +412,6 @@ body::before{
   justify-content:center;
   align-items:center;
   z-index:999999;
-  overflow:hidden;
 
   animation:splashFade 1s ease forwards;
   animation-delay:2.7s;
@@ -159,6 +429,7 @@ body::before{
 }
 
 @keyframes splashZoom{
+
   0%{
     transform:scale(1);
     opacity:0;
@@ -175,6 +446,7 @@ body::before{
 }
 
 @keyframes splashFloat{
+
   0%{
     transform:
       scale(1)
@@ -212,6 +484,7 @@ body::before{
 }
 
 @keyframes splashGlow{
+
   0%{
     filter:
       brightness(1)
@@ -239,51 +512,80 @@ body::before{
 }
 </style>
 </head>
+
 <body>
 <div class="splashScreen">
-  <img src="/splash.png">
+  <img src="./splash.png" alt="NeuraAI Açılış">
 </div>
-<div id="loginModal" class="loginModal">
-  <div class="loginBox">
-    <button class="loginClose" onclick="kapatLogin()">×</button>
-    <h2>Oturum aç veya kaydol</h2>
-    <p>Daha akıllı yanıtlar alabilir, görsel yükleyebilir ve NeuraAI deneyimini daha kişisel kullanabilirsin.</p>
-    <button class="loginBtn google" onclick="googleLogin()">Google ile devam et</button>
-    <button class="loginBtn" onclick="yakinda()">Apple ile devam et</button>
-    <button class="loginBtn" onclick="yakinda()">Telefonla devam et</button>
-    <div class="ayrac"><span>YA DA</span></div>
-    <input class="emailInput" placeholder="E-posta adresi">
-    <button class="devamBtn" onclick="yakinda()">Devam</button>
-  </div>
-</div>
-
 <div class="kutu">
-  <div class="ust">
-    <div class="baslikAlan">
-      <div class="baslik">NeuraAI</div>
-      <div class="altBaslik" id="durumYazi"></div>
+  <div class="solPanel">
+    <div class="solUst">
+      <button class="yeniSohbetBtn" onclick="yeniSohbet()">+ Yeni Sohbet</button>
+      <button class="sidebarMiniBtn" onclick="aktifSohbetiSil()">Bu sohbeti sil</button>
+      <button class="sidebarMiniBtn" onclick="sohbetiDisaAktar()">Sohbeti dışa aktar</button>
     </div>
-    <div class="ustButonlar">
-      <button onclick="sohbetiTemizle()">Temizle</button>
-      <button onclick="kaydet()">Kaydet</button>
-      <button onclick="kisaMod()">Kısa Mod</button>
-      <button onclick="uzunMod()">Uzun Mod</button>
-    </div>
+    <div class="gecmisBaslik">Sohbetler</div>
+    <div id="sohbetListesi" class="sohbetListesi"></div>
   </div>
 
-  <div id="chat" class="chat"></div>
+  <div class="anaAlan">
+    <div class="ust">
+      <div class="baslikAlan">
+        <div class="baslik">NeuraAI</div>
+        <div class="altBaslik" id="durumYazi"></div>
+      </div>
 
-  <div class="onizleme" id="onizleme">
-    <img id="onizlemeResim" src="" alt="Önizleme">
-    <div class="onizlemeYazi" id="onizlemeYazi">Fotoğraf seçildi</div>
-    <button type="button" onclick="fotoTemizle()">Kaldır</button>
+      <div class="ustButonlar">
+        <button onclick="sohbetiTemizle()">Temizle</button>
+        <button onclick="kaydet()">Kaydet</button>
+        <button onclick="kisaMod()">Kısa Mod</button>
+        <button onclick="uzunMod()">Uzun Mod</button>
+        <button onclick="sesAcKapat()" id="sesBtn">🔊</button>
+        <button onclick="window.location.href='/admin.html'">Admin Giriş</button>
+      </div>
+    </div>
+
+    <div id="chat" class="chat"></div>
+
+    <div class="onizleme" id="onizleme">
+      <img id="onizlemeResim" src="" alt="Önizleme">
+      <div class="onizlemeYazi" id="onizlemeYazi">Fotoğraf seçildi</div>
+      <button type="button" onclick="fotoTemizle()">Kaldır</button>
+    </div>
+
+    <div class="alt">
+      <label for="fotoInput" class="dosyaLabel">Fotoğraf</label>
+      <input type="file" id="fotoInput" accept="image/*">
+      <input id="input" placeholder="Mesaj yaz...">
+      <button type="button" onclick="document.getElementById('fotoInput').click()">📷</button>
+      <button type="button" onclick="mikrofonBaslat()">🎤</button>
+      <button id="gonderBtn" type="button" onclick="gonder()">Gönder</button>
+    </div>
   </div>
+</div>
 
-  <div class="alt">
-    <label for="fotoInput" class="dosyaLabel">Fotoğraf</label>
-    <input type="file" id="fotoInput" accept="image/*">
-    <input id="input" placeholder="Mesaj yaz...">
-    <button id="gonderBtn" type="button" onclick="gonder()">Gönder</button>
+<div class="guvenlikYazi">
+  NeuraAI Güvenlik şartlarından dolayı IP'nizi ve konuştuğunuz sohbetleri görebilir.
+  <span onclick="guvenlikAc()">Tıklayın.</span>
+</div>
+
+<div class="popupArka" id="popupArka">
+  <div class="popup">
+    <h2>NeuraAI Güvenlik Bilgilendirmesi</h2>
+    <p>
+      NeuraAI sistemi; güvenlik, spam engelleme, geliştirme ve kötüye kullanımı önlemek amacıyla:
+    </p>
+    <ul>
+      <li>IP adresinizi</li>
+      <li>Gönderdiğiniz mesajları</li>
+      <li>Gönderdiğiniz görselleri</li>
+      <li>Kullanım istatistiklerinizi</li>
+    </ul>
+    <p>geçici veya kalıcı şekilde kayıt altına alabilir.</p>
+    <p>
+      Sistem kötüye kullanım, spam, saldırı veya güvenlik ihlallerini tespit etmek amacıyla admin panel üzerinden denetlenebilir.
+    </p>
+    <button onclick="guvenlikKapat()">Tamam</button>
   </div>
 </div>
 
@@ -301,69 +603,427 @@ let secilenFoto = null;
 let cevapModu = localStorage.getItem("neura_mod") || "normal";
 let sonMesajZamani = 0;
 let cooldownTimer = null;
-let sohbetGecmisi = JSON.parse(localStorage.getItem("neura_memory") || "[]");
+let sesAcik = localStorage.getItem("neura_ses") !== "kapali";
+let sohbetGecmisi = [];
+let mevcutSesler = [];
+let cevapYaziliyor = false;
 
-function temizleMetin(m){ return (m || "").toLowerCase().replace(/\s+/g," ").trim(); }
+let tumSohbetler = JSON.parse(localStorage.getItem("tum_sohbetler")) || [];
+let aktifSohbetId = localStorage.getItem("aktif_sohbet_id")
+  ? Number(localStorage.getItem("aktif_sohbet_id"))
+  : null;
 
-function mesajEkle(text, kim, foto = null, extraClass = ""){
+document.getElementById("sesBtn").innerText = sesAcik ? "🔊" : "🔇";
+
+function guvenlikAc(){
+  document.getElementById("popupArka").style.display = "flex";
+}
+
+function guvenlikKapat(){
+  document.getElementById("popupArka").style.display = "none";
+}
+
+function sesleriYukle(){
+  mevcutSesler = speechSynthesis.getVoices();
+}
+
+speechSynthesis.onvoiceschanged = sesleriYukle;
+sesleriYukle();
+
+function sesiTemizle(text){
+  return String(text || "")
+    .replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, "")
+    .replace(/[*_`#>\[\]{}()~|]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function sesliOku(text){
+  if(!sesAcik || !text) return;
+
+  const okunacak = sesiTemizle(text);
+  if(!okunacak) return;
+
+  speechSynthesis.cancel();
+
+  const ses = new SpeechSynthesisUtterance(okunacak);
+  ses.lang = "tr-TR";
+ses.rate = 0.92;
+ses.pitch = 0.78;
+ses.volume = 1;
+
+const iyiSes =
+  mevcutSesler.find(s =>
+    s.name.toLowerCase().includes("tolga")
+  ) ||
+
+  mevcutSesler.find(s =>
+    s.name.toLowerCase().includes("ahmet")
+  ) ||
+
+  mevcutSesler.find(s =>
+    s.name.toLowerCase().includes("turkish")
+  ) ||
+
+  mevcutSesler.find(s =>
+    s.lang === "tr-TR"
+  ) ||
+
+  mevcutSesler.find(s =>
+    s.lang && s.lang.startsWith("tr")
+  ) ||
+
+  mevcutSesler[0];
+
+  if(iyiSes) ses.voice = iyiSes;
+if(iyiSes){
+  ses.voiceURI = iyiSes.voiceURI;
+}
+  speechSynthesis.speak(ses);
+}
+
+function sesAcKapat(){
+  sesAcik = !sesAcik;
+  localStorage.setItem("neura_ses", sesAcik ? "acik" : "kapali");
+  document.getElementById("sesBtn").innerText = sesAcik ? "🔊" : "🔇";
+  if(!sesAcik) speechSynthesis.cancel();
+}
+
+let recognition;
+
+function mikrofonBaslat(){
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if(!SpeechRecognition){
+    cevap("Tarayıcın desteklemiyor kanka 😄 Chrome kullan.", false);
+    return;
+  }
+
+  if(!recognition){
+    recognition = new SpeechRecognition();
+    recognition.lang = "tr-TR";
+    recognition.interimResults = false;
+
+    recognition.onresult = function(event){
+      input.value = event.results[0][0].transcript;
+      durumYazi.innerText = "";
+      gonder();
+    };
+
+    recognition.onerror = function(event){
+      durumYazi.innerText = "";
+      if(event.error === "not-allowed") cevap("Mikrofon izni yok kanka 🎤", false);
+      else if(event.error === "no-speech") cevap("Hiçbir şey duyamadım 😄", false);
+      else if(event.error === "audio-capture") cevap("Mikrofon bulunamadı kanka.", false);
+      else cevap("Mikrofon hata: " + event.error, false);
+    };
+
+    recognition.onend = function(){
+      durumYazi.innerText = "";
+    };
+  }
+
+  try{
+    recognition.start();
+    durumYazi.innerText = "Dinliyorum 🎤";
+  }catch(err){
+    console.log("Mikrofon başlatma hatası:", err);
+  }
+}
+
+function temizleMetin(m){
+  return (m || "").toLowerCase().replace(/\s+/g, " ").trim();
+}
+
+function mesajEkle(text, kim, foto = null, extraClass = "", kopyala = false){
   const satir = document.createElement("div");
   satir.className = "satir " + kim;
+
   const balon = document.createElement("div");
   balon.className = "balon " + extraClass;
+
   if(text){
     const yazi = document.createElement("div");
     yazi.innerText = text;
     balon.appendChild(yazi);
+
+    if(kopyala && kim === "ai"){
+      const btn = document.createElement("button");
+      btn.className = "kopyalaBtn";
+      btn.innerText = "Kopyala";
+      btn.onclick = () => {
+        navigator.clipboard.writeText(text).then(() => {
+          btn.innerText = "Kopyalandı";
+          setTimeout(() => btn.innerText = "Kopyala", 1200);
+        }).catch(() => {});
+      };
+      balon.appendChild(btn);
+    }
   }
+
   if(foto){
-  const img = document.createElement("img");
-  img.src = foto;
-  img.alt = "Görsel";
+    const img = document.createElement("img");
+    img.src = foto;
+    img.alt = "Görsel";
+    img.style.cursor = "pointer";
+    img.onclick = () => window.open(foto, "_blank");
+    balon.appendChild(img);
+  }
 
-  img.style.cursor = "pointer"; // imleç değişsin
-  img.onclick = () => window.open(foto, "_blank"); // tıklayınca aç
-
-  balon.appendChild(img);
-}
   satir.appendChild(balon);
   chat.appendChild(satir);
   chat.scrollTop = chat.scrollHeight;
+
   return satir;
 }
 
-function cevap(text){ mesajEkle(text,"ai"); }
-function sistemMesaji(text){ mesajEkle(text,"sistem"); }
+function aktifSohbetBul(){
+  return tumSohbetler.find(s => s.id === aktifSohbetId);
+}
+
+function sohbetleriKaydet(){
+  localStorage.setItem("tum_sohbetler", JSON.stringify(tumSohbetler));
+  if(aktifSohbetId){
+    localStorage.setItem("aktif_sohbet_id", String(aktifSohbetId));
+  }
+}
+
+function mesajiSohbeteKaydet(text, kim, foto = null){
+  const aktif = aktifSohbetBul();
+  if(!aktif) return;
+
+  aktif.mesajlar.push({ text, kim, foto, zaman: Date.now() });
+
+if(kim === "user" && aktif.baslik === "Yeni Sohbet"){
+
+  const t = (text || "").toLowerCase();
+
+  if(t.includes("selam") || t.includes("merhaba")){
+    aktif.baslik = "Selamlaşma Sohbeti";
+
+  }else if(t.includes("nasılsın") || t.includes("nasilsin")){
+    aktif.baslik = "Günlük Sohbet";
+
+  }else if(t.includes("minecraft")){
+    aktif.baslik = "Minecraft Sohbeti";
+
+  }else if(t.includes("python")){
+    aktif.baslik = "Python Öğrenme";
+
+  }else if(t.includes("yapay zeka") || t.includes("ai")){
+    aktif.baslik = "Yapay Zeka Sohbeti";
+
+  }else{
+
+    aktif.baslik =
+      text
+      .split(" ")
+      .slice(0,3)
+      .join(" ");
+  }
+}
+
+  sohbetleriKaydet();
+  sohbetleriGoster();
+}
+
+async function cevap(text, kaydet = true){
+  if(!text) return;
+
+  cevapYaziliyor = true;
+
+  const satir = document.createElement("div");
+  satir.className = "satir ai";
+
+  const balon = document.createElement("div");
+  balon.className = "balon";
+
+  const yazi = document.createElement("div");
+
+  balon.appendChild(yazi);
+  satir.appendChild(balon);
+  chat.appendChild(satir);
+
+  chat.scrollTop = chat.scrollHeight;
+
+  let mevcut = "";
+  let sesBasladi = false;
+
+  for(let i = 0; i < text.length; i++){
+    if(!sesBasladi && i >= 25){
+      sesliOku(text);
+      sesBasladi = true;
+    }
+
+    mevcut += text[i];
+    yazi.innerText = mevcut;
+
+    chat.scrollTop = chat.scrollHeight;
+
+    let hiz = 8;
+    if(text[i] === "." || text[i] === "," || text[i] === "!" || text[i] === "?"){
+      hiz = 42;
+    }
+
+    await new Promise(r => setTimeout(r, hiz));
+  }
+
+  if(!sesBasladi){
+    sesliOku(text);
+  }
+
+
+
+  if(kaydet){
+    mesajiSohbeteKaydet(text, "ai");
+  }
+
+  cevapYaziliyor = false;
+}
+
+function sohbetleriGoster(){
+  const liste = document.getElementById("sohbetListesi");
+  liste.innerHTML = "";
+
+  tumSohbetler.forEach(sohbet => {
+    const item = document.createElement("div");
+    item.className = "sohbetItem" + (sohbet.id === aktifSohbetId ? " aktif" : "");
+    item.innerText = sohbet.baslik || "Yeni Sohbet";
+    item.onclick = () => sohbetAc(sohbet.id);
+    liste.appendChild(item);
+  });
+}
+
+function yeniSohbet(){
+  chat.innerHTML = "";
+  sohbetGecmisi = [];
+  speechSynthesis.cancel();
+
+  aktifSohbetId = Date.now();
+
+  const yeni = {
+    id: aktifSohbetId,
+    baslik: "Yeni Sohbet",
+    mesajlar: []
+  };
+
+  tumSohbetler.unshift(yeni);
+
+  sohbetleriKaydet();
+  sohbetleriGoster();
+
+  cevap("Yeni sohbet başlatıldı 😄", false);
+}
+
+function sohbetAc(id){
+  const sohbet = tumSohbetler.find(s => s.id === id);
+  if(!sohbet) return;
+
+  aktifSohbetId = id;
+  localStorage.setItem("aktif_sohbet_id", String(aktifSohbetId));
+  speechSynthesis.cancel();
+
+  chat.innerHTML = "";
+
+  sohbet.mesajlar.forEach(m => {
+    mesajEkle(m.text, m.kim, m.foto || null, "", m.kim === "ai");
+  });
+
+  sohbetGecmisi = sohbet.mesajlar
+    .filter(m => m.kim === "user" || m.kim === "ai")
+    .map(m => ({
+      role: m.kim === "user" ? "user" : "assistant",
+      content: m.text
+    }))
+    .slice(-20);
+
+  sohbetleriGoster();
+}
+
+function aktifSohbetiSil(){
+  if(tumSohbetler.length <= 1){
+    sohbetiTemizle();
+    return;
+  }
+
+  tumSohbetler = tumSohbetler.filter(s => s.id !== aktifSohbetId);
+  aktifSohbetId = tumSohbetler[0].id;
+  sohbetleriKaydet();
+  sohbetAc(aktifSohbetId);
+}
+
+function sohbetiDisaAktar(){
+  const aktif = aktifSohbetBul();
+  if(!aktif) return;
+
+  const metin = aktif.mesajlar
+    .map(m => `${m.kim === "user" ? "Sen" : "NeuraAI"}: ${m.text || ""}`)
+    .join("\n\n");
+
+  const blob = new Blob([metin], {type:"text/plain;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = (aktif.baslik || "neuraai-sohbet") + ".txt";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function sistemMesaji(text){
+  mesajEkle(text, "sistem");
+}
 
 function kaydet(){
-  localStorage.setItem("neura_chat", chat.innerHTML);
-  localStorage.setItem("neura_memory", JSON.stringify(sohbetGecmisi));
+  sohbetleriKaydet();
   sistemMesaji("Sohbet kaydedildi.");
 }
 
 function yukleKayit(){
-  const kayit = localStorage.getItem("neura_chat");
-  if(kayit){
-    chat.innerHTML = kayit;
-    chat.scrollTop = chat.scrollHeight;
-  }else{
-    cevap("Merhaba, ben NeuraAI. Yaz bana, istersen fotoğraf da gönderebilirsin.");
+  if(tumSohbetler.length === 0){
+    yeniSohbet();
+    return;
   }
+
+  const varMi = tumSohbetler.some(s => s.id === aktifSohbetId);
+  if(!aktifSohbetId || !varMi){
+    aktifSohbetId = tumSohbetler[0].id;
+  }
+
+  sohbetAc(aktifSohbetId);
 }
 
 function sohbetiTemizle(){
+  const aktif = aktifSohbetBul();
+
   chat.innerHTML = "";
   sohbetGecmisi = [];
-  localStorage.removeItem("neura_chat");
-  localStorage.removeItem("neura_memory");
+  speechSynthesis.cancel();
+
+  if(aktif){
+    aktif.mesajlar = [];
+    aktif.baslik = "Yeni Sohbet";
+    sohbetleriKaydet();
+    sohbetleriGoster();
+  }
+
   sistemMesaji("Sohbet temizlendi.");
 }
 
-function kisaMod(){ cevapModu="kisa"; localStorage.setItem("neura_mod",cevapModu); sistemMesaji("Kısa cevap modu açıldı."); }
-function uzunMod(){ cevapModu="uzun"; localStorage.setItem("neura_mod",cevapModu); sistemMesaji("Uzun cevap modu açıldı."); }
+function kisaMod(){
+  cevapModu = "kisa";
+  localStorage.setItem("neura_mod", cevapModu);
+  sistemMesaji("Kısa cevap modu açıldı.");
+}
+
+function uzunMod(){
+  cevapModu = "uzun";
+  localStorage.setItem("neura_mod", cevapModu);
+  sistemMesaji("Uzun cevap modu açıldı.");
+}
 
 function yaziyorEfektiGoster(){
   durumYazi.innerText = "Yanıt hazırlanıyor...";
-  return mesajEkle("NeuraAI yazıyor...","ai",null,"yaziyor");
+  return mesajEkle("NeuraAI yazıyor...", "ai", null, "yaziyor");
 }
 
 function yaziyorEfektiKapat(el){
@@ -381,10 +1041,13 @@ function fotoTemizle(){
 
 function cooldownBaslat(){
   gonderBtn.disabled = true;
+
   if(cooldownTimer) clearInterval(cooldownTimer);
+
   cooldownTimer = setInterval(() => {
     const kalanMs = 3000 - (Date.now() - sonMesajZamani);
     const kalanSn = Math.ceil(kalanMs / 1000);
+
     if(kalanMs <= 0){
       clearInterval(cooldownTimer);
       cooldownTimer = null;
@@ -392,18 +1055,27 @@ function cooldownBaslat(){
       durumYazi.innerText = "";
       return;
     }
+
     durumYazi.innerText = `Yeni mesaj için ${kalanSn} saniye bekle`;
-  },200);
+  }, 200);
 }
 
 fotoInput.addEventListener("change", function(e){
   const file = e.target.files[0];
   if(!file) return;
+
   if(!file.type.startsWith("image/")){
     sistemMesaji("Lütfen sadece fotoğraf seç.");
     fotoTemizle();
     return;
   }
+
+  if(file.size > 5 * 1024 * 1024){
+    sistemMesaji("Fotoğraf çok büyük kanka. 5MB altında seç.");
+    fotoTemizle();
+    return;
+  }
+
   const reader = new FileReader();
   reader.onload = function(ev){
     secilenFoto = ev.target.result;
@@ -415,208 +1087,228 @@ fotoInput.addEventListener("change", function(e){
 });
 
 function kufurKontrol(m){
-  const kufurler = ["salak","aptal","mal","gerizekalı","gerizekali","orospu","piç","pic","amk","aq","siktir","oç","oc","fuck","shit","bitch","asshole","idiot","moron"];
+  const kufurler = [
+    "salak","aptal","mal","gerizekalı","gerizekali",
+    "orospu","piç","pic","amk","aq","siktir","oç","oc",
+    "fuck","shit","bitch","asshole","idiot","moron"
+  ];
   return kufurler.some(k => m.includes(k));
 }
 
 function randomMesajMi(m){
-  const temiz = m.replace(/[^a-zçğıöşü]/gi,"");
+  const temiz = m.replace(/[^a-zçğıöşü]/gi, "");
   if(temiz.length < 6) return false;
+
   const sesliler = "aeıioöuü";
   let sesliSayisi = 0;
-  for(const harf of temiz){ if(sesliler.includes(harf.toLowerCase())) sesliSayisi++; }
+
+  for(const harf of temiz){
+    if(sesliler.includes(harf.toLowerCase())) sesliSayisi++;
+  }
+
   const oran = sesliSayisi / temiz.length;
-  if(temiz.length > 8 && oran < .20) return true;
+  if(temiz.length > 8 && oran < 0.20) return true;
   if(/(.)\1{5,}/i.test(temiz)) return true;
+
   return false;
 }
 
 async function fotografAnalizEt(kullaniciMesaji){
-  if(!secilenFoto){ cevap("Önce bir fotoğraf seçmen lazım."); return; }
+  if(!secilenFoto){
+    await cevap("Önce bir fotoğraf seçmen lazım.", true);
+    return;
+  }
+
   const loading = yaziyorEfektiGoster();
+
   try{
-    const res = await fetch("/chat-image",{
+    const res = await fetch("/chat-image", {
       method:"POST",
       headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({
-        message: kullaniciMesaji || "Bu görseli analiz et.",
-        image: secilenFoto
+      body:JSON.stringify({
+        message:kullaniciMesaji || "Bu görseli analiz et.",
+        image:secilenFoto
       })
     });
+
     const data = await res.json();
     yaziyorEfektiKapat(loading);
-    if(data.reply) cevap(data.reply);
-    else cevap("Fotoğraf analizi cevabı boş döndü.");
+
+    if(data.reply){
+      await cevap(data.reply, true);
+    }else{
+      await cevap("Fotoğraf analizi cevabı boş döndü.", true);
+    }
   }catch(err){
     yaziyorEfektiKapat(loading);
-    cevap("Fotoğrafı aldım ama analiz tarafında bir sorun oldu.");
+    await cevap("Fotoğrafı aldım ama analiz tarafında bir sorun oldu.", true);
     console.error(err);
   }
+
   fotoTemizle();
 }
 
-async function gonder(){
-  const mesaj = input.value.trim();
-  const m = temizleMetin(mesaj);
-  if(!mesaj && !secilenFoto) return;
+async function gorselUret(mesaj){
+  const loading = yaziyorEfektiGoster();
 
-  const simdi = Date.now();
-  const fark = simdi - sonMesajZamani;
-  if(fark < 3000){
-    const kalanSn = Math.ceil((3000 - fark) / 1000);
-    cevap(`Biraz yavaş 😄 Yeni mesaj için ${kalanSn} saniye bekle.`);
-    cooldownBaslat();
-    return;
-  }
-
-  sonMesajZamani = simdi;
-  cooldownBaslat();
-  input.value = "";
-  mesajEkle(mesaj || "Fotoğraf gönderildi", "user", secilenFoto);
-
-  if(randomMesajMi(m)){ cevap("Klavye mi takıldı 😄 Ne demek istediğini biraz daha açık yaz."); fotoTemizle(); return; }
-  if(kufurKontrol(m)){ cevap("Burada duralım. Böyle konuşunca devam edemem. Düzgün yazarsan yardımcı olurum."); fotoTemizle(); return; }
-  if(m.includes("uzun cevap ver")){ uzunMod(); fotoTemizle(); return; }
-  if(m.includes("kısa cevap ver") || m.includes("kisa cevap ver")){ kisaMod(); fotoTemizle(); return; }
-
-  if(secilenFoto){
-    await fotografAnalizEt(mesaj || "Bu görseli analiz et.");
-    return;
-  }
-if(m.includes("çiz") || m.includes("ciz")){
-  let prompt = mesaj
+  const prompt = (mesaj
     .replace(/neuraai/gi, "")
     .replace(/çiz/gi, "")
     .replace(/ciz/gi, "")
-    .trim();
-
-  if(!prompt){
-    prompt = "creative digital art";
-  }
-
-  const loading = yaziyorEfektiGoster();
+    .trim() + " high quality, detailed, 4k, cinematic lighting, ultra realistic"
+  ) || "creative digital art";
 
   try{
     const res = await fetch("/generate-image", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ prompt })
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify({ prompt })
     });
 
     const data = await res.json();
     yaziyorEfektiKapat(loading);
 
     if(data.image){
-      mesajEkle("Görsel hazır kanka 🖼️ Tıklayıp büyütebilirsin.", "ai", data.image);
+      mesajEkle("Görsel hazır kanka 🖼️", "ai", data.image, "", false);
+      mesajiSohbeteKaydet("Görsel hazır kanka 🖼️", "ai", data.image);
     }else{
-      cevap(data.reply || "Görsel üretilemedi.");
+      await cevap(data.reply || "Görsel üretilemedi.", true);
     }
-
   }catch(err){
     yaziyorEfektiKapat(loading);
-    cevap("Görsel üretirken bağlantı hatası oldu.");
+    await cevap("Görsel üretirken bağlantı hatası oldu.", true);
     console.error(err);
   }
 
   fotoTemizle();
-  return;
 }
+
+async function gonder(){
+  const mesaj = input.value.trim();
+  const m = temizleMetin(mesaj);
+
+  if(cevapYaziliyor) return;
+  if(!mesaj && !secilenFoto) return;
+
+  if(!aktifSohbetBul()){
+    yeniSohbet();
+  }
+
+  const simdi = Date.now();
+  const fark = simdi - sonMesajZamani;
+
+  if(fark < 3000){
+    const kalanSn = Math.ceil((3000 - fark) / 1000);
+    await cevap(`Biraz yavaş 😄 Yeni mesaj için ${kalanSn} saniye bekle.`, false);
+    cooldownBaslat();
+    return;
+  }
+
+  sonMesajZamani = simdi;
+  cooldownBaslat();
+
+  input.value = "";
+
+  const userMesaj = mesaj || "Fotoğraf gönderildi";
+  const gonderilenFoto = secilenFoto;
+
+  mesajEkle(userMesaj, "user", gonderilenFoto);
+  mesajiSohbeteKaydet(userMesaj, "user", gonderilenFoto);
+
+  if(randomMesajMi(m)){
+    await cevap("Klavye mi takıldı 😄 Ne demek istediğini biraz daha açık yaz.", true);
+    fotoTemizle();
+    return;
+  }
+
+  if(kufurKontrol(m)){
+    await cevap("Burada duralım. Böyle konuşunca devam edemem. Düzgün yazarsan yardımcı olurum.", true);
+    fotoTemizle();
+    return;
+  }
+
+  if(m.includes("uzun cevap ver")){
+    uzunMod();
+    fotoTemizle();
+    return;
+  }
+
+  if(m.includes("kısa cevap ver") || m.includes("kisa cevap ver")){
+    kisaMod();
+    fotoTemizle();
+    return;
+  }
+
+  if(gonderilenFoto){
+    await fotografAnalizEt(mesaj || "Bu görseli analiz et.");
+    return;
+  }
+
+  if(m.includes("çiz") || m.includes("ciz")){
+    await gorselUret(mesaj);
+    return;
+  }
+
   const loading = yaziyorEfektiGoster();
-  const gecmis = sohbetGecmisi.concat([{ role:"user", content:mesaj }]);
+
+  sohbetGecmisi.push({
+    role:"user",
+    content:mesaj
+  });
 
   try{
-    const res = await fetch("/chat",{
+    const res = await fetch("/chat", {
       method:"POST",
       headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({
-        message: mesaj,
-        messages: gecmis,
-        mode: cevapModu
+      body:JSON.stringify({
+        message:mesaj,
+        mode:cevapModu,
+        messages:sohbetGecmisi
       })
     });
+
     const data = await res.json();
     yaziyorEfektiKapat(loading);
 
     if(data.reply){
-      cevap(data.reply);
-      sohbetGecmisi.push({ role:"user", content:mesaj });
-      sohbetGecmisi.push({ role:"assistant", content:data.reply });
-      if(sohbetGecmisi.length > 20) sohbetGecmisi = sohbetGecmisi.slice(-20);
-      localStorage.setItem("neura_memory", JSON.stringify(sohbetGecmisi));
-      mesajKaydet(mesaj, data.reply);
+      sohbetGecmisi.push({
+        role:"assistant",
+        content:data.reply
+      });
+
+      sohbetGecmisi = sohbetGecmisi.slice(-20);
+      await cevap(data.reply, true);
     }else{
-      cevap("Cevap gelmedi.");
+      await cevap("Cevap gelmedi.", true);
     }
   }catch(err){
     yaziyorEfektiKapat(loading);
-    cevap("Bağlantı hatası.");
+    await cevap("Bağlantı hatası.", true);
     console.error(err);
   }
+
   fotoTemizle();
 }
 
-input.addEventListener("keydown", function(e){ if(e.key === "Enter") gonder(); });
-window.addEventListener("resize", () => { chat.scrollTop = chat.scrollHeight; });
+input.addEventListener("keydown", function(e){
+  if(e.key === "Enter"){
+    gonder();
+  }
+});
+
+window.addEventListener("resize", () => {
+  chat.scrollTop = chat.scrollHeight;
+});
 
 if("serviceWorker" in navigator){
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js").catch(err => console.log("Service Worker hata:", err));
+    navigator.serviceWorker.register("/sw.js").catch(err => {
+      console.log("Service Worker hata:", err);
+    });
   });
 }
 
 yukleKayit();
-</script>
-
-<script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore-compat.js"></script>
-
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyCI15f7xDylQrhM3ap9-_eoRSHsgTJIg-o",
-  authDomain: "neuraai-1.firebaseapp.com",
-  projectId: "neuraai-1",
-  storageBucket: "neuraai-1.firebasestorage.app",
-  messagingSenderId: "129454765065",
-  appId: "1:129454765065:web:5bb2016dc33f857de8f4d8"
-};
-
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-
-function googleLogin(){
-  const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider)
-    .then(() => { document.getElementById("loginModal").style.display = "none"; })
-    .catch(err => { alert(err.message); console.log(err); });
-}
-
-function yakinda(){ alert("Bu özellik yakında gelecek 🚧"); }
-function kapatLogin(){ document.getElementById("loginModal").style.display = "none"; }
-
-async function mesajKaydet(kullaniciMesaji, aiCevabi){
-  const user = auth.currentUser;
-  try{
-    await db.collection("messages").add({
-      userEmail: user ? user.email : "giris_yok",
-      userName: user ? user.displayName : "Bilinmeyen kullanıcı",
-      message: kullaniciMesaji,
-      aiReply: aiCevabi,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    console.log("Mesaj kaydedildi 🔥");
-  }catch(err){
-    console.error("Mesaj kaydetme hatası:", err);
-  }
-}
-
-auth.onAuthStateChanged(user => {
-  if(user){ document.getElementById("loginModal").style.display = "none"; }
-  else{ document.getElementById("loginModal").style.display = "flex"; }
-});
 </script>
 </body>
 </html>
