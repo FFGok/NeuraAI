@@ -750,6 +750,11 @@ body::before{
       </div>
 
       <div class="profilSatir">
+  🏆 Kariyer:
+  <b id="profilKariyer">Yeni Başlayan</b>
+</div>
+
+      <div class="profilSatir">
         ⚡ XP:
         <b id="profilXP">0</b>
         /
@@ -787,6 +792,8 @@ const profilFotoInput = document.getElementById("profilFotoInput");
 const profilNickInput = document.getElementById("profilNickInput");
 const profilNickYazi = document.getElementById("profilNickYazi");
 const profilSeviye = document.getElementById("profilSeviye");
+const profilKariyer =
+document.getElementById("profilKariyer");
 const profilXP = document.getElementById("profilXP");
 const profilSonrakiXP = document.getElementById("profilSonrakiXP");
 const profilKatilim = document.getElementById("profilKatilim");
@@ -820,12 +827,21 @@ function profilGuncelle(){
   const xp = Number(profilVerisi.xp || 0);
   const seviye = Math.floor(xp / 100) + 1;
   const sonrakiXP = seviye * 100;
+let kariyer = "Yeni Başlayan";
 
+if(xp >= 100) kariyer = "Çırak";
+if(xp >= 300) kariyer = "Öğrenci";
+if(xp >= 700) kariyer = "Gelişen";
+if(xp >= 1500) kariyer = "Uzman";
+if(xp >= 3000) kariyer = "Usta";
+if(xp >= 6000) kariyer = "Efsane";
+if(xp >= 10000) kariyer = "NeuraAI Eliti";
   profilVerisi.seviye = seviye;
 
   profilNickInput.value = nick;
   profilNickYazi.innerText = nick;
   profilSeviye.innerText = seviye;
+  profilKariyer.innerText = kariyer;
   profilXP.innerText = xp;
   profilSonrakiXP.innerText = sonrakiXP;
   profilKatilim.innerText = tarihFormatla(profilVerisi.katilim || Date.now());
