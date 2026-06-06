@@ -556,6 +556,7 @@ body::before{
   <div class="solPanel">
     <div class="solUst">
       <button class="yeniSohbetBtn" onclick="yeniSohbet()">+ Yeni Sohbet</button>
+<button class="sidebarMiniBtn" onclick="modPanelAc()">🎭 Modlar</button>
       <button class="sidebarMiniBtn" onclick="aktifSohbetiSil()">Bu sohbeti sil</button>
       <button class="sidebarMiniBtn" onclick="sohbetiDisaAktar()">Sohbeti dışa aktar</button>
     </div>
@@ -626,6 +627,28 @@ body::before{
   </div>
 </div>
 
+<div class="popupArka" id="modPopup">
+  <div class="popup">
+    <h2>NeuraAI Modlar</h2>
+
+    <button onclick="modSec('samimi')">
+      😎 Samimi Mod
+    </button>
+
+    <button onclick="modSec('resmi')">
+      🏢 Resmi Mod
+    </button>
+
+    <button onclick="profesorKilidi()">
+      🎓 Profesör Modu (Pro Gerekli)
+    </button>
+
+    <button onclick="modPanelKapat()">
+      Kapat
+    </button>
+  </div>
+</div>
+
 <script>
 const chat = document.getElementById("chat");
 const input = document.getElementById("input");
@@ -635,7 +658,45 @@ const onizlemeResim = document.getElementById("onizlemeResim");
 const onizlemeYazi = document.getElementById("onizlemeYazi");
 const durumYazi = document.getElementById("durumYazi");
 const gonderBtn = document.getElementById("gonderBtn");
+let konusmaModu =
+localStorage.getItem("neura_konusma_modu")
+|| "samimi";
 
+function modPanelAc(){
+  document.getElementById("modPopup").style.display = "flex";
+}
+
+function modPanelKapat(){
+  document.getElementById("modPopup").style.display = "none";
+}
+
+function modSec(mod){
+
+  konusmaModu = mod;
+
+  localStorage.setItem(
+    "neura_konusma_modu",
+    mod
+  );
+
+  if(mod === "samimi"){
+    sistemMesaji("😎 Samimi Mod açıldı.");
+  }
+
+  if(mod === "resmi"){
+    sistemMesaji("🏢 Resmi Mod açıldı.");
+  }
+
+  modPanelKapat();
+}
+
+function profesorKilidi(){
+  sistemMesaji(
+    "🎓 Profesör Modu için Pro gerekli."
+  );
+
+  modPanelKapat();
+}
 let secilenFoto = null;
 let cevapModu = localStorage.getItem("neura_mod") || "normal";
 let sonMesajZamani = 0;
@@ -736,7 +797,6 @@ function sesliOku(text){
     }
   };
 
-  
   speechSynthesis.speak(ses);
 }
 
@@ -1215,10 +1275,6 @@ fotoInput.addEventListener("change", function(e){
   reader.readAsDataURL(file);
 });
 
-
-
-
-
 function randomMesajMi(m){
   const temiz = m.replace(/[^a-zçğıöşü]/gi, "");
   if(temiz.length < 6) return false;
@@ -1313,18 +1369,19 @@ async function gonder(){
 
   if(cevapYaziliyor) return;
   if(!mesaj && !secilenFoto) return;
-if(!aktifSohbetBul()){
-  aktifSohbetId = Date.now();
 
-  tumSohbetler.unshift({
-    id: aktifSohbetId,
-    baslik: "Yeni Sohbet",
-    mesajlar: []
-  });
+  if(!aktifSohbetBul()){
+    aktifSohbetId = Date.now();
 
-  sohbetleriKaydet();
-  sohbetleriGoster();
-}
+    tumSohbetler.unshift({
+      id: aktifSohbetId,
+      baslik: "Yeni Sohbet",
+      mesajlar: []
+    });
+
+    sohbetleriKaydet();
+    sohbetleriGoster();
+  }
 
   const simdi = Date.now();
   const fark = simdi - sonMesajZamani;
@@ -1352,8 +1409,6 @@ if(!aktifSohbetBul()){
     fotoTemizle();
     return;
   }
-
-
 
   if(m.includes("uzun cevap ver")){
     uzunMod();
@@ -1391,6 +1446,7 @@ if(!aktifSohbetBul()){
       body:JSON.stringify({
         message:mesaj,
         mode:cevapModu,
+        konusmaModu:konusmaModu,
         messages:sohbetGecmisi
       })
     });
