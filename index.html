@@ -801,6 +801,12 @@ let profilVerisi =
     katilim:Date.now()
   };
 
+profilVerisi.nick = profilVerisi.nick || "FFGok";
+profilVerisi.foto = profilVerisi.foto || "";
+profilVerisi.xp = Number(profilVerisi.xp || 0);
+profilVerisi.seviye = Number(profilVerisi.seviye || 1);
+profilVerisi.katilim = profilVerisi.katilim || Date.now();
+
 function profilKaydetLocal(){
   localStorage.setItem("neura_profil", JSON.stringify(profilVerisi));
 }
@@ -857,6 +863,7 @@ function profilKaydet(){
 function profilXpEkle(miktar){
   profilVerisi.xp = Number(profilVerisi.xp || 0) + miktar;
   profilGuncelle();
+  profilKaydetLocal();
 }
 
 profilFotoInput.addEventListener("change", function(e){
