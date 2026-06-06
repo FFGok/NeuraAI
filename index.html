@@ -2175,12 +2175,12 @@ const gununSorulari = [
   }
 ];
 
-function tarihAnahtari(date = new Date()){{
+function tarihAnahtari(date = new Date()){
   const yil = date.getFullYear();
   const ay = String(date.getMonth() + 1).padStart(2, "0");
   const gun = String(date.getDate()).padStart(2, "0");
-  return `${{yil}}-${{ay}}-${{gun}}`;
-}}
+  return `${yil}-${ay}-${gun}`;
+}
 
 function gununSorusuIndex(){
   const baslangic = new Date(2026, 5, 6); // 6 Haziran 2026
@@ -2189,7 +2189,7 @@ function gununSorusuIndex(){
   const farkGun = Math.floor((bugunTemiz - baslangic) / 86400000);
   const index = ((farkGun % gununSorulari.length) + gununSorulari.length) % gununSorulari.length;
   return index;
-}}
+}
 
 function bugununSorusu(){
   return gununSorulari[gununSorusuIndex()];
@@ -2231,11 +2231,11 @@ function gununSorusuAc(){
       gununSorusuSonuc.innerText = "❌ Bugünkü hakkını kullandın. Doğru cevap: " + dogruHarf + ") " + soru.a[soru.d];
     }
   }
-}}
+}
 
 function gununSorusuKapat(){
   gununSorusuPopup.style.display = "none";
-}}
+}
 
 function gununSorusuCevapla(secim){
   const soru = bugununSorusu();
@@ -2250,12 +2250,12 @@ function gununSorusuCevapla(secim){
 
   const dogruMu = secim === soru.d;
 
-  localStorage.setItem(cevapKey, JSON.stringify({{
+  localStorage.setItem(cevapKey, JSON.stringify({
     secim,
     dogru: dogruMu,
     soru: soru.s,
     tarih: bugun
-  }}));
+  }));
 
   if(dogruMu){
     profilXpEkle(25);
@@ -2268,7 +2268,7 @@ function gununSorusuCevapla(secim){
   }
 
   gununSorusuAc();
-}}
+}
 
 let konusmaModu =
 localStorage.getItem("neura_konusma_modu")
