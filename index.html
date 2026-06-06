@@ -560,7 +560,10 @@ body::before{
       <button class="sidebarMiniBtn" onclick="aktifSohbetiSil()">Bu sohbeti sil</button>
       <button class="sidebarMiniBtn" onclick="sohbetiDisaAktar()">Sohbeti dışa aktar</button>
     </div>
-    <div class="gecmisBaslik">Sohbetler</div>
+    <div class="gecmisBaslik">⭐ Favori Sohbetler</div>
+<div id="favoriListesi" class="sohbetListesi"></div>
+
+<div class="gecmisBaslik">💬 Sohbetler</div>
     <div id="sohbetListesi" class="sohbetListesi"></div>
   </div>
 
@@ -658,6 +661,8 @@ const onizlemeResim = document.getElementById("onizlemeResim");
 const onizlemeYazi = document.getElementById("onizlemeYazi");
 const durumYazi = document.getElementById("durumYazi");
 const gonderBtn = document.getElementById("gonderBtn");
+const favoriListesi =
+document.getElementById("favoriListesi");
 let konusmaModu =
 localStorage.getItem("neura_konusma_modu")
 || "samimi";
@@ -1069,17 +1074,42 @@ async function cevap(text, kaydet = true){
 
 function sohbetleriGoster(){
   const liste = document.getElementById("sohbetListesi");
+
   liste.innerHTML = "";
+  favoriListesi.innerHTML = "";
 
   tumSohbetler.forEach(sohbet => {
     const item = document.createElement("div");
-    item.className = "sohbetItem" + (sohbet.id === aktifSohbetId ? " aktif" : "");
-    item.innerText = sohbet.baslik || "Yeni Sohbet";
+
+    item.className =
+      "sohbetItem" + (sohbet.id === aktifSohbetId ? " aktif" : "");
+
+    item.innerHTML =
+      (sohbet.favori ? "❤️ " : "🤍 ") +
+      (sohbet.baslik || "Yeni Sohbet");
+
+    item.ondblclick = () => {
+      sohbet.favori = !sohbet.favori;
+      sohbetleriKaydet();
+      sohbetleriGoster();
+    };
+
     item.onclick = () => {
-  sohbetAc(sohbet.id);
-  document.querySelector(".solPanel").classList.remove("acik");
-};
+      sohbetAc(sohbet.id);
+      document.querySelector(".solPanel").classList.remove("acik");
+    };
+
     liste.appendChild(item);
+
+    if(sohbet.favori){
+      const favItem = item.cloneNode(true);
+
+      favItem.onclick = () => {
+        sohbetAc(sohbet.id);
+      };
+
+      favoriListesi.appendChild(favItem);
+    }
   });
 }
 
@@ -1090,12 +1120,12 @@ function yeniSohbet(){
 
   aktifSohbetId = Date.now();
 
-  const yeni = {
-    id: aktifSohbetId,
-    baslik: "Yeni Sohbet",
-    mesajlar: []
-  };
-
+const yeni = {
+  id: aktifSohbetId,
+  baslik: "Yeni Sohbet",
+  favori: false,
+  mesajlar: []
+};
   tumSohbetler.unshift(yeni);
 
   sohbetleriKaydet();
@@ -1374,10 +1404,11 @@ async function gonder(){
     aktifSohbetId = Date.now();
 
     tumSohbetler.unshift({
-      id: aktifSohbetId,
-      baslik: "Yeni Sohbet",
-      mesajlar: []
-    });
+  id: aktifSohbetId,
+  baslik: "Yeni Sohbet",
+  favori: false,
+  mesajlar: []
+});
 
     sohbetleriKaydet();
     sohbetleriGoster();
