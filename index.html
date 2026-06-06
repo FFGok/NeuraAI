@@ -644,6 +644,10 @@ let sesAcik = localStorage.getItem("neura_ses") !== "kapali";
 let sohbetGecmisi = [];
 let mevcutSesler = [];
 let cevapYaziliyor = false;
+let recognition;
+let sesliSohbetAktif = false;
+let mikrofonCalisiyor = false;
+let sesliCevapBekleniyor = false;
 
 let tumSohbetler = JSON.parse(localStorage.getItem("tum_sohbetler")) || [];
 let aktifSohbetId = localStorage.getItem("aktif_sohbet_id")
@@ -675,6 +679,34 @@ function sesiTemizle(text){
     .trim();
 }
 
+function dilAlgila(text){
+  const t = String(text || "").trim();
+
+  if(/[\u0600-\u06FF]/.test(t)) return "ar-SA";
+
+  const latin = (t.match(/[a-zA-Z]/g) || []).length;
+  const turkce = (t.match(/[çğıöşüÇĞİÖŞÜ]/g) || []).length;
+
+  if(latin > 3 && turkce === 0) return "en-US";
+  return "tr-TR";
+}
+
+function sesSec(lang){
+  const anaDil = lang.split("-")[0].toLowerCase();
+
+  const erkekIsimleri = [
+    "tolga", "ahmet", "murat", "male", "man", "erkek", "google us english", "microsoft david"
+  ];
+
+  return mevcutSesler.find(s =>
+    s.lang === lang && erkekIsimleri.some(isim => s.name.toLowerCase().includes(isim))
+  ) ||
+  mevcutSesler.find(s => s.lang === lang) ||
+  mevcutSesler.find(s => s.lang && s.lang.toLowerCase().startsWith(anaDil)) ||
+  mevcutSesler.find(s => s.lang && s.lang.toLowerCase().startsWith("tr")) ||
+  mevcutSesler[0];
+}
+
 function sesliOku(text){
   if(!sesAcik || !text) return;
 
@@ -683,38 +715,28 @@ function sesliOku(text){
 
   speechSynthesis.cancel();
 
+  const lang = dilAlgila(okunacak);
   const ses = new SpeechSynthesisUtterance(okunacak);
-  ses.lang = "tr-TR";
-ses.rate = 0.92;
-ses.pitch = 0.78;
-ses.volume = 1;
 
-const iyiSes =
-  mevcutSesler.find(s =>
-    s.name.toLowerCase().includes("tolga")
-  ) ||
+  ses.lang = lang;
+  ses.rate = 1.02;
+  ses.pitch = 0.92;
+  ses.volume = 1;
 
-  mevcutSesler.find(s =>
-    s.name.toLowerCase().includes("ahmet")
-  ) ||
+  const iyiSes = sesSec(lang);
 
-  mevcutSesler.find(s =>
-    s.name.toLowerCase().includes("turkish")
-  ) ||
+  if(iyiSes){
+    ses.voice = iyiSes;
+    ses.voiceURI = iyiSes.voiceURI;
+  }
 
-  mevcutSesler.find(s =>
-    s.lang === "tr-TR"
-  ) ||
+  ses.onend = () => {
+    if(sesliSohbetAktif && !cevapYaziliyor){
+      setTimeout(() => mikrofonuDinle(), 650);
+    }
+  };
 
-  mevcutSesler.find(s =>
-    s.lang && s.lang.startsWith("tr")
-  ) ||
-
-  mevcutSesler[0];
-
-  if(iyiSes) ses.voice = iyiSes;
-if(iyiSes){
-  ses.voiceURI = iyiSes.voiceURI;
+  speechSynthesis.speak(ses);
 }
   speechSynthesis.speak(ses);
 }
@@ -726,46 +748,109 @@ function sesAcKapat(){
   if(!sesAcik) speechSynthesis.cancel();
 }
 
-let recognition;
-
-function mikrofonBaslat(){
+function mikrofonuDinle(){
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
   if(!SpeechRecognition){
-    cevap("Tarayıcın desteklemiyor kanka 😄 Chrome kullan.", false);
+    cevap("Tarayıcın mikrofonlu konuşmayı desteklemiyor kanka. Chrome kullanmanı öneririm 🎤", false);
+    sesliSohbetAktif = false;
     return;
   }
 
+  if(mikrofonCalisiyor || cevapYaziliyor || sesliCevapBekleniyor) return;
+
   if(!recognition){
     recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = true;
     recognition.lang = "tr-TR";
-    recognition.interimResults = false;
+
+    recognition.onstart = function(){
+      mikrofonCalisiyor = true;
+      durumYazi.innerText = "Dinliyorum 🎤";
+    };
 
     recognition.onresult = function(event){
-      input.value = event.results[0][0].transcript;
-      durumYazi.innerText = "";
-      gonder();
+      let metin = "";
+      let finalMi = false;
+
+      for(let i = event.resultIndex; i < event.results.length; i++){
+        metin += event.results[i][0].transcript;
+        if(event.results[i].isFinal) finalMi = true;
+      }
+
+      input.value = metin.trim();
+
+      if(finalMi && input.value.trim()){
+        sesliCevapBekleniyor = true;
+        durumYazi.innerText = "Cevap hazırlanıyor...";
+        gonder();
+      }
     };
 
     recognition.onerror = function(event){
+      mikrofonCalisiyor = false;
+      sesliCevapBekleniyor = false;
       durumYazi.innerText = "";
-      if(event.error === "not-allowed") cevap("Mikrofon izni yok kanka 🎤", false);
-      else if(event.error === "no-speech") cevap("Hiçbir şey duyamadım 😄", false);
-      else if(event.error === "audio-capture") cevap("Mikrofon bulunamadı kanka.", false);
-      else cevap("Mikrofon hata: " + event.error, false);
+
+      if(event.error === "not-allowed"){
+        sesliSohbetAktif = false;
+        cevap("Mikrofon izni kapalı kanka 🎤 Tarayıcıdan izin vermen lazım.", false);
+      }else if(event.error === "no-speech"){
+        if(sesliSohbetAktif){
+          durumYazi.innerText = "Ses duyamadım, tekrar dinliyorum...";
+          setTimeout(() => mikrofonuDinle(), 800);
+        }
+      }else if(event.error === "audio-capture"){
+        sesliSohbetAktif = false;
+        cevap("Mikrofon bulunamadı kanka.", false);
+      }else{
+        cevap("Mikrofon hatası: " + event.error, false);
+      }
     };
 
     recognition.onend = function(){
-      durumYazi.innerText = "";
+      mikrofonCalisiyor = false;
+
+      if(!sesliSohbetAktif){
+        durumYazi.innerText = "";
+        return;
+      }
+
+      if(!sesliCevapBekleniyor && !cevapYaziliyor && !speechSynthesis.speaking){
+        setTimeout(() => mikrofonuDinle(), 700);
+      }
     };
   }
 
   try{
     recognition.start();
-    durumYazi.innerText = "Dinliyorum 🎤";
   }catch(err){
     console.log("Mikrofon başlatma hatası:", err);
   }
+}
+
+function mikrofonBaslat(){
+  if(sesliSohbetAktif){
+    sesliSohbetAktif = false;
+    sesliCevapBekleniyor = false;
+    durumYazi.innerText = "Sesli sohbet kapatıldı.";
+
+    try{
+      if(recognition) recognition.stop();
+    }catch(err){}
+
+    setTimeout(() => {
+      if(!sesliSohbetAktif && !cooldownTimer) durumYazi.innerText = "";
+    }, 1200);
+
+    return;
+  }
+
+  sesliSohbetAktif = true;
+  sesliCevapBekleniyor = false;
+  speechSynthesis.cancel();
+  mikrofonuDinle();
 }
 
 function temizleMetin(m){
@@ -916,6 +1001,11 @@ async function cevap(text, kaydet = true){
   }
 
   cevapYaziliyor = false;
+  sesliCevapBekleniyor = false;
+
+  if(sesliSohbetAktif && !speechSynthesis.speaking){
+    setTimeout(() => mikrofonuDinle(), 700);
+  }
 }
 
 function sohbetleriGoster(){
@@ -1127,12 +1217,35 @@ fotoInput.addEventListener("change", function(e){
 });
 
 function kufurKontrol(m){
+  const temiz = String(m || "")
+    .toLowerCase()
+    .normalize("NFKC")
+    .replace(/[0@]/g, "o")
+    .replace(/[1!|]/g, "i")
+    .replace(/[3]/g, "e")
+    .replace(/[4]/g, "a")
+    .replace(/[5$]/g, "s")
+    .replace(/[7]/g, "t")
+    .replace(/[^\p{L}\p{N}\s]/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
   const kufurler = [
-    "salak","aptal","mal","gerizekalı","gerizekali",
-    "orospu","piç","pic","amk","aq","siktir","oç","oc",
-    "fuck","shit","bitch","asshole","idiot","moron"
+    "salak", "aptal", "gerizekalı", "gerizekali",
+    "orospu", "piç", "pic", "amk", "aq", "siktir", "oç", "oc",
+    "fuck", "shit", "bitch", "asshole", "idiot", "moron"
   ];
-  return kufurler.some(k => m.includes(k));
+
+  const izinliKelimeler = [
+    "alan", "alani", "alanı", "malzeme", "normal", "formal", "email", "mail", "analiz", "kanal"
+  ];
+
+  const kelimeler = temiz.split(" ").filter(Boolean);
+
+  return kelimeler.some(kelime => {
+    if(izinliKelimeler.includes(kelime)) return false;
+    return kufurler.includes(kelime);
+  });
 }
 
 function randomMesajMi(m){
