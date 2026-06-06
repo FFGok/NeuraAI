@@ -736,8 +736,7 @@ function sesliOku(text){
     }
   };
 
-  speechSynthesis.speak(ses);
-}
+  
   speechSynthesis.speak(ses);
 }
 
@@ -1042,7 +1041,7 @@ function yeniSohbet(){
   sohbetleriKaydet();
   sohbetleriGoster();
 
-  cevap("Yeni sohbet başlatıldı 😄", false);
+  sistemMesaji("Yeni sohbet başlatıldı 😄");
 }
 
 function sohbetAc(id){
@@ -1342,10 +1341,18 @@ async function gonder(){
 
   if(cevapYaziliyor) return;
   if(!mesaj && !secilenFoto) return;
+if(!aktifSohbetBul()){
+  aktifSohbetId = Date.now();
 
-  if(!aktifSohbetBul()){
-    yeniSohbet();
-  }
+  tumSohbetler.unshift({
+    id: aktifSohbetId,
+    baslik: "Yeni Sohbet",
+    mesajlar: []
+  });
+
+  sohbetleriKaydet();
+  sohbetleriGoster();
+}
 
   const simdi = Date.now();
   const fark = simdi - sonMesajZamani;
