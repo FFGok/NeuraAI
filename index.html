@@ -1215,37 +1215,9 @@ fotoInput.addEventListener("change", function(e){
   reader.readAsDataURL(file);
 });
 
-function kufurKontrol(m){
-  const temiz = String(m || "")
-    .toLowerCase()
-    .normalize("NFKC")
-    .replace(/[0@]/g, "o")
-    .replace(/[1!|]/g, "i")
-    .replace(/[3]/g, "e")
-    .replace(/[4]/g, "a")
-    .replace(/[5$]/g, "s")
-    .replace(/[7]/g, "t")
-    .replace(/[^\p{L}\p{N}\s]/gu, " ")
-    .replace(/\s+/g, " ")
-    .trim();
 
-  const kufurler = [
-    "salak", "aptal", "gerizekalı", "gerizekali",
-    "orospu", "piç", "pic", "amk", "aq", "siktir", "oç", "oc",
-    "fuck", "shit", "bitch", "asshole", "idiot", "moron"
-  ];
 
-  const izinliKelimeler = [
-    "alan", "alani", "alanı", "malzeme", "normal", "formal", "email", "mail", "analiz", "kanal"
-  ];
 
-  const kelimeler = temiz.split(" ").filter(Boolean);
-
-  return kelimeler.some(kelime => {
-    if(izinliKelimeler.includes(kelime)) return false;
-    return kufurler.includes(kelime);
-  });
-}
 
 function randomMesajMi(m){
   const temiz = m.replace(/[^a-zçğıöşü]/gi, "");
@@ -1381,11 +1353,7 @@ if(!aktifSohbetBul()){
     return;
   }
 
-  if(kufurKontrol(m)){
-    await cevap("Burada duralım. Böyle konuşunca devam edemem. Düzgün yazarsan yardımcı olurum.", true);
-    fotoTemizle();
-    return;
-  }
+
 
   if(m.includes("uzun cevap ver")){
     uzunMod();
