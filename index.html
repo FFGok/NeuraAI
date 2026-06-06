@@ -908,12 +908,22 @@ function dogumGunuSecimleriDoldur(){
   dogumGunAy.innerHTML = "";
   dogumGunGun.innerHTML = "";
 
+  const yilBos = document.createElement("option");
+  yilBos.value = "";
+  yilBos.innerText = "Yıl";
+  dogumGunYil.appendChild(yilBos);
+
   for(let yil = buYil; yil >= 1950; yil--){
     const option = document.createElement("option");
     option.value = yil;
     option.innerText = yil;
     dogumGunYil.appendChild(option);
   }
+
+  const ayBos = document.createElement("option");
+  ayBos.value = "";
+  ayBos.innerText = "Ay";
+  dogumGunAy.appendChild(ayBos);
 
   const aylar = [
     "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
@@ -926,6 +936,11 @@ function dogumGunuSecimleriDoldur(){
     option.innerText = ayAdi;
     dogumGunAy.appendChild(option);
   });
+
+  const gunBos = document.createElement("option");
+  gunBos.value = "";
+  gunBos.innerText = "Gün";
+  dogumGunGun.appendChild(gunBos);
 
   for(let gun = 1; gun <= 31; gun++){
     const option = document.createElement("option");
@@ -940,6 +955,16 @@ function dogumGunuPanelGuncelle(){
 
   profilDogumGunu.innerText = dogumGunuYazi(profilVerisi.dogumGunu);
 
+  if(profilVerisi.dogumGunu){
+    dogumGunYil.value = String(profilVerisi.dogumGunu.yil);
+    dogumGunAy.value = String(profilVerisi.dogumGunu.ay);
+    dogumGunGun.value = String(profilVerisi.dogumGunu.gun);
+  }else{
+    dogumGunYil.value = "";
+    dogumGunAy.value = "";
+    dogumGunGun.value = "";
+  }
+
   if(profilVerisi.dogumGunuAyarlandi){
     dogumGunuAyarAlani.style.display = "none";
     dogumGunuKilitYazi.style.display = "block";
@@ -952,6 +977,11 @@ function dogumGunuPanelGuncelle(){
 function dogumGunuKaydet(){
   if(profilVerisi.dogumGunuAyarlandi){
     sistemMesaji("🎂 Doğum gününü zaten ayarladın. Sadece 1 kere değiştirilebilir.");
+    return;
+  }
+
+  if(!dogumGunYil.value || !dogumGunAy.value || !dogumGunGun.value){
+    sistemMesaji("🎂 Doğum günü için yıl, ay ve gün seçmen lazım.");
     return;
   }
 
@@ -974,7 +1004,11 @@ function dogumGunuKaydet(){
   profilVerisi.dogumGunuAyarlandi = true;
 
   profilGuncelle();
+  profilKaydetLocal();
+
   sistemMesaji("🎂 Doğum günü kaydedildi. Artık sadece gizli sürprizi bekle 😎");
+
+  dogumGunuKontrolEt();
 }
 
 function dogumGunuKontrolEt(){
@@ -1956,3 +1990,5 @@ function sidebarAcKapat(){
 </script>
 </body>
 </html>
+
+  
