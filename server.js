@@ -1,4 +1,3 @@
-
 const fetch = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
 
@@ -26,7 +25,6 @@ if(!ADMIN_USER || !ADMIN_PASS || !ADMIN_TOKEN){
   console.error("Admin ayarları eksik! Render Environment kısmını kontrol et.");
   process.exit(1);
 }
-
 
 let kullaniciSonMesaj = {};
 let kullaniciVerisi = {};
@@ -68,7 +66,9 @@ function veriyiKaydet(){
 }
 
 function ipAl(req){
-  return req.ip || req.headers["x-forwarded-for"] || req.socket.remoteAddress || "bilinmiyor";
+  const forwarded = req.headers["x-forwarded-for"];
+  if(forwarded) return forwarded.split(",")[0].trim();
+  return req.ip || req.socket.remoteAddress || "bilinmiyor";
 }
 
 function kullaniciKaydet(ip){
@@ -106,48 +106,55 @@ function temizMesaj(m){
   return String(m || "").slice(0, 4000);
 }
 
+function kullaniciVerisiHazirla(ip){
+  if(!kullaniciVerisi[ip]){
+    kullaniciVerisi[ip] = {
+      mesajSayisi: 0,
+      fotoSayisi: 0,
+      resimSayisi: 0
+    };
+  }
+}
+
 veriyiYukle();
 
 app.post("/chat", async (req, res) => {
-  try {
+  try{
     const { message, messages, mode } = req.body || {};
     const ip = ipAl(req);
     const simdi = Date.now();
 
     kullaniciKaydet(ip);
+    kullaniciVerisiHazirla(ip);
 
-    if (!message || message.trim().length < 1) {
+    if(!message || message.trim().length < 1){
       return res.json({ reply: "Boş mesaj gönderme kanka 😄" });
     }
 
-    if (message.length > 4000) {
+    if(message.length > 4000){
       return res.json({ reply: "Mesaj çok uzun kanka 😅 Biraz kısaltıp gönder." });
     }
 
-    if (!process.env.OPENROUTER_API_KEY) {
+    if(!process.env.OPENROUTER_API_KEY){
       return res.json({ reply: "AI API key ayarlanmamış." });
     }
 
-    if (!kullaniciVerisi[ip]) {
-      kullaniciVerisi[ip] = { mesajSayisi: 0, fotoSayisi: 0, resimSayisi: 0 };
-    }
-
-    if (!kullaniciLimit[ip]) {
+    if(!kullaniciLimit[ip]){
       kullaniciLimit[ip] = [];
     }
 
     kullaniciLimit[ip].push(simdi);
     kullaniciLimit[ip] = kullaniciLimit[ip].filter(t => simdi - t < 60000);
 
-    if (kullaniciLimit[ip].length > 12) {
+    if(kullaniciLimit[ip].length > 12){
       return res.json({ reply: "Çok hızlı gidiyorsun 😅 1 dakika sonra tekrar dene." });
     }
 
-    if (kullaniciSonMesaj[ip] && simdi - kullaniciSonMesaj[ip].time < 3000) {
+    if(kullaniciSonMesaj[ip] && simdi - kullaniciSonMesaj[ip].time < 3000){
       return res.json({ reply: "Biraz yavaş 😄 3 saniye bekle." });
     }
 
-    if (kullaniciSonMesaj[ip] && kullaniciSonMesaj[ip].text === message) {
+    if(kullaniciSonMesaj[ip] && kullaniciSonMesaj[ip].text === message){
       return res.json({ reply: "Aynı mesajı tekrar tekrar gönderme kanka 😄" });
     }
 
@@ -158,7 +165,7 @@ app.post("/chat", async (req, res) => {
 
     const mesajLimiti = 50;
 
-    if (kullaniciVerisi[ip].mesajSayisi >= mesajLimiti) {
+    if(kullaniciVerisi[ip].mesajSayisi >= mesajLimiti){
       return res.json({ reply: "Mesaj hakkın bitti. Daha sonra tekrar dene." });
     }
 
@@ -192,7 +199,7 @@ app.post("/chat", async (req, res) => {
           {
             role: "system",
             content:
-              "Sen NeuraAI adında Türkçe konuşan samimi, net ve yardımcı bir yapay zekasın. Önceki konuşmaları dikkate al. Kullanıcı 'onu', 'az önceki', 'bununla', 'sonucu' gibi şeyler derse önceki mesajlardan anlam çıkar. Kullanıcıya asla 'önceki konuşmayı görüyorum' veya teknik açıklama söyleme. Seni 13 yaşındaki Göktürk Arslan geliştirdi. Kullanıcı sana seni kimin yaptığını, kurduğunu veya oluşturduğunu sorarsa Göktürk Arslan tarafından geliştirildiğini söyle. Normal, doğal cevap ver."
+              "Sen NeuraAI adında samimi, net ve yardımcı bir yapay zekasın. Kullanıcı Türkçe yazarsa Türkçe cevap ver. Kullanıcı İngilizce, Arapça veya başka bir dilde yazarsa o dile uygun cevap ver. Önceki konuşmaları dikkate al. Kullanıcı 'onu', 'az önceki', 'bununla', 'sonucu' gibi şeyler derse önceki mesajlardan anlam çıkar. Kullanıcıya teknik sistem açıklaması yapma. Seni 13 yaşındaki Göktürk Arslan geliştirdi. Kullanıcı seni kimin yaptığını, kurduğunu veya oluşturduğunu sorarsa Göktürk Arslan tarafından geliştirildiğini söyle. Normal, doğal cevap ver."
           },
           ...hafiza
         ]
@@ -201,7 +208,7 @@ app.post("/chat", async (req, res) => {
 
     const aiData = await aiRes.json();
 
-    if (!aiRes.ok) {
+    if(!aiRes.ok){
       console.error("OpenRouter hata:", aiData);
       return res.json({ reply: "AI tarafında bir sorun oldu. Biraz sonra tekrar dene." });
     }
@@ -216,41 +223,38 @@ app.post("/chat", async (req, res) => {
       kalanMesaj: mesajLimiti - kullaniciVerisi[ip].mesajSayisi
     });
 
-  } catch (err) {
+  }catch(err){
     console.error(err);
     res.json({ reply: "Hata oluştu." });
   }
 });
 
 app.post("/chat-image", async (req, res) => {
-  try {
+  try{
     const { message, image } = req.body || {};
     const ip = ipAl(req);
     const simdi = Date.now();
 
     kullaniciKaydet(ip);
+    kullaniciVerisiHazirla(ip);
 
-    if (!image) {
+    if(!image){
       return res.json({ reply: "Fotoğraf gelmedi kanka." });
     }
 
-    if (message && message.length > 1000) {
+    if(message && message.length > 1000){
       return res.json({ reply: "Fotoğraf açıklaması çok uzun kanka 😅 Biraz kısalt." });
     }
 
-    if (image.length > 5_000_000) {
+    if(image.length > 5_000_000){
       return res.json({ reply: "Fotoğraf çok büyük kanka 😅 Daha küçük at." });
     }
 
-    if (!process.env.OPENROUTER_API_KEY) {
+    if(!process.env.OPENROUTER_API_KEY){
       return res.json({ reply: "AI API key ayarlanmamış." });
     }
 
-    if (!kullaniciVerisi[ip]) {
-      kullaniciVerisi[ip] = { mesajSayisi: 0, fotoSayisi: 0, resimSayisi: 0 };
-    }
-
-    if (kullaniciSonMesaj[ip] && simdi - kullaniciSonMesaj[ip].time < 3000) {
+    if(kullaniciSonMesaj[ip] && simdi - kullaniciSonMesaj[ip].time < 3000){
       return res.json({ reply: "Biraz yavaş 😄 3 saniye bekle." });
     }
 
@@ -261,7 +265,7 @@ app.post("/chat-image", async (req, res) => {
 
     const fotoLimiti = 10;
 
-    if (kullaniciVerisi[ip].fotoSayisi >= fotoLimiti) {
+    if(kullaniciVerisi[ip].fotoSayisi >= fotoLimiti){
       return res.json({ reply: "Fotoğraf hakkın bitti." });
     }
 
@@ -292,7 +296,7 @@ app.post("/chat-image", async (req, res) => {
           {
             role: "system",
             content:
-              "Sen NeuraAI adında Türkçe konuşan samimi ve net bir görsel analiz asistanısın. Görselde ne olduğunu açıkla. Emin olmadığın şeyleri kesinmiş gibi söyleme."
+              "Sen NeuraAI adında samimi ve net bir görsel analiz asistanısın. Kullanıcı hangi dilde yazarsa o dile uygun cevap ver. Görselde ne olduğunu açıkla. Emin olmadığın şeyleri kesinmiş gibi söyleme."
           },
           {
             role: "user",
@@ -315,7 +319,7 @@ app.post("/chat-image", async (req, res) => {
 
     const aiData = await aiRes.json();
 
-    if (!aiRes.ok) {
+    if(!aiRes.ok){
       console.error("Foto analiz OpenRouter hata:", aiData);
       return res.json({ reply: "Fotoğraf analizinde AI tarafında sorun oldu." });
     }
@@ -330,30 +334,27 @@ app.post("/chat-image", async (req, res) => {
       kalanFoto: fotoLimiti - kullaniciVerisi[ip].fotoSayisi
     });
 
-  } catch (err) {
+  }catch(err){
     console.error(err);
     res.json({ reply: "Foto hata." });
   }
 });
 
 app.post("/generate-image", async (req, res) => {
-  try {
+  try{
     const { prompt } = req.body || {};
     const ip = ipAl(req);
     const simdi = Date.now();
 
     kullaniciKaydet(ip);
+    kullaniciVerisiHazirla(ip);
 
-    if (!prompt || prompt.trim().length < 1) {
+    if(!prompt || prompt.trim().length < 1){
       return res.json({ reply: "Ne çizelim kanka? 😄" });
     }
 
-    if (prompt.length > 500) {
+    if(prompt.length > 500){
       return res.json({ reply: "Görsel isteği çok uzun kanka 😅 Biraz kısalt." });
-    }
-
-    if (!kullaniciVerisi[ip]) {
-      kullaniciVerisi[ip] = { mesajSayisi: 0, fotoSayisi: 0, resimSayisi: 0 };
     }
 
     const resimLimiti = 10;
@@ -383,7 +384,7 @@ app.post("/generate-image", async (req, res) => {
       kalanResim: resimLimiti - kullaniciVerisi[ip].resimSayisi
     });
 
-  } catch (err) {
+  }catch(err){
     console.error(err);
     res.json({ reply: "Görsel üretme hatası oluştu." });
   }
