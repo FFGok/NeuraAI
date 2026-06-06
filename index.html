@@ -351,6 +351,74 @@ body::before{
   cursor:pointer;
 }
 
+
+.profilKart{
+  text-align:center;
+}
+
+.profilFoto{
+  width:96px;
+  height:96px;
+  border-radius:50%;
+  object-fit:cover;
+  border:3px solid rgba(123,44,255,0.8);
+  box-shadow:0 0 22px rgba(123,44,255,0.35);
+  margin:8px auto 12px;
+  display:block;
+}
+
+.profilSatir{
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:14px;
+  padding:10px 12px;
+  margin:8px 0;
+  color:#eee;
+  text-align:left;
+}
+
+.profilInput{
+  width:100%;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,0.10);
+  background:rgba(255,255,255,0.06);
+  color:white;
+  outline:none;
+  margin:8px 0;
+}
+
+.profilInput::placeholder{
+  color:#aaa;
+}
+
+.profilDosya{
+  display:block;
+  width:100%;
+  text-align:center;
+  padding:12px;
+  border-radius:12px;
+  background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.10);
+  cursor:pointer;
+  margin:8px 0;
+}
+
+#profilFotoInput{
+  display:none;
+}
+
+.profilButonlar{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+
+.profilButonlar button{
+  flex:1;
+}
+
 @keyframes fadeIn{
   from{ opacity:0; transform:translateY(8px); }
   to{ opacity:1; transform:translateY(0); }
@@ -557,6 +625,7 @@ body::before{
     <div class="solUst">
       <button class="yeniSohbetBtn" onclick="yeniSohbet()">+ Yeni Sohbet</button>
 <button class="sidebarMiniBtn" onclick="modPanelAc()">🎭 Modlar</button>
+      <button class="sidebarMiniBtn" onclick="profilPanelAc()">👤 Profil</button>
       <button class="sidebarMiniBtn" onclick="aktifSohbetiSil()">Bu sohbeti sil</button>
       <button class="sidebarMiniBtn" onclick="sohbetiDisaAktar()">Sohbeti dışa aktar</button>
     </div>
@@ -652,6 +721,54 @@ body::before{
   </div>
 </div>
 
+<div class="popupArka" id="profilPopup">
+  <div class="popup">
+    <h2>👤 Profil</h2>
+
+    <div class="profilKart">
+      <img id="profilFoto" class="profilFoto" src="" alt="Profil Fotoğrafı">
+
+      <input
+        id="profilNickInput"
+        class="profilInput"
+        maxlength="24"
+        placeholder="Nickname yaz...">
+
+      <label for="profilFotoInput" class="profilDosya">
+        📷 Profil fotoğrafı seç
+      </label>
+      <input type="file" id="profilFotoInput" accept="image/*">
+
+      <div class="profilSatir">
+        👤 Nick:
+        <b id="profilNickYazi">Kullanıcı</b>
+      </div>
+
+      <div class="profilSatir">
+        ⭐ Seviye:
+        <b id="profilSeviye">1</b>
+      </div>
+
+      <div class="profilSatir">
+        ⚡ XP:
+        <b id="profilXP">0</b>
+        /
+        <span id="profilSonrakiXP">100</span>
+      </div>
+
+      <div class="profilSatir">
+        📅 Katılım:
+        <b id="profilKatilim">Bugün</b>
+      </div>
+
+      <div class="profilButonlar">
+        <button onclick="profilKaydet()">Kaydet</button>
+        <button onclick="profilPanelKapat()">Kapat</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 const chat = document.getElementById("chat");
 const input = document.getElementById("input");
@@ -663,6 +780,110 @@ const durumYazi = document.getElementById("durumYazi");
 const gonderBtn = document.getElementById("gonderBtn");
 const favoriListesi =
 document.getElementById("favoriListesi");
+
+const profilPopup = document.getElementById("profilPopup");
+const profilFoto = document.getElementById("profilFoto");
+const profilFotoInput = document.getElementById("profilFotoInput");
+const profilNickInput = document.getElementById("profilNickInput");
+const profilNickYazi = document.getElementById("profilNickYazi");
+const profilSeviye = document.getElementById("profilSeviye");
+const profilXP = document.getElementById("profilXP");
+const profilSonrakiXP = document.getElementById("profilSonrakiXP");
+const profilKatilim = document.getElementById("profilKatilim");
+
+let profilVerisi =
+  JSON.parse(localStorage.getItem("neura_profil")) ||
+  {
+    nick:"FFGok",
+    foto:"",
+    xp:0,
+    seviye:1,
+    katilim:Date.now()
+  };
+
+function profilKaydetLocal(){
+  localStorage.setItem("neura_profil", JSON.stringify(profilVerisi));
+}
+
+function tarihFormatla(t){
+  return new Date(t).toLocaleDateString("tr-TR");
+}
+
+function profilGuncelle(){
+  const nick = profilVerisi.nick || "Kullanıcı";
+  const xp = Number(profilVerisi.xp || 0);
+  const seviye = Math.floor(xp / 100) + 1;
+  const sonrakiXP = seviye * 100;
+
+  profilVerisi.seviye = seviye;
+
+  profilNickInput.value = nick;
+  profilNickYazi.innerText = nick;
+  profilSeviye.innerText = seviye;
+  profilXP.innerText = xp;
+  profilSonrakiXP.innerText = sonrakiXP;
+  profilKatilim.innerText = tarihFormatla(profilVerisi.katilim || Date.now());
+
+  profilFoto.src =
+    profilVerisi.foto ||
+    "https://ui-avatars.com/api/?name=" +
+    encodeURIComponent(nick) +
+    "&background=7b2cff&color=fff";
+
+  profilKaydetLocal();
+}
+
+function profilPanelAc(){
+  profilGuncelle();
+  profilPopup.style.display = "flex";
+}
+
+function profilPanelKapat(){
+  profilPopup.style.display = "none";
+}
+
+function profilKaydet(){
+  const yeniNick = profilNickInput.value.trim();
+
+  if(yeniNick){
+    profilVerisi.nick = yeniNick.slice(0, 24);
+  }
+
+  profilGuncelle();
+  sistemMesaji("👤 Profil kaydedildi.");
+  profilPanelKapat();
+}
+
+function profilXpEkle(miktar){
+  profilVerisi.xp = Number(profilVerisi.xp || 0) + miktar;
+  profilGuncelle();
+}
+
+profilFotoInput.addEventListener("change", function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+
+  if(!file.type.startsWith("image/")){
+    sistemMesaji("Profil fotoğrafı için sadece görsel seçebilirsin.");
+    return;
+  }
+
+  if(file.size > 2 * 1024 * 1024){
+    sistemMesaji("Profil fotoğrafı 2MB altında olmalı kanka.");
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = function(ev){
+    profilVerisi.foto = ev.target.result;
+    profilGuncelle();
+  };
+
+  reader.readAsDataURL(file);
+});
+
+profilGuncelle();
 let konusmaModu =
 localStorage.getItem("neura_konusma_modu")
 || "samimi";
@@ -979,6 +1200,10 @@ function mesajiSohbeteKaydet(text, kim, foto = null){
   if(!aktif) return;
 
   aktif.mesajlar.push({ text, kim, foto, zaman: Date.now() });
+
+  if(kim === "user"){
+    profilXpEkle(5);
+  }
 
 if(kim === "user" && aktif.baslik === "Yeni Sohbet"){
 
