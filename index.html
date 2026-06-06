@@ -449,6 +449,36 @@ body::before{
   margin-top:6px;
 }
 
+.gununSoruKutu{
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:16px;
+  padding:14px;
+  margin:10px 0;
+  line-height:1.45;
+}
+
+.gununSoruSecenekler{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-top:12px;
+}
+
+.gununSoruSecenekler button{
+  width:100%;
+  text-align:left;
+  background:rgba(255,255,255,0.08);
+  color:white;
+  border:1px solid rgba(255,255,255,0.10);
+}
+
+.gununSoruSonuc{
+  margin-top:10px;
+  color:#d7c7ff;
+  font-size:14px;
+}
+
 @keyframes fadeIn{
   from{ opacity:0; transform:translateY(8px); }
   to{ opacity:1; transform:translateY(0); }
@@ -656,6 +686,7 @@ body::before{
       <button class="yeniSohbetBtn" onclick="yeniSohbet()">+ Yeni Sohbet</button>
 <button class="sidebarMiniBtn" onclick="modPanelAc()">🎭 Modlar</button>
       <button class="sidebarMiniBtn" onclick="profilPanelAc()">👤 Profil</button>
+      <button class="sidebarMiniBtn" onclick="gununSorusuAc()">📅 Günün Sorusu</button>
       <button class="sidebarMiniBtn" onclick="aktifSohbetiSil()">Bu sohbeti sil</button>
       <button class="sidebarMiniBtn" onclick="sohbetiDisaAktar()">Sohbeti dışa aktar</button>
     </div>
@@ -826,6 +857,22 @@ body::before{
         <button onclick="profilPanelKapat()">Kapat</button>
       </div>
     </div>
+  </div>
+</div>
+
+
+<div class="popupArka" id="gununSorusuPopup">
+  <div class="popup">
+    <h2>📅 Günün Sorusu</h2>
+
+    <div class="gununSoruKutu">
+      <div class="dogumGunuKilit" id="gununSorusuSira">Soru hazırlanıyor...</div>
+      <b id="gununSorusuMetni">Soru yükleniyor...</b>
+      <div id="gununSorusuSecenekler" class="gununSoruSecenekler"></div>
+      <div id="gununSorusuSonuc" class="gununSoruSonuc"></div>
+    </div>
+
+    <button onclick="gununSorusuKapat()">Kapat</button>
   </div>
 </div>
 
@@ -1118,6 +1165,1111 @@ profilFotoInput.addEventListener("change", function(e){
 });
 
 profilGuncelle();
+
+const gununSorusuPopup = document.getElementById("gununSorusuPopup");
+const gununSorusuMetni = document.getElementById("gununSorusuMetni");
+const gununSorusuSecenekler = document.getElementById("gununSorusuSecenekler");
+const gununSorusuSonuc = document.getElementById("gununSorusuSonuc");
+const gununSorusuSira = document.getElementById("gununSorusuSira");
+
+const gununSorulari = [
+  {
+    "s": "Mustafa Kemal Atatürk Samsun'a hangi tarihte çıktı?",
+    "a": [
+      "23 Nisan 1920",
+      "19 Mayıs 1919",
+      "29 Ekim 1923",
+      "30 Ağustos 1922"
+    ],
+    "d": 1
+  },
+  {
+    "s": "Türkiye Cumhuriyeti hangi tarihte ilan edildi?",
+    "a": [
+      "19 Mayıs 1919",
+      "23 Nisan 1920",
+      "29 Ekim 1923",
+      "10 Kasım 1938"
+    ],
+    "d": 2
+  },
+  {
+    "s": "Türkiye'nin başkenti hangi şehirdir?",
+    "a": [
+      "İstanbul",
+      "Ankara",
+      "İzmir",
+      "Bursa"
+    ],
+    "d": 1
+  },
+  {
+    "s": "İstiklal Marşı'nın yazarı kimdir?",
+    "a": [
+      "Mehmet Akif Ersoy",
+      "Namık Kemal",
+      "Ziya Gökalp",
+      "Tevfik Fikret"
+    ],
+    "d": 0
+  },
+  {
+    "s": "Türkiye Büyük Millet Meclisi hangi tarihte açıldı?",
+    "a": [
+      "19 Mayıs 1919",
+      "23 Nisan 1920",
+      "29 Ekim 1923",
+      "30 Ağustos 1922"
+    ],
+    "d": 1
+  },
+  {
+    "s": "Fatih Sultan Mehmet İstanbul'u hangi yılda fethetti?",
+    "a": [
+      "1071",
+      "1453",
+      "1299",
+      "1517"
+    ],
+    "d": 1
+  },
+  {
+    "s": "Osmanlı Devleti'nin kurucusu kimdir?",
+    "a": [
+      "Osman Bey",
+      "Orhan Bey",
+      "Fatih Sultan Mehmet",
+      "Yavuz Sultan Selim"
+    ],
+    "d": 0
+  },
+  {
+    "s": "Türkiye'nin en büyük gölü hangisidir?",
+    "a": [
+      "Tuz Gölü",
+      "Van Gölü",
+      "Beyşehir Gölü",
+      "Eğirdir Gölü"
+    ],
+    "d": 1
+  },
+  {
+    "s": "İlk Türk astronot kimdir?",
+    "a": [
+      "Cahit Arf",
+      "Alper Gezeravcı",
+      "Aziz Sancar",
+      "Vecihi Hürkuş"
+    ],
+    "d": 1
+  },
+  {
+    "s": "Çanakkale Zaferi hangi tarihte kazanıldı?",
+    "a": [
+      "18 Mart 1915",
+      "19 Mayıs 1919",
+      "23 Nisan 1920",
+      "30 Ağustos 1922"
+    ],
+    "d": 0
+  },
+  {
+    "s": "Dünyanın en büyük okyanusu hangisidir?",
+    "a": [
+      "Atlas Okyanusu",
+      "Hint Okyanusu",
+      "Pasifik Okyanusu",
+      "Arktik Okyanusu"
+    ],
+    "d": 2
+  },
+  {
+    "s": "Dünya'nın uydusunun adı nedir?",
+    "a": [
+      "Mars",
+      "Ay",
+      "Güneş",
+      "Venüs"
+    ],
+    "d": 1
+  },
+  {
+    "s": "Güneş Sistemi'nin en büyük gezegeni hangisidir?",
+    "a": [
+      "Dünya",
+      "Mars",
+      "Jüpiter",
+      "Satürn"
+    ],
+    "d": 2
+  },
+  {
+    "s": "Kızıl Gezegen olarak bilinen gezegen hangisidir?",
+    "a": [
+      "Mars",
+      "Venüs",
+      "Merkür",
+      "Neptün"
+    ],
+    "d": 0
+  },
+  {
+    "s": "Su kaç derecede kaynar?",
+    "a": [
+      "0°C",
+      "50°C",
+      "100°C",
+      "212°C"
+    ],
+    "d": 2
+  },
+  {
+    "s": "İnsan vücudundaki en büyük organ hangisidir?",
+    "a": [
+      "Kalp",
+      "Akciğer",
+      "Deri",
+      "Karaciğer"
+    ],
+    "d": 2
+  },
+  {
+    "s": "DNA'nın açılımı nedir?",
+    "a": [
+      "Deoksiribonükleik asit",
+      "Dinamik nükleer asit",
+      "Doğal nöron ağı",
+      "Değişken nötr atom"
+    ],
+    "d": 0
+  },
+  {
+    "s": "Fotosentez yapan organelin adı nedir?",
+    "a": [
+      "Mitokondri",
+      "Kloroplast",
+      "Ribozom",
+      "Çekirdek"
+    ],
+    "d": 1
+  },
+  {
+    "s": "Yer çekimi yasasını kim ortaya koymuştur?",
+    "a": [
+      "Albert Einstein",
+      "Isaac Newton",
+      "Nikola Tesla",
+      "Galileo Galilei"
+    ],
+    "d": 1
+  },
+  {
+    "s": "Işığın boşluktaki hızı yaklaşık kaç km/s'dir?",
+    "a": [
+      "30.000 km/s",
+      "150.000 km/s",
+      "300.000 km/s",
+      "1.000.000 km/s"
+    ],
+    "d": 2
+  },
+  {
+    "s": "Bir yıl artık yıl olabilmesi için hangi kurala uymalıdır?",
+    "a": [
+      "4'e bölünebilmelidir",
+      "3'e bölünebilmelidir",
+      "7'ye bölünebilmelidir",
+      "10'a bölünebilmelidir"
+    ],
+    "d": 0
+  },
+  {
+    "s": "Pi sayısının ilk üç rakamı nedir?",
+    "a": [
+      "2,14",
+      "3,14",
+      "3,41",
+      "1,34"
+    ],
+    "d": 1
+  },
+  {
+    "s": "Bir üçgenin iç açılar toplamı kaç derecedir?",
+    "a": [
+      "90",
+      "180",
+      "270",
+      "360"
+    ],
+    "d": 1
+  },
+  {
+    "s": "Karekökü 144 olan sayı kaçtır?",
+    "a": [
+      "10",
+      "11",
+      "12",
+      "14"
+    ],
+    "d": 2
+  },
+  {
+    "s": "Asal sayı nedir?",
+    "a": [
+      "Sadece 1'e ve kendisine bölünen sayı",
+      "Çift sayı",
+      "Negatif sayı",
+      "10'dan büyük sayı"
+    ],
+    "d": 0
+  },
+  {
+    "s": "13'ün karesi kaçtır?",
+    "a": [
+      "139",
+      "149",
+      "169",
+      "196"
+    ],
+    "d": 2
+  },
+  {
+    "s": "Bir dairenin çevresi nasıl hesaplanır?",
+    "a": [
+      "2πr",
+      "πr²",
+      "a²+b²",
+      "4a"
+    ],
+    "d": 0
+  },
+  {
+    "s": "1 kilometre kaç metredir?",
+    "a": [
+      "10",
+      "100",
+      "1000",
+      "10000"
+    ],
+    "d": 2
+  },
+  {
+    "s": "En küçük iki basamaklı asal sayı hangisidir?",
+    "a": [
+      "10",
+      "11",
+      "12",
+      "13"
+    ],
+    "d": 1
+  },
+  {
+    "s": "Fibonacci dizisinde 0 ve 1'den sonra gelen sayı nedir?",
+    "a": [
+      "0",
+      "1",
+      "2",
+      "3"
+    ],
+    "d": 1
+  },
+  {
+    "s": "İngilizce'de 'apple' ne demektir?",
+    "a": [
+      "Armut",
+      "Elma",
+      "Muz",
+      "Portakal"
+    ],
+    "d": 1
+  },
+  {
+    "s": "Dünyada en çok konuşulan dil hangisidir?",
+    "a": [
+      "Mandarin Çincesi",
+      "Türkçe",
+      "Almanca",
+      "İtalyanca"
+    ],
+    "d": 0
+  },
+  {
+    "s": "Türk alfabesinde kaç harf vardır?",
+    "a": [
+      "26",
+      "28",
+      "29",
+      "32"
+    ],
+    "d": 2
+  },
+  {
+    "s": "İngilizce'de 'book' ne anlama gelir?",
+    "a": [
+      "Kalem",
+      "Kitap",
+      "Defter",
+      "Masa"
+    ],
+    "d": 1
+  },
+  {
+    "s": "Noktalama işaretlerinden soru işareti ne zaman kullanılır?",
+    "a": [
+      "Soru cümlelerinin sonunda",
+      "Ünlem cümlelerinin sonunda",
+      "Özel isimlerde",
+      "Kısaltmalarda"
+    ],
+    "d": 0
+  },
+  {
+    "s": "Türkçede ünlü harf sayısı kaçtır?",
+    "a": [
+      "6",
+      "8",
+      "10",
+      "12"
+    ],
+    "d": 1
+  },
+  {
+    "s": "Eş anlamlı kelime nedir?",
+    "a": [
+      "Anlamı aynı ya da çok yakın olan kelime",
+      "Anlamı zıt olan kelime",
+      "Yazılışı aynı olan kelime",
+      "Sadece fiiller"
+    ],
+    "d": 0
+  },
+  {
+    "s": "Zıt anlamlı kelime nedir?",
+    "a": [
+      "Anlamı aynı olan kelime",
+      "Anlamı karşıt olan kelime",
+      "Yabancı kelime",
+      "Sesli harf"
+    ],
+    "d": 1
+  },
+  {
+    "s": "'Vatan' kelimesinin eş anlamlılarından biri nedir?",
+    "a": [
+      "Yurt",
+      "Okul",
+      "Şehir",
+      "Deniz"
+    ],
+    "d": 0
+  },
+  {
+    "s": "Bir cümlenin sonunda genellikle hangi noktalama işareti kullanılır?",
+    "a": [
+      "Virgül",
+      "Nokta",
+      "İki nokta",
+      "Kesme işareti"
+    ],
+    "d": 1
+  },
+  {
+    "s": "Dünyanın en uzun nehri hangisidir?",
+    "a": [
+      "Amazon",
+      "Nil",
+      "Fırat",
+      "Tuna"
+    ],
+    "d": 1
+  },
+  {
+    "s": "Dünyanın en yüksek dağı hangisidir?",
+    "a": [
+      "Ağrı Dağı",
+      "Everest",
+      "K2",
+      "Alpler"
+    ],
+    "d": 1
+  },
+  {
+    "s": "Avrupa'nın yüzölçümü bakımından en büyük ülkesi hangisidir?",
+    "a": [
+      "Almanya",
+      "Fransa",
+      "Rusya",
+      "İspanya"
+    ],
+    "d": 2
+  },
+  {
+    "s": "Türkiye kaç coğrafi bölgeye ayrılır?",
+    "a": [
+      "5",
+      "6",
+      "7",
+      "8"
+    ],
+    "d": 2
+  },
+  {
+    "s": "Ege Bölgesi'nin en büyük şehri hangisidir?",
+    "a": [
+      "Aydın",
+      "Manisa",
+      "İzmir",
+      "Muğla"
+    ],
+    "d": 2
+  },
+  {
+    "s": "Türkiye'nin en doğusundaki il hangisidir?",
+    "a": [
+      "Van",
+      "Iğdır",
+      "Ağrı",
+      "Hakkari"
+    ],
+    "d": 1
+  },
+  {
+    "s": "Hangi kıta en büyük yüzölçümüne sahiptir?",
+    "a": [
+      "Afrika",
+      "Asya",
+      "Avrupa",
+      "Avustralya"
+    ],
+    "d": 1
+  },
+  {
+    "s": "Nil Nehri hangi kıtadadır?",
+    "a": [
+      "Asya",
+      "Avrupa",
+      "Afrika",
+      "Güney Amerika"
+    ],
+    "d": 2
+  },
+  {
+    "s": "Türkiye'nin komşu olduğu ülkelerden biri hangisidir?",
+    "a": [
+      "Japonya",
+      "Yunanistan",
+      "İspanya",
+      "Norveç"
+    ],
+    "d": 1
+  },
+  {
+    "s": "Karadeniz Türkiye'nin hangi yönündedir?",
+    "a": [
+      "Kuzey",
+      "Güney",
+      "Doğu",
+      "Batı"
+    ],
+    "d": 0
+  },
+  {
+    "s": "İlk insanlı Ay yolculuğu hangi yılda gerçekleşti?",
+    "a": [
+      "1959",
+      "1969",
+      "1979",
+      "1989"
+    ],
+    "d": 1
+  },
+  {
+    "s": "Ay'a ilk ayak basan kişi kimdir?",
+    "a": [
+      "Yuri Gagarin",
+      "Neil Armstrong",
+      "Buzz Aldrin",
+      "Michael Collins"
+    ],
+    "d": 1
+  },
+  {
+    "s": "Telefonu kim icat etti?",
+    "a": [
+      "Alexander Graham Bell",
+      "Thomas Edison",
+      "Nikola Tesla",
+      "Isaac Newton"
+    ],
+    "d": 0
+  },
+  {
+    "s": "Ampulün geliştirilmesiyle tanınan bilim insanı kimdir?",
+    "a": [
+      "Thomas Edison",
+      "Albert Einstein",
+      "Marie Curie",
+      "Galileo"
+    ],
+    "d": 0
+  },
+  {
+    "s": "İnterneti temsil eden 'www' neyin kısaltmasıdır?",
+    "a": [
+      "World Wide Web",
+      "Web World Wire",
+      "Wide Web World",
+      "World Web Works"
+    ],
+    "d": 0
+  },
+  {
+    "s": "Bilgisayarın beyni olarak bilinen parça hangisidir?",
+    "a": [
+      "RAM",
+      "CPU/İşlemci",
+      "Klavye",
+      "Monitör"
+    ],
+    "d": 1
+  },
+  {
+    "s": "Yapay zekâ nedir?",
+    "a": [
+      "Makinelerin öğrenme ve karar verme benzeri işler yapması",
+      "Sadece oyun konsolu",
+      "Bir tarayıcı adı",
+      "Elektrik kablosu"
+    ],
+    "d": 0
+  },
+  {
+    "s": "İlk programlanabilir bilgisayarlardan biri hangisidir?",
+    "a": [
+      "ENIAC",
+      "iPhone",
+      "PlayStation",
+      "Windows"
+    ],
+    "d": 0
+  },
+  {
+    "s": "Elektriği ileten maddelere ne ad verilir?",
+    "a": [
+      "Yalıtkan",
+      "İletken",
+      "Saydam",
+      "Esnek"
+    ],
+    "d": 1
+  },
+  {
+    "s": "Robot nedir?",
+    "a": [
+      "Belirli görevleri yapabilen programlanabilir makine",
+      "Bir gezegen",
+      "Bir dil türü",
+      "Bir noktalama işareti"
+    ],
+    "d": 0
+  },
+  {
+    "s": "FIFA Dünya Kupası kaç yılda bir düzenlenir?",
+    "a": [
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "d": 2
+  },
+  {
+    "s": "Bir futbol takımında sahada kaç oyuncu bulunur?",
+    "a": [
+      "9",
+      "10",
+      "11",
+      "12"
+    ],
+    "d": 2
+  },
+  {
+    "s": "Basketbolda bir takım sahada kaç oyuncuyla oynar?",
+    "a": [
+      "4",
+      "5",
+      "6",
+      "7"
+    ],
+    "d": 1
+  },
+  {
+    "s": "Olimpiyatlar kaç yılda bir yapılır?",
+    "a": [
+      "2",
+      "3",
+      "4",
+      "6"
+    ],
+    "d": 2
+  },
+  {
+    "s": "Satrançta oyuna başlayan taraf hangi renktir?",
+    "a": [
+      "Siyah",
+      "Beyaz",
+      "Kırmızı",
+      "Mavi"
+    ],
+    "d": 1
+  },
+  {
+    "s": "Bir satranç tahtasında kaç kare vardır?",
+    "a": [
+      "32",
+      "48",
+      "64",
+      "81"
+    ],
+    "d": 2
+  },
+  {
+    "s": "Türkiye'nin en fazla şampiyon olan futbol kulübü hangisidir?",
+    "a": [
+      "Galatasaray",
+      "Fenerbahçe",
+      "Beşiktaş",
+      "Trabzonspor"
+    ],
+    "d": 0
+  },
+  {
+    "s": "Voleybolda bir takım sahada kaç oyuncuyla oynar?",
+    "a": [
+      "5",
+      "6",
+      "7",
+      "8"
+    ],
+    "d": 1
+  },
+  {
+    "s": "Penaltı noktası kaleden kaç metre uzaklıktadır?",
+    "a": [
+      "9 metre",
+      "10 metre",
+      "11 metre",
+      "12 metre"
+    ],
+    "d": 2
+  },
+  {
+    "s": "Satrançta şah mat ne anlama gelir?",
+    "a": [
+      "Şahın kaçamayacak şekilde tehdit altında olması",
+      "Taş değişimi",
+      "Beraberlik",
+      "Piyonun terfi etmesi"
+    ],
+    "d": 0
+  },
+  {
+    "s": "'Sefiller' romanının yazarı kimdir?",
+    "a": [
+      "Victor Hugo",
+      "Dostoyevski",
+      "Tolstoy",
+      "Charles Dickens"
+    ],
+    "d": 0
+  },
+  {
+    "s": "'Nutuk' adlı eserin yazarı kimdir?",
+    "a": [
+      "İsmet İnönü",
+      "Mustafa Kemal Atatürk",
+      "Mehmet Akif Ersoy",
+      "Namık Kemal"
+    ],
+    "d": 1
+  },
+  {
+    "s": "'Romeo ve Juliet' eserini kim yazmıştır?",
+    "a": [
+      "William Shakespeare",
+      "Victor Hugo",
+      "Cervantes",
+      "Goethe"
+    ],
+    "d": 0
+  },
+  {
+    "s": "Nobel Edebiyat Ödülü kazanan ilk Türk yazar kimdir?",
+    "a": [
+      "Yaşar Kemal",
+      "Orhan Pamuk",
+      "Nazım Hikmet",
+      "Sabahattin Ali"
+    ],
+    "d": 1
+  },
+  {
+    "s": "Mehmet Akif Ersoy hangi eseriyle tanınır?",
+    "a": [
+      "İstiklal Marşı",
+      "Nutuk",
+      "Kuyucaklı Yusuf",
+      "Sefiller"
+    ],
+    "d": 0
+  },
+  {
+    "s": "'Küçük Prens' kitabının yazarı kimdir?",
+    "a": [
+      "Antoine de Saint-Exupéry",
+      "Victor Hugo",
+      "Jules Verne",
+      "Mark Twain"
+    ],
+    "d": 0
+  },
+  {
+    "s": "Dünya Çocuk Hakları Günü hangi tarihtedir?",
+    "a": [
+      "20 Kasım",
+      "23 Nisan",
+      "29 Ekim",
+      "10 Aralık"
+    ],
+    "d": 0
+  },
+  {
+    "s": "'Don Kişot' romanının yazarı kimdir?",
+    "a": [
+      "Cervantes",
+      "Shakespeare",
+      "Victor Hugo",
+      "Dostoyevski"
+    ],
+    "d": 0
+  },
+  {
+    "s": "İlk Türk romanı olarak kabul edilen eser hangisidir?",
+    "a": [
+      "Taaşşuk-ı Talat ve Fitnat",
+      "İntibah",
+      "Araba Sevdası",
+      "Mai ve Siyah"
+    ],
+    "d": 0
+  },
+  {
+    "s": "Karagöz ve Hacivat hangi kültüre aittir?",
+    "a": [
+      "Gölge oyunu kültürü",
+      "Opera kültürü",
+      "Sinema kültürü",
+      "Bale kültürü"
+    ],
+    "d": 0
+  },
+  {
+    "s": "Bir gün kaç saattir?",
+    "a": [
+      "12",
+      "18",
+      "24",
+      "30"
+    ],
+    "d": 2
+  },
+  {
+    "s": "Bir haftada kaç gün vardır?",
+    "a": [
+      "5",
+      "6",
+      "7",
+      "8"
+    ],
+    "d": 2
+  },
+  {
+    "s": "Bir yılda kaç ay vardır?",
+    "a": [
+      "10",
+      "11",
+      "12",
+      "13"
+    ],
+    "d": 2
+  },
+  {
+    "s": "Ramazan Bayramı hangi dine aittir?",
+    "a": [
+      "İslam",
+      "Hristiyanlık",
+      "Budizm",
+      "Hinduizm"
+    ],
+    "d": 0
+  },
+  {
+    "s": "Kurban Bayramı hangi dine aittir?",
+    "a": [
+      "İslam",
+      "Hristiyanlık",
+      "Yahudilik",
+      "Budizm"
+    ],
+    "d": 0
+  },
+  {
+    "s": "Hicri takvim neye göre hesaplanır?",
+    "a": [
+      "Ay'ın hareketlerine",
+      "Güneş'in sıcaklığına",
+      "Dünya'nın ağırlığına",
+      "Yıldız sayısına"
+    ],
+    "d": 0
+  },
+  {
+    "s": "Dünya'nın kendi etrafındaki dönüşü kaç saat sürer?",
+    "a": [
+      "12 saat",
+      "24 saat",
+      "30 saat",
+      "365 saat"
+    ],
+    "d": 1
+  },
+  {
+    "s": "Mevsimler neden oluşur?",
+    "a": [
+      "Dünya'nın eksen eğikliği ve Güneş etrafında dolanması",
+      "Ay'ın Dünya etrafında dönmesi",
+      "Rüzgarlar",
+      "Denizlerin dalgalanması"
+    ],
+    "d": 0
+  },
+  {
+    "s": "Türkiye hangi yarımkürededir?",
+    "a": [
+      "Kuzey Yarımküre",
+      "Güney Yarımküre",
+      "Batı Yarımküre",
+      "Antarktika"
+    ],
+    "d": 0
+  },
+  {
+    "s": "Dünya Güneş'in etrafında yaklaşık kaç günde döner?",
+    "a": [
+      "30",
+      "180",
+      "365",
+      "500"
+    ],
+    "d": 2
+  },
+  {
+    "s": "Osmanlı Devleti yaklaşık kaç yıl hüküm sürmüştür?",
+    "a": [
+      "300 yıl",
+      "450 yıl",
+      "600 yıl",
+      "900 yıl"
+    ],
+    "d": 2
+  },
+  {
+    "s": "Malazgirt Meydan Muharebesi hangi yılda yapılmıştır?",
+    "a": [
+      "1071",
+      "1299",
+      "1453",
+      "1517"
+    ],
+    "d": 0
+  },
+  {
+    "s": "Kurtuluş Savaşı hangi antlaşma ile resmen sona ermiştir?",
+    "a": [
+      "Lozan Antlaşması",
+      "Mondros Ateşkes Antlaşması",
+      "Sevr Antlaşması",
+      "Ankara Antlaşması"
+    ],
+    "d": 0
+  },
+  {
+    "s": "Lozan Antlaşması hangi tarihte imzalanmıştır?",
+    "a": [
+      "23 Nisan 1920",
+      "24 Temmuz 1923",
+      "29 Ekim 1923",
+      "30 Ağustos 1922"
+    ],
+    "d": 1
+  },
+  {
+    "s": "Atatürk'e 'Başöğretmen' unvanı hangi tarihte verilmiştir?",
+    "a": [
+      "24 Kasım 1928",
+      "29 Ekim 1923",
+      "19 Mayıs 1919",
+      "23 Nisan 1920"
+    ],
+    "d": 0
+  },
+  {
+    "s": "Türk bayrağındaki hilal ve yıldız genel olarak neyi temsil eder?",
+    "a": [
+      "Bağımsızlığı ve Türk milletini",
+      "Sadece denizi",
+      "Bir spor kulübünü",
+      "Bir şehir adını"
+    ],
+    "d": 0
+  },
+  {
+    "s": "Türkiye'nin ilk cumhurbaşkanı kimdir?",
+    "a": [
+      "Mustafa Kemal Atatürk",
+      "İsmet İnönü",
+      "Celal Bayar",
+      "Turgut Özal"
+    ],
+    "d": 0
+  },
+  {
+    "s": "Cumhuriyet'in ilanından önceki yönetim şekli neydi?",
+    "a": [
+      "Monarşi/Saltanat",
+      "Cumhuriyet",
+      "Federasyon",
+      "Başkanlık sistemi"
+    ],
+    "d": 0
+  },
+  {
+    "s": "Atatürk'ün doğduğu şehir neresidir?",
+    "a": [
+      "Selanik",
+      "Ankara",
+      "İstanbul",
+      "İzmir"
+    ],
+    "d": 0
+  },
+  {
+    "s": "Atatürk'ün 'En büyük eserim.' dediği şey nedir?",
+    "a": [
+      "Türkiye Cumhuriyeti",
+      "Nutuk",
+      "TBMM binası",
+      "Samsun"
+    ],
+    "d": 0
+  }
+];
+
+function tarihAnahtari(date = new Date()){{
+  const yil = date.getFullYear();
+  const ay = String(date.getMonth() + 1).padStart(2, "0");
+  const gun = String(date.getDate()).padStart(2, "0");
+  return `${{yil}}-${{ay}}-${{gun}}`;
+}}
+
+function gununSorusuIndex(){
+  const baslangic = new Date(2026, 5, 6); // 6 Haziran 2026
+  const bugun = new Date();
+  const bugunTemiz = new Date(bugun.getFullYear(), bugun.getMonth(), bugun.getDate());
+  const farkGun = Math.floor((bugunTemiz - baslangic) / 86400000);
+  const index = ((farkGun % gununSorulari.length) + gununSorulari.length) % gununSorulari.length;
+  return index;
+}}
+
+function bugununSorusu(){
+  return gununSorulari[gununSorusuIndex()];
+}}
+
+function gununSorusuAc(){
+  const soru = bugununSorusu();
+  const bugun = tarihAnahtari();
+  const cevapKey = "gunun_sorusu_cevap_" + bugun;
+  const cevapVerildi = localStorage.getItem(cevapKey);
+
+  gununSorusuPopup.style.display = "flex";
+  gununSorusuMetni.innerText = soru.s;
+  gununSorusuSonuc.innerText = "";
+  gununSorusuSira.innerText = "Soru " + (gununSorusuIndex() + 1) + " / " + gununSorulari.length;
+  gununSorusuSecenekler.innerHTML = "";
+
+  soru.a.forEach((secenek, index) => {
+    const btn = document.createElement("button");
+    btn.innerText = String.fromCharCode(65 + index) + ") " + secenek;
+
+    if(cevapVerildi){
+      btn.disabled = true;
+      btn.style.opacity = ".65";
+    }else{
+      btn.onclick = () => gununSorusuCevapla(index);
+    }
+
+    gununSorusuSecenekler.appendChild(btn);
+  });
+
+  if(cevapVerildi){
+    const eski = JSON.parse(cevapVerildi);
+    const dogruHarf = String.fromCharCode(65 + soru.d);
+
+    if(eski.dogru){
+      gununSorusuSonuc.innerText = "✅ Bugünkü soruyu doğru cevapladın. XP ödülünü aldın.";
+    }else{
+      gununSorusuSonuc.innerText = "❌ Bugünkü hakkını kullandın. Doğru cevap: " + dogruHarf + ") " + soru.a[soru.d];
+    }
+  }
+}}
+
+function gununSorusuKapat(){
+  gununSorusuPopup.style.display = "none";
+}}
+
+function gununSorusuCevapla(secim){
+  const soru = bugununSorusu();
+  const bugun = tarihAnahtari();
+  const cevapKey = "gunun_sorusu_cevap_" + bugun;
+
+  if(localStorage.getItem(cevapKey)){
+    sistemMesaji("📅 Bugünün sorusunu zaten cevapladın.");
+    gununSorusuAc();
+    return;
+  }
+
+  const dogruMu = secim === soru.d;
+
+  localStorage.setItem(cevapKey, JSON.stringify({{
+    secim,
+    dogru: dogruMu,
+    soru: soru.s,
+    tarih: bugun
+  }}));
+
+  if(dogruMu){
+    profilXpEkle(25);
+    gununSorusuSonuc.innerText = "✅ Doğru cevap! +25 XP kazandın 🚀";
+    sistemMesaji("📅 Günün sorusu doğru! +25 XP kazandın 🚀");
+  }else{
+    const dogruHarf = String.fromCharCode(65 + soru.d);
+    gununSorusuSonuc.innerText = "❌ Yanlış cevap. Doğru cevap: " + dogruHarf + ") " + soru.a[soru.d];
+    sistemMesaji("📅 Günün sorusunu cevapladın ama yanlış oldu. Yarın tekrar dene 😄");
+  }
+
+  gununSorusuAc();
+}}
+
 let konusmaModu =
 localStorage.getItem("neura_konusma_modu")
 || "samimi";
@@ -1990,5 +3142,3 @@ function sidebarAcKapat(){
 </script>
 </body>
 </html>
-
-  
