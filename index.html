@@ -419,6 +419,36 @@ body::before{
   flex:1;
 }
 
+.dogumGunuSecimler{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:8px;
+  margin:8px 0;
+}
+
+.profilSelect{
+  width:100%;
+  padding:11px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,0.10);
+  background:#171020;
+  color:white;
+  outline:none;
+}
+
+.dogumGunuSurpriz{
+  color:#d7c7ff;
+  font-size:13px;
+  margin:8px 0 4px;
+}
+
+.dogumGunuKilit{
+  opacity:.65;
+  font-size:12px;
+  color:#bbb;
+  margin-top:6px;
+}
+
 @keyframes fadeIn{
   from{ opacity:0; transform:translateY(8px); }
   to{ opacity:1; transform:translateY(0); }
@@ -766,6 +796,31 @@ body::before{
         <b id="profilKatilim">Bugün</b>
       </div>
 
+      <div class="profilSatir">
+        🎂 Doğum Günü:
+        <b id="profilDogumGunu">Ayarlanmadı</b>
+      </div>
+
+      <div id="dogumGunuAyarAlani">
+        <div class="dogumGunuSecimler">
+          <select id="dogumGunYil" class="profilSelect"></select>
+          <select id="dogumGunAy" class="profilSelect"></select>
+          <select id="dogumGunGun" class="profilSelect"></select>
+        </div>
+
+        <button onclick="dogumGunuKaydet()">
+          🎂 Doğum Gününü Kaydet
+        </button>
+
+        <p class="dogumGunuSurpriz">
+          🎁 Doğum günü vaktinde gizli sürpriz
+        </p>
+      </div>
+
+      <div id="dogumGunuKilitYazi" class="dogumGunuKilit" style="display:none;">
+        🔒 Doğum günü sadece 1 kere ayarlanabilir.
+      </div>
+
       <div class="profilButonlar">
         <button onclick="profilKaydet()">Kaydet</button>
         <button onclick="profilPanelKapat()">Kapat</button>
@@ -797,6 +852,12 @@ document.getElementById("profilKariyer");
 const profilXP = document.getElementById("profilXP");
 const profilSonrakiXP = document.getElementById("profilSonrakiXP");
 const profilKatilim = document.getElementById("profilKatilim");
+const profilDogumGunu = document.getElementById("profilDogumGunu");
+const dogumGunuAyarAlani = document.getElementById("dogumGunuAyarAlani");
+const dogumGunuKilitYazi = document.getElementById("dogumGunuKilitYazi");
+const dogumGunYil = document.getElementById("dogumGunYil");
+const dogumGunAy = document.getElementById("dogumGunAy");
+const dogumGunGun = document.getElementById("dogumGunGun");
 
 let profilVerisi =
   JSON.parse(localStorage.getItem("neura_profil")) ||
@@ -805,7 +866,10 @@ let profilVerisi =
     foto:"",
     xp:0,
     seviye:1,
-    katilim:Date.now()
+    katilim:Date.now(),
+    dogumGunu:null,
+    dogumGunuAyarlandi:false,
+    dogumGunuOdulYili:null
   };
 
 profilVerisi.nick = profilVerisi.nick || "FFGok";
@@ -813,6 +877,9 @@ profilVerisi.foto = profilVerisi.foto || "";
 profilVerisi.xp = Number(profilVerisi.xp || 0);
 profilVerisi.seviye = Number(profilVerisi.seviye || 1);
 profilVerisi.katilim = profilVerisi.katilim || Date.now();
+profilVerisi.dogumGunu = profilVerisi.dogumGunu || null;
+profilVerisi.dogumGunuAyarlandi = Boolean(profilVerisi.dogumGunuAyarlandi);
+profilVerisi.dogumGunuOdulYili = profilVerisi.dogumGunuOdulYili || null;
 
 function profilKaydetLocal(){
   localStorage.setItem("neura_profil", JSON.stringify(profilVerisi));
@@ -820,6 +887,115 @@ function profilKaydetLocal(){
 
 function tarihFormatla(t){
   return new Date(t).toLocaleDateString("tr-TR");
+}
+
+function dogumGunuYazi(dg){
+  if(!dg) return "Ayarlanmadı";
+
+  const gun = String(dg.gun).padStart(2, "0");
+  const ay = String(dg.ay).padStart(2, "0");
+
+  return gun + "." + ay + "." + dg.yil;
+}
+
+function dogumGunuSecimleriDoldur(){
+  if(dogumGunYil.options.length > 0) return;
+
+  const simdi = new Date();
+  const buYil = simdi.getFullYear();
+
+  dogumGunYil.innerHTML = "";
+  dogumGunAy.innerHTML = "";
+  dogumGunGun.innerHTML = "";
+
+  for(let yil = buYil; yil >= 1950; yil--){
+    const option = document.createElement("option");
+    option.value = yil;
+    option.innerText = yil;
+    dogumGunYil.appendChild(option);
+  }
+
+  const aylar = [
+    "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
+    "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"
+  ];
+
+  aylar.forEach((ayAdi, index) => {
+    const option = document.createElement("option");
+    option.value = index + 1;
+    option.innerText = ayAdi;
+    dogumGunAy.appendChild(option);
+  });
+
+  for(let gun = 1; gun <= 31; gun++){
+    const option = document.createElement("option");
+    option.value = gun;
+    option.innerText = gun;
+    dogumGunGun.appendChild(option);
+  }
+}
+
+function dogumGunuPanelGuncelle(){
+  dogumGunuSecimleriDoldur();
+
+  profilDogumGunu.innerText = dogumGunuYazi(profilVerisi.dogumGunu);
+
+  if(profilVerisi.dogumGunuAyarlandi){
+    dogumGunuAyarAlani.style.display = "none";
+    dogumGunuKilitYazi.style.display = "block";
+  }else{
+    dogumGunuAyarAlani.style.display = "block";
+    dogumGunuKilitYazi.style.display = "none";
+  }
+}
+
+function dogumGunuKaydet(){
+  if(profilVerisi.dogumGunuAyarlandi){
+    sistemMesaji("🎂 Doğum gününü zaten ayarladın. Sadece 1 kere değiştirilebilir.");
+    return;
+  }
+
+  const yil = Number(dogumGunYil.value);
+  const ay = Number(dogumGunAy.value);
+  const gun = Number(dogumGunGun.value);
+
+  const kontrol = new Date(yil, ay - 1, gun);
+
+  if(
+    kontrol.getFullYear() !== yil ||
+    kontrol.getMonth() !== ay - 1 ||
+    kontrol.getDate() !== gun
+  ){
+    sistemMesaji("🎂 Böyle bir doğum günü yok kanka. Tarihi kontrol et.");
+    return;
+  }
+
+  profilVerisi.dogumGunu = { yil, ay, gun };
+  profilVerisi.dogumGunuAyarlandi = true;
+
+  profilGuncelle();
+  sistemMesaji("🎂 Doğum günü kaydedildi. Artık sadece gizli sürprizi bekle 😎");
+}
+
+function dogumGunuKontrolEt(){
+  if(!profilVerisi.dogumGunu) return;
+
+  const simdi = new Date();
+  const bugunGun = simdi.getDate();
+  const bugunAy = simdi.getMonth() + 1;
+  const buYil = simdi.getFullYear();
+
+  const dg = profilVerisi.dogumGunu;
+
+  if(dg.gun === bugunGun && dg.ay === bugunAy && profilVerisi.dogumGunuOdulYili !== buYil){
+    profilVerisi.dogumGunuOdulYili = buYil;
+    profilXpEkle(1000);
+    profilKaydetLocal();
+
+    setTimeout(() => {
+      sistemMesaji("🎂 Doğum günün kutlu olsun " + (profilVerisi.nick || "kanka") + "! Gizli sürpriz açıldı: +1000 XP kazandın! 🎁");
+    }, 600);
+  }
 }
 
 function profilGuncelle(){
@@ -845,6 +1021,7 @@ if(xp >= 10000) kariyer = "NeuraAI Eliti";
   profilXP.innerText = xp;
   profilSonrakiXP.innerText = sonrakiXP;
   profilKatilim.innerText = tarihFormatla(profilVerisi.katilim || Date.now());
+  dogumGunuPanelGuncelle();
 
   profilFoto.src =
     profilVerisi.foto ||
@@ -1772,6 +1949,7 @@ if("serviceWorker" in navigator){
 }
 
 yukleKayit();
+dogumGunuKontrolEt();
 function sidebarAcKapat(){
   document.querySelector(".solPanel").classList.toggle("acik");
 }
