@@ -687,6 +687,11 @@ body::before{
 <button class="sidebarMiniBtn" onclick="modPanelAc()">🎭 Modlar</button>
       <button class="sidebarMiniBtn" onclick="profilPanelAc()">👤 Profil</button>
       <button class="sidebarMiniBtn" onclick="gununSorusuAc()">📅 Günün Sorusu</button>
+      <input
+  id="sohbetAramaInput"
+  class="profilInput"
+  placeholder="🔍 Sohbet ara..."
+  oninput="sohbetleriGoster()">
       <button class="sidebarMiniBtn" onclick="aktifSohbetiSil()">Bu sohbeti sil</button>
       <button class="sidebarMiniBtn" onclick="sohbetiDisaAktar()">Sohbeti dışa aktar</button>
     </div>
@@ -887,7 +892,8 @@ const durumYazi = document.getElementById("durumYazi");
 const gonderBtn = document.getElementById("gonderBtn");
 const favoriListesi =
 document.getElementById("favoriListesi");
-
+const sohbetAramaInput =
+document.getElementById("sohbetAramaInput");
 const profilPopup = document.getElementById("profilPopup");
 const profilFoto = document.getElementById("profilFoto");
 const profilFotoInput = document.getElementById("profilFotoInput");
@@ -2688,8 +2694,22 @@ function sohbetleriGoster(){
 
   liste.innerHTML = "";
   favoriListesi.innerHTML = "";
+const arama =
+  sohbetAramaInput
+  ? sohbetAramaInput.value.toLowerCase().trim()
+  : "";
 
-  tumSohbetler.forEach(sohbet => {
+const filtreliSohbetler = tumSohbetler.filter(sohbet => {
+  const baslik = (sohbet.baslik || "").toLowerCase();
+
+  const mesajlar = (sohbet.mesajlar || [])
+    .map(m => m.text || "")
+    .join(" ")
+    .toLowerCase();
+
+  return !arama || baslik.includes(arama) || mesajlar.includes(arama);
+});
+  filtreliSohbetler.forEach(sohbet => {
     const item = document.createElement("div");
 
     item.className =
@@ -3142,3 +3162,5 @@ function sidebarAcKapat(){
 </script>
 </body>
 </html>
+
+  
