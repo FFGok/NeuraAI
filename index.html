@@ -2564,8 +2564,29 @@ function mesajEkle(text, kim, foto = null, extraClass = "", kopyala = false){
     const img = document.createElement("img");
     img.src = foto;
     img.alt = "Görsel";
+    img.loading = "lazy";
     img.style.cursor = "pointer";
     img.onclick = () => window.open(foto, "_blank");
+
+    img.onerror = () => {
+      img.remove();
+
+      const hata = document.createElement("div");
+      hata.innerText = "🖼️ Görsel yüklenemedi. Sunucu yoğun olabilir, tekrar dene.";
+      hata.style.color = "#ffd6d6";
+      hata.style.fontSize = "13px";
+      hata.style.marginTop = "8px";
+      balon.appendChild(hata);
+
+      if(String(foto).startsWith("http")){
+        const link = document.createElement("button");
+        link.className = "kopyalaBtn";
+        link.innerText = "Görseli yeni sekmede aç";
+        link.onclick = () => window.open(foto, "_blank");
+        balon.appendChild(link);
+      }
+    };
+
     balon.appendChild(img);
   }
 
@@ -2992,12 +3013,18 @@ async function fotografAnalizEt(kullaniciMesaji){
 async function gorselUret(mesaj){
   const loading = yaziyorEfektiGoster();
 
-  const prompt = (mesaj
+  const prompt = (mesaj || "")
     .replace(/neuraai/gi, "")
+    .replace(/resim/gi, "")
+    .replace(/görsel/gi, "")
+    .replace(/gorsel/gi, "")
+    .replace(/fotoğraf/gi, "")
+    .replace(/fotograf/gi, "")
     .replace(/çiz/gi, "")
     .replace(/ciz/gi, "")
-    .trim() + " high quality, detailed, 4k, cinematic lighting, ultra realistic"
-  ) || "creative digital art";
+    .replace(/oluştur/gi, "")
+    .replace(/olustur/gi, "")
+    .trim() || "yaratıcı gerçekçi bir sahne";
 
   try{
     const res = await fetch("/generate-image", {
@@ -3006,18 +3033,22 @@ async function gorselUret(mesaj){
       body:JSON.stringify({ prompt })
     });
 
-    const data = await res.json();
+    const data = await res.json().catch(() => ({}));
     yaziyorEfektiKapat(loading);
 
     if(data.image){
-      mesajEkle("Görsel hazır kanka 🖼️", "ai", data.image, "", false);
-      mesajiSohbeteKaydet("Görsel hazır kanka 🖼️", "ai", data.image);
+      const yazi = data.enhancedPrompt
+        ? "Görsel hazır kanka 🖼️\n✨ Prompt güçlendirildi."
+        : "Görsel hazır kanka 🖼️";
+
+      mesajEkle(yazi, "ai", data.image, "", false);
+      mesajiSohbeteKaydet(yazi, "ai", data.image);
     }else{
-      await cevap(data.reply || "Görsel üretilemedi.", true);
+      await cevap(data.reply || "Görsel üretilemedi. Sunucu yoğun olabilir, biraz sonra tekrar dene.", true);
     }
   }catch(err){
     yaziyorEfektiKapat(loading);
-    await cevap("Görsel üretirken bağlantı hatası oldu.", true);
+    await cevap("Görsel üretirken bağlantı hatası oldu. Biraz sonra tekrar dene.", true);
     console.error(err);
   }
 
@@ -3162,5 +3193,3 @@ function sidebarAcKapat(){
 </script>
 </body>
 </html>
-
-  
