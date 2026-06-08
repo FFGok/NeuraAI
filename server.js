@@ -287,7 +287,7 @@ app.post("/chat", async (req, res) => {
       },
       body: JSON.stringify({
         model: "openai/gpt-4o-mini",
-        max_tokens: mode === "uzun" ? 350 : 180,
+        max_tokens: mode === "uzun" ? 1200 : 400,
         messages: [
           {
             role: "system",
