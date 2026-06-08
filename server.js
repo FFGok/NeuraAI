@@ -459,7 +459,17 @@ app.post("/generate-image", async (req, res) => {
     let image;
 
     try{
-      image = await pollinationsGorselAl(gucluPrompt);
+      const seed = Math.floor(Math.random() * 999999999);
+
+image =
+  "https://image.pollinations.ai/prompt/" +
+  encodeURIComponent(gucluPrompt) +
+  "?width=1024&height=1024" +
+  "&seed=" + seed +
+  "&model=flux" +
+  "&nologo=true" +
+  "&enhance=true" +
+  "&safe=true";
     }catch(err){
       console.error("Pollinations görsel hatası:", err.message);
       return res.json({
