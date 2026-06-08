@@ -139,6 +139,72 @@ function sistemPromptOlustur(konusmaModu){
     "Şu an Samimi Moddasın. Kullanıcıyla sıcak, doğal, arkadaş gibi konuş. Aşırıya kaçmadan samimi ol. Kısa, net ve rahat cevap ver.";
 }
 
+
+function gorselPromptGuclendir(prompt){
+  const ham = temizMesaj(prompt)
+    .replace(/neuraai/gi, "")
+    .replace(/resim/gi, "")
+    .replace(/görsel/gi, "")
+    .replace(/gorsel/gi, "")
+    .replace(/fotoğraf/gi, "")
+    .replace(/fotograf/gi, "")
+    .replace(/çiz/gi, "")
+    .replace(/ciz/gi, "")
+    .replace(/oluştur/gi, "")
+    .replace(/olustur/gi, "")
+    .trim();
+
+  const konu = ham || "creative realistic scene";
+
+  return [
+    "Ultra realistic 4K cinematic photo.",
+    "Main subject and every object from the user prompt must be visible in the same scene.",
+    "Do not ignore any detail, do not replace the subject, do not draw only one object.",
+    "Accurate human anatomy, natural face, realistic hands, correct fingers, realistic proportions.",
+    "Sharp focus, detailed textures, realistic lighting, depth of field, professional photography.",
+    "No text, no watermark, no logo, no extra limbs, no deformed hands, no blurry face.",
+    "User prompt:",
+    konu
+  ].join(" ");
+}
+
+async function pollinationsGorselAl(prompt){
+  const seed = Math.floor(Math.random() * 999999999);
+  const url =
+    "https://image.pollinations.ai/prompt/" +
+    encodeURIComponent(prompt) +
+    "?width=1024&height=1024&seed=" + seed +
+    "&model=flux&nologo=true&enhance=true&safe=true";
+
+  const response = await fetch(url, {
+    headers: {
+      "Accept": "image/*,*/*;q=0.8",
+      "User-Agent": "NeuraAI/1.0"
+    }
+  });
+
+  const contentType = response.headers.get("content-type") || "";
+
+  if(!response.ok){
+    const hataMetni = await response.text().catch(() => "");
+    throw new Error("Pollinations hata: " + response.status + " " + hataMetni.slice(0, 120));
+  }
+
+  if(!contentType.startsWith("image/")){
+    const hataMetni = await response.text().catch(() => "");
+    throw new Error("Pollinations görsel yerine yazı döndürdü: " + hataMetni.slice(0, 120));
+  }
+
+  const arrayBuffer = await response.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+
+  if(buffer.length < 1000){
+    throw new Error("Pollinations boş görsel döndürdü.");
+  }
+
+  return "data:" + contentType.split(";")[0] + ";base64," + buffer.toString("base64");
+}
+
 veriyiYukle();
 
 app.post("/chat", async (req, res) => {
@@ -379,7 +445,7 @@ app.post("/generate-image", async (req, res) => {
       return res.json({ reply: "Ne çizelim kanka? 😄" });
     }
 
-    if(prompt.length > 500){
+    if(prompt.length > 1000){
       return res.json({ reply: "Görsel isteği çok uzun kanka 😅 Biraz kısalt." });
     }
 
@@ -389,16 +455,28 @@ app.post("/generate-image", async (req, res) => {
       return res.json({ reply: "Görsel üretme hakkın bitti kanka." });
     }
 
+    const gucluPrompt = gorselPromptGuclendir(prompt);
+    let image;
+
+    try{
+      image = await pollinationsGorselAl(gucluPrompt);
+    }catch(err){
+      console.error("Pollinations görsel hatası:", err.message);
+      return res.json({
+        reply: "Görsel üretme servisi şu an yoğun kanka 😅 Biraz sonra tekrar dene. Hakkını yakmadım.",
+        error: "image_service_busy"
+      });
+    }
+
     kullaniciVerisi[ip].resimSayisi++;
     adminData.users[ip].resimSayisi++;
     adminData.stats.toplamResim++;
-
-    const image = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
 
     adminData.images.unshift({
       ip,
       time: simdi,
       prompt: temizMesaj(prompt),
+      enhancedPrompt: temizMesaj(gucluPrompt),
       image
     });
 
@@ -407,6 +485,7 @@ app.post("/generate-image", async (req, res) => {
 
     return res.json({
       image,
+      enhancedPrompt: gucluPrompt,
       kalanResim: resimLimiti - kullaniciVerisi[ip].resimSayisi
     });
 
