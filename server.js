@@ -169,12 +169,20 @@ function gorselPromptGuclendir(prompt){
 }
 
 async function pollinationsGorselAl(prompt){
+  if(!process.env.POLLINATIONS_API_KEY){
+    throw new Error("POLLINATIONS_API_KEY Render Environment içinde yok.");
+  }
+
   const seed = Math.floor(Math.random() * 999999999);
+
   const url =
-    "https://image.pollinations.ai/prompt/" +
+    "https://gen.pollinations.ai/image/" +
     encodeURIComponent(prompt) +
-    "?width=1024&height=1024&seed=" + seed +
-    "&model=flux&nologo=true&enhance=true&safe=true";
+    "?width=1024&height=1024" +
+    "&seed=" + seed +
+    "&model=flux" +
+    "&enhance=true" +
+    "&key=" + process.env.POLLINATIONS_API_KEY;
 
   const response = await fetch(url, {
     headers: {
@@ -187,12 +195,12 @@ async function pollinationsGorselAl(prompt){
 
   if(!response.ok){
     const hataMetni = await response.text().catch(() => "");
-    throw new Error("Pollinations hata: " + response.status + " " + hataMetni.slice(0, 120));
+    throw new Error("Pollinations hata: " + response.status + " " + hataMetni.slice(0, 300));
   }
 
   if(!contentType.startsWith("image/")){
     const hataMetni = await response.text().catch(() => "");
-    throw new Error("Pollinations görsel yerine yazı döndürdü: " + hataMetni.slice(0, 120));
+    throw new Error("Pollinations görsel yerine yazı döndürdü: " + hataMetni.slice(0, 300));
   }
 
   const arrayBuffer = await response.arrayBuffer();
@@ -455,22 +463,12 @@ app.post("/generate-image", async (req, res) => {
       return res.json({ reply: "Görsel üretme hakkın bitti kanka." });
     }
 
-    const gucluPrompt = gorselPromptGuclendir(prompt);
-    let image;
+const gucluPrompt = gorselPromptGuclendir(prompt);
+let image;
 
-    try{
-      const seed = Math.floor(Math.random() * 999999999);
-
-image =
-  "https://image.pollinations.ai/prompt/" +
-  encodeURIComponent(gucluPrompt) +
-  "?width=1024&height=1024" +
-  "&seed=" + seed +
-  "&model=flux" +
-  "&nologo=true" +
-  "&enhance=true" +
-  "&safe=true";
-    }catch(err){
+try{
+  image = await pollinationsGorselAl(gucluPrompt);
+}catch(err){
       console.error("Pollinations görsel hatası:", err.message);
       return res.json({
         reply: "Görsel üretme servisi şu an yoğun kanka 😅 Biraz sonra tekrar dene. Hakkını yakmadım.",
