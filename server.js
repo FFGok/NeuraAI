@@ -181,15 +181,16 @@ async function pollinationsGorselAl(prompt){
     "?width=1024&height=1024" +
     "&seed=" + seed +
     "&model=flux" +
-    "&enhance=true" +
-    "&key=" + process.env.POLLINATIONS_API_KEY;
+    "&enhance=true" 
+    
 
-  const response = await fetch(url, {
-    headers: {
-      "Accept": "image/*,*/*;q=0.8",
-      "User-Agent": "NeuraAI/1.0"
-    }
-  });
+const response = await fetch(url, {
+  headers: {
+    "Accept": "image/*,*/*;q=0.8",
+    "User-Agent": "NeuraAI/1.0",
+    "Authorization": `Bearer ${process.env.POLLINATIONS_API_KEY}`
+  }
+});
 
   const contentType = response.headers.get("content-type") || "";
 
