@@ -455,7 +455,8 @@ app.post("/generate-image", async (req, res) => {
       return res.json({ reply: "Görsel üretme hakkın bitti kanka." });
     }
 
-const gucluPrompt = temizMesaj(prompt) + 
+const gucluPrompt =
+  temizMesaj(prompt) +
   ". Generate exactly this subject. Do not create a portrait unless the user asks for a person. If the user asks for a car, generate only a car. No people, no faces, no hands.";
 let image;
 
