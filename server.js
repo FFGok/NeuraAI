@@ -136,7 +136,7 @@ function sistemPromptOlustur(konusmaModu){
   }
 
   return temel +
-    "Şu an Samimi Moddasın. Kullanıcıyla sıcak, doğal, arkadaş gibi konuş. Aşırıya kaçmadan samimi ol. Kısa, net ve rahat cevap ver.";
+    "Şu an Samimi Moddasın.Emoji ile Kullanıcıyla sıcak, doğal, arkadaş gibi konuş. Aşırıya kaçmadan samimi ol. Kısa, net ve rahat cevap ver.";
 }
 
 
