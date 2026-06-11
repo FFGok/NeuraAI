@@ -173,45 +173,36 @@ async function pollinationsGorselAl(prompt){
     throw new Error("POLLINATIONS_API_KEY Render Environment içinde yok.");
   }
 
-  const seed = Math.floor(Math.random() * 999999999);
+  const response = await fetch("https://gen.pollinations.ai/v1/images/generations", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${process.env.POLLINATIONS_API_KEY}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      prompt: prompt,
+      model: "flux",
+      n: 1,
+      size: "1024x1024",
+      quality: "medium",
+      response_format: "b64_json",
+      safe: true
+    })
+  });
 
-  const url =
-    "https://gen.pollinations.ai/image/" +
-    encodeURIComponent(prompt) +
-    "?width=1024&height=1024" +
-    "&seed=" + seed +
-    "&model=flux" +
-    "&enhance=true" 
-    
-
-const response = await fetch(url, {
-  headers: {
-    "Accept": "image/*,*/*;q=0.8",
-    "User-Agent": "NeuraAI/1.0",
-    "Authorization": `Bearer ${process.env.POLLINATIONS_API_KEY}`
-  }
-});
-
-  const contentType = response.headers.get("content-type") || "";
+  const data = await response.json().catch(() => ({}));
 
   if(!response.ok){
-    const hataMetni = await response.text().catch(() => "");
-    throw new Error("Pollinations hata: " + response.status + " " + hataMetni.slice(0, 300));
+    throw new Error("Pollinations hata: " + response.status + " " + JSON.stringify(data).slice(0, 300));
   }
 
-  if(!contentType.startsWith("image/")){
-    const hataMetni = await response.text().catch(() => "");
-    throw new Error("Pollinations görsel yerine yazı döndürdü: " + hataMetni.slice(0, 300));
+  const b64 = data.data?.[0]?.b64_json;
+
+  if(!b64){
+    throw new Error("Pollinations base64 görsel döndürmedi: " + JSON.stringify(data).slice(0, 300));
   }
 
-  const arrayBuffer = await response.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
-
-  if(buffer.length < 1000){
-    throw new Error("Pollinations boş görsel döndürdü.");
-  }
-
-  return "data:" + contentType.split(";")[0] + ";base64," + buffer.toString("base64");
+  return "data:image/png;base64," + b64;
 }
 
 veriyiYukle();
