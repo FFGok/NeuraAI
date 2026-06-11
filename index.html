@@ -897,11 +897,6 @@ profilFotoInput.addEventListener("change", function(e){
     return;
   }
 
-  if(file.size > 2 * 1024 * 1024){
-    sistemMesaji("Profil fotoğrafı 2MB altında olmalı kanka.");
-    return;
-  }
-
   const reader = new FileReader();
 
   reader.onload = function(ev){
@@ -1069,7 +1064,7 @@ function mikrofonuDinle(){
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
   if(!SpeechRecognition){
-    cevap("Tarayıcın mikrofonlu konuşmayı desteklemiyor kanka. Chrome kullanmanı öneririm 🎤", false);
+    cevap("Tarayıcın mikrofonlu konuşmayı desteklemiyor. Chrome kullanmanı öneririm.", false);
     sesliSohbetAktif = false;
     return;
   }
@@ -1112,7 +1107,7 @@ function mikrofonuDinle(){
 
       if(event.error === "not-allowed"){
         sesliSohbetAktif = false;
-        cevap("Mikrofon izni kapalı kanka 🎤 Tarayıcıdan izin vermen lazım.", false);
+        cevap("Mikrofon izni kapalı. Tarayıcıdan izin vermen lazım.", false);
       }else if(event.error === "no-speech"){
         if(sesliSohbetAktif){
           durumYazi.innerText = "Ses duyamadım, tekrar dinliyorum...";
@@ -1120,7 +1115,7 @@ function mikrofonuDinle(){
         }
       }else if(event.error === "audio-capture"){
         sesliSohbetAktif = false;
-        cevap("Mikrofon bulunamadı kanka.", false);
+        cevap("Mikrofon bulunamadı.", false);
       }else{
         cevap("Mikrofon hatası: " + event.error, false);
       }
@@ -1423,7 +1418,7 @@ const yeni = {
   sohbetleriKaydet();
   sohbetleriGoster();
 
-  sistemMesaji("Yeni sohbet başlatıldı 😄");
+  sistemMesaji("Yeni sohbet başlatıldı.");
 }
 
 function sohbetAc(id){
@@ -1446,7 +1441,7 @@ function sohbetAc(id){
       role: m.kim === "user" ? "user" : "assistant",
       content: m.text
     }))
-    .slice(-20);
+    .slice(-80);
 
   sohbetleriGoster();
 }
@@ -1581,12 +1576,6 @@ fotoInput.addEventListener("change", function(e){
     return;
   }
 
-  if(file.size > 5 * 1024 * 1024){
-    sistemMesaji("Fotoğraf çok büyük kanka. 5MB altında seç.");
-    fotoTemizle();
-    return;
-  }
-
   const reader = new FileReader();
   reader.onload = function(ev){
     secilenFoto = ev.target.result;
@@ -1679,8 +1668,8 @@ async function gorselUret(mesaj){
 
     if(data.image){
       const yazi = data.enhancedPrompt
-        ? "Görsel hazır kanka 🖼️\n✨ Prompt güçlendirildi."
-        : "Görsel hazır kanka 🖼️";
+        ? "Görsel hazır.\nPrompt güçlendirildi."
+        : "Görsel hazır.";
 
       profilIstatistikEkle("resim");
       mesajEkle(yazi, "ai", data.image, "", false);
@@ -1723,7 +1712,7 @@ async function gonder(){
 
   if(fark < 3000){
     const kalanSn = Math.ceil((3000 - fark) / 1000);
-    await cevap(`Biraz yavaş 😄 Yeni mesaj için ${kalanSn} saniye bekle.`, false);
+    await cevap(`Biraz yavaş. Yeni mesaj için ${kalanSn} saniye bekle.`, false);
     cooldownBaslat();
     return;
   }
@@ -1740,7 +1729,7 @@ async function gonder(){
   mesajiSohbeteKaydet(userMesaj, "user", gonderilenFoto);
 
   if(randomMesajMi(m)){
-    await cevap("Klavye mi takıldı 😄 Ne demek istediğini biraz daha açık yaz.", true);
+    await cevap("Ne demek istediğini biraz daha açık yaz.", true);
     fotoTemizle();
     return;
   }
@@ -1795,7 +1784,7 @@ async function gonder(){
         content:data.reply
       });
 
-      sohbetGecmisi = sohbetGecmisi.slice(-20);
+      sohbetGecmisi = sohbetGecmisi.slice(-80);
       await cevap(data.reply, true);
     }else{
       await cevap("Cevap gelmedi.", true);
