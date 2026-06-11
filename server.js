@@ -7,7 +7,7 @@ const path = require("path");
 
 const app = express();
 
-app.use(express.json({ limit: "10mb" }));
+app.use(express.json({ limit: "50mb" }));
 app.set("trust proxy", true);
 
 const DATA_DIR = process.env.DATA_DIR || __dirname;
@@ -47,10 +47,10 @@ function veriyiYukle(){
     if(fs.existsSync(DATA_PATH)){
       const raw = fs.readFileSync(DATA_PATH, "utf8");
       adminData = JSON.parse(raw);
-      console.log("Admin verileri yüklendi ✅");
+      console.log("Admin verileri yüklendi.");
     }else{
       veriyiKaydet();
-      console.log("admin-data.json oluşturuldu ✅");
+      console.log("admin-data.json oluşturuldu.");
     }
   }catch(err){
     console.error("Veri yükleme hatası:", err);
@@ -120,7 +120,7 @@ function sistemPromptOlustur(konusmaModu){
   const temel =
     "Sen NeuraAI adında net, yardımcı ve güvenli bir yapay zekasın. " +
     "Kullanıcı Türkçe yazarsa Türkçe cevap ver. Kullanıcı İngilizce, Arapça veya başka bir dilde yazarsa o dile uygun cevap ver. " +
-    "Önceki konuşmaları dikkate al. Kullanıcı 'onu', 'az önceki', 'bununla', 'sonucu' gibi şeyler derse önceki mesajlardan anlam çıkar. " +
+    "Önceki konuşmaları güçlü şekilde dikkate al. Kullanıcı 'onu', 'az önceki', 'bununla', 'sonucu' gibi şeyler derse önceki mesajlardan anlam çıkar. Uzun konuşmalarda konu, kararlar, kodlar, hatalar ve kullanıcı tercihlerini takip et. " +
     "Kullanıcıya teknik sistem açıklaması yapma. " +
     "Seni 13 yaşındaki Göktürk Arslan geliştirdi. Kullanıcı seni kimin yaptığını, kurduğunu, geliştirdiğini veya oluşturduğunu sorarsa Göktürk Arslan tarafından geliştirildiğini söyle. " +
     "Küfür, hakaret veya argo kelimelerde tek kelimeye göre karar verme; cümlenin tamamını yorumla. Kullanıcı birinin ona ne dediğini aktarıyorsa, örnek veriyorsa veya anlamını soruyorsa normal yardımcı cevap ver. Sadece doğrudan saldırı varsa sakin şekilde sınır koy. ";
@@ -136,9 +136,8 @@ function sistemPromptOlustur(konusmaModu){
   }
 
   return temel +
-    "Şu an Samimi Moddasın.Emoji ile Kullanıcıyla sıcak, doğal, arkadaş gibi konuş. Aşırıya kaçmadan samimi ol. Kısa, net ve rahat cevap ver.";
+    "Şu an Samimi Moddasın. Kullanıcıyla sıcak, doğal, arkadaş gibi konuş. Aşırıya kaçmadan samimi ol. Kısa, net ve rahat cevap ver. Uyarı mesajlarında gereksiz emoji veya benzeri hitaplar kullanma.";
 }
-
 
 function gorselPromptGuclendir(prompt){
   const ham = temizMesaj(prompt)
@@ -217,11 +216,7 @@ app.post("/chat", async (req, res) => {
     kullaniciVerisiHazirla(ip);
 
     if(!message || message.trim().length < 1){
-      return res.json({ reply: "Boş mesaj gönderme kanka 😄" });
-    }
-
-    if(message.length > 4000){
-      return res.json({ reply: "Mesaj çok uzun kanka 😅 Biraz kısaltıp gönder." });
+      return res.json({ reply: "Boş mesaj gönderme." });
     }
 
     if(!process.env.OPENROUTER_API_KEY){
@@ -236,15 +231,15 @@ app.post("/chat", async (req, res) => {
     kullaniciLimit[ip] = kullaniciLimit[ip].filter(t => simdi - t < 60000);
 
     if(kullaniciLimit[ip].length > 12){
-      return res.json({ reply: "Çok hızlı gidiyorsun 😅 1 dakika sonra tekrar dene." });
+      return res.json({ reply: "Çok hızlı gidiyorsun. 1 dakika sonra tekrar dene." });
     }
 
     if(kullaniciSonMesaj[ip] && simdi - kullaniciSonMesaj[ip].time < 3000){
-      return res.json({ reply: "Biraz yavaş 😄 3 saniye bekle." });
+      return res.json({ reply: "Biraz yavaş. 3 saniye bekle." });
     }
 
     if(kullaniciSonMesaj[ip] && kullaniciSonMesaj[ip].text === message){
-      return res.json({ reply: "Aynı mesajı tekrar tekrar gönderme kanka 😄" });
+      return res.json({ reply: "Aynı mesajı tekrar tekrar gönderme." });
     }
 
     kullaniciSonMesaj[ip] = {
@@ -272,7 +267,7 @@ app.post("/chat", async (req, res) => {
     veriyiKaydet();
 
     const hafiza = Array.isArray(messages) && messages.length > 0
-      ? messages.slice(-20)
+      ? messages.slice(-80)
       : [{ role: "user", content: message }];
 
     const secilenMod = ["samimi", "resmi", "profesor"].includes(konusmaModu)
@@ -287,7 +282,7 @@ app.post("/chat", async (req, res) => {
       },
       body: JSON.stringify({
         model: "openai/gpt-4o-mini",
-        max_tokens: mode === "uzun" ? 1200 : 400,
+        max_tokens: mode === "uzun" ? 2500 : 1000,
         messages: [
           {
             role: "system",
@@ -331,15 +326,7 @@ app.post("/chat-image", async (req, res) => {
     kullaniciVerisiHazirla(ip);
 
     if(!image){
-      return res.json({ reply: "Fotoğraf gelmedi kanka." });
-    }
-
-    if(message && message.length > 1000){
-      return res.json({ reply: "Fotoğraf açıklaması çok uzun kanka 😅 Biraz kısalt." });
-    }
-
-    if(image.length > 5_000_000){
-      return res.json({ reply: "Fotoğraf çok büyük kanka 😅 Daha küçük at." });
+      return res.json({ reply: "Fotoğraf gelmedi." });
     }
 
     if(!process.env.OPENROUTER_API_KEY){
@@ -347,7 +334,7 @@ app.post("/chat-image", async (req, res) => {
     }
 
     if(kullaniciSonMesaj[ip] && simdi - kullaniciSonMesaj[ip].time < 3000){
-      return res.json({ reply: "Biraz yavaş 😄 3 saniye bekle." });
+      return res.json({ reply: "Biraz yavaş. 3 saniye bekle." });
     }
 
     kullaniciSonMesaj[ip] = {
@@ -383,7 +370,7 @@ app.post("/chat-image", async (req, res) => {
       },
       body: JSON.stringify({
         model: "openai/gpt-4o-mini",
-        max_tokens: 350,
+        max_tokens: 1200,
         messages: [
           {
             role: "system",
@@ -442,30 +429,27 @@ app.post("/generate-image", async (req, res) => {
     kullaniciVerisiHazirla(ip);
 
     if(!prompt || prompt.trim().length < 1){
-      return res.json({ reply: "Ne çizelim kanka? 😄" });
-    }
-
-    if(prompt.length > 1000){
-      return res.json({ reply: "Görsel isteği çok uzun kanka 😅 Biraz kısalt." });
+      return res.json({ reply: "Ne çizelim?" });
     }
 
     const resimLimiti = 10;
 
     if(kullaniciVerisi[ip].resimSayisi >= resimLimiti){
-      return res.json({ reply: "Görsel üretme hakkın bitti kanka." });
+      return res.json({ reply: "Görsel üretme hakkın bitti." });
     }
 
-const gucluPrompt =
-  temizMesaj(prompt) +
-  ". Generate exactly this subject. Do not create a portrait unless the user asks for a person. If the user asks for a car, generate only a car. No people, no faces, no hands.";
-let image;
+    const gucluPrompt =
+      temizMesaj(prompt) +
+      ". Generate exactly this subject. Do not create a portrait unless the user asks for a person. If the user asks for a car, generate only a car. No people, no faces, no hands.";
 
-try{
-  image = await pollinationsGorselAl(gucluPrompt);
-}catch(err){
+    let image;
+
+    try{
+      image = await pollinationsGorselAl(gucluPrompt);
+    }catch(err){
       console.error("Pollinations görsel hatası:", err.message);
       return res.json({
-        reply: "Görsel üretme servisi şu an yoğun kanka 😅 Biraz sonra tekrar dene. Hakkını yakmadım.",
+        reply: "Görsel üretme servisi şu an yoğun. Biraz sonra tekrar dene. Hakkını yakmadım.",
         error: "image_service_busy"
       });
     }
@@ -557,5 +541,5 @@ app.use(express.static(__dirname));
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`Server çalışıyor 🚀 Port: ${PORT}`);
+  console.log(`Server çalışıyor. Port: ${PORT}`);
 });
