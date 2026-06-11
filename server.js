@@ -185,7 +185,7 @@ async function pollinationsGorselAl(prompt){
       size: "1024x1024",
       quality: "medium",
       response_format: "b64_json",
-      safe: true
+      safe: false
     })
   });
 
@@ -437,10 +437,12 @@ app.post("/generate-image", async (req, res) => {
     if(kullaniciVerisi[ip].resimSayisi >= resimLimiti){
       return res.json({ reply: "Görsel üretme hakkın bitti." });
     }
+const temizPrompt = temizMesaj(prompt);
 
-    const gucluPrompt =
-      temizMesaj(prompt) +
-      ". Generate exactly this subject. Do not create a portrait unless the user asks for a person. If the user asks for a car, generate only a car. No people, no faces, no hands.";
+const gucluPrompt =
+  "A realistic photo of " +
+  temizPrompt +
+  ". Only the requested object. No people. No face. No portrait. No text. No warning sign. No blocked message.";
 
     let image;
 
