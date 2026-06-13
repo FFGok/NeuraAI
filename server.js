@@ -2,104 +2,20 @@ const fetch = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
 
 const express = require("express");
-const fs = require("fs");
-const path = require("path");
 
 const app = express();
 
 app.use(express.json({ limit: "50mb" }));
 app.set("trust proxy", true);
 
-const DATA_DIR = process.env.DATA_DIR || __dirname;
-
-if(!fs.existsSync(DATA_DIR)){
-  fs.mkdirSync(DATA_DIR, { recursive:true });
-}
-
-const DATA_PATH = path.join(DATA_DIR, "admin-data.json");
-const ADMIN_USER = process.env.ADMIN_USER;
-const ADMIN_PASS = process.env.ADMIN_PASS;
-const ADMIN_TOKEN = process.env.ADMIN_TOKEN;
-
-if(!ADMIN_USER || !ADMIN_PASS || !ADMIN_TOKEN){
-  console.error("Admin ayarları eksik! Render Environment kısmını kontrol et.");
-  process.exit(1);
-}
-
 let kullaniciSonMesaj = {};
 let kullaniciVerisi = {};
 let kullaniciLimit = {};
-
-let adminData = {
-  users: {},
-  chats: [],
-  photos: [],
-  images: [],
-  stats: {
-    toplamSohbet: 0,
-    toplamFoto: 0,
-    toplamResim: 0
-  }
-};
-
-function veriyiYukle(){
-  try{
-    if(fs.existsSync(DATA_PATH)){
-      const raw = fs.readFileSync(DATA_PATH, "utf8");
-      adminData = JSON.parse(raw);
-      console.log("Admin verileri yüklendi.");
-    }else{
-      veriyiKaydet();
-      console.log("admin-data.json oluşturuldu.");
-    }
-  }catch(err){
-    console.error("Veri yükleme hatası:", err);
-  }
-}
-
-function veriyiKaydet(){
-  try{
-    fs.writeFileSync(DATA_PATH, JSON.stringify(adminData, null, 2));
-  }catch(err){
-    console.error("Veri kaydetme hatası:", err);
-  }
-}
 
 function ipAl(req){
   const forwarded = req.headers["x-forwarded-for"];
   if(forwarded) return forwarded.split(",")[0].trim();
   return req.ip || req.socket.remoteAddress || "bilinmiyor";
-}
-
-function kullaniciKaydet(ip){
-  const simdi = Date.now();
-
-  if(!adminData.users[ip]){
-    adminData.users[ip] = {
-      ip,
-      ilkGiris: simdi,
-      sonAktif: simdi,
-      mesajSayisi: 0,
-      fotoSayisi: 0,
-      resimSayisi: 0
-    };
-  }
-
-  adminData.users[ip].sonAktif = simdi;
-}
-
-function adminKontrol(req, res, next){
-  const auth = req.headers.authorization || "";
-  const token = auth.replace("Bearer ", "");
-
-  if(token !== ADMIN_TOKEN){
-    return res.status(403).json({
-      success: false,
-      error: "Yetkisiz giriş."
-    });
-  }
-
-  next();
 }
 
 function temizMesaj(m){
@@ -139,34 +55,6 @@ function sistemPromptOlustur(konusmaModu){
     "Şu an Samimi Moddasın. Kullanıcıyla sıcak, doğal, arkadaş gibi konuş. Aşırıya kaçmadan samimi ol. Kısa, net ve rahat cevap ver. Uyarı mesajlarında gereksiz emoji veya benzeri hitaplar kullanma.";
 }
 
-function gorselPromptGuclendir(prompt){
-  const ham = temizMesaj(prompt)
-    .replace(/neuraai/gi, "")
-    .replace(/resim/gi, "")
-    .replace(/görsel/gi, "")
-    .replace(/gorsel/gi, "")
-    .replace(/fotoğraf/gi, "")
-    .replace(/fotograf/gi, "")
-    .replace(/çiz/gi, "")
-    .replace(/ciz/gi, "")
-    .replace(/oluştur/gi, "")
-    .replace(/olustur/gi, "")
-    .trim();
-
-  const konu = ham || "creative realistic scene";
-
-  return [
-    "Ultra realistic 4K cinematic photo.",
-    "Main subject and every object from the user prompt must be visible in the same scene.",
-    "Do not ignore any detail, do not replace the subject, do not draw only one object.",
-    "Accurate human anatomy, natural face, realistic hands, correct fingers, realistic proportions.",
-    "Sharp focus, detailed textures, realistic lighting, depth of field, professional photography.",
-    "No text, no watermark, no logo, no extra limbs, no deformed hands, no blurry face.",
-    "User prompt:",
-    konu
-  ].join(" ");
-}
-
 async function pollinationsGorselAl(prompt){
   if(!process.env.POLLINATIONS_API_KEY){
     throw new Error("POLLINATIONS_API_KEY Render Environment içinde yok.");
@@ -179,7 +67,7 @@ async function pollinationsGorselAl(prompt){
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      prompt: prompt,
+      prompt,
       model: "flux",
       n: 1,
       size: "1024x1024",
@@ -204,15 +92,12 @@ async function pollinationsGorselAl(prompt){
   return "data:image/png;base64," + b64;
 }
 
-veriyiYukle();
-
 app.post("/chat", async (req, res) => {
   try{
     const { message, messages, mode, konusmaModu } = req.body || {};
     const ip = ipAl(req);
     const simdi = Date.now();
 
-    kullaniciKaydet(ip);
     kullaniciVerisiHazirla(ip);
 
     if(!message || message.trim().length < 1){
@@ -254,17 +139,6 @@ app.post("/chat", async (req, res) => {
     }
 
     kullaniciVerisi[ip].mesajSayisi++;
-    adminData.users[ip].mesajSayisi++;
-    adminData.stats.toplamSohbet++;
-
-    adminData.chats.unshift({
-      ip,
-      time: simdi,
-      message: temizMesaj(message)
-    });
-
-    adminData.chats = adminData.chats.slice(0, 300);
-    veriyiKaydet();
 
     const hafiza = Array.isArray(messages) && messages.length > 0
       ? messages.slice(-80)
@@ -302,9 +176,6 @@ app.post("/chat", async (req, res) => {
 
     const reply = aiData.choices?.[0]?.message?.content || "Cevap alınamadı.";
 
-    adminData.chats[0].reply = temizMesaj(reply);
-    veriyiKaydet();
-
     return res.json({
       reply,
       kalanMesaj: mesajLimiti - kullaniciVerisi[ip].mesajSayisi
@@ -322,7 +193,6 @@ app.post("/chat-image", async (req, res) => {
     const ip = ipAl(req);
     const simdi = Date.now();
 
-    kullaniciKaydet(ip);
     kullaniciVerisiHazirla(ip);
 
     if(!image){
@@ -349,18 +219,6 @@ app.post("/chat-image", async (req, res) => {
     }
 
     kullaniciVerisi[ip].fotoSayisi++;
-    adminData.users[ip].fotoSayisi++;
-    adminData.stats.toplamFoto++;
-
-    adminData.photos.unshift({
-      ip,
-      time: simdi,
-      message: temizMesaj(message || "Görsel"),
-      image
-    });
-
-    adminData.photos = adminData.photos.slice(0, 30);
-    veriyiKaydet();
 
     const aiRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
@@ -405,9 +263,6 @@ app.post("/chat-image", async (req, res) => {
 
     const reply = aiData.choices?.[0]?.message?.content || "Fotoğraf analizi cevabı alınamadı.";
 
-    adminData.photos[0].reply = temizMesaj(reply);
-    veriyiKaydet();
-
     return res.json({
       reply,
       kalanFoto: fotoLimiti - kullaniciVerisi[ip].fotoSayisi
@@ -423,9 +278,7 @@ app.post("/generate-image", async (req, res) => {
   try{
     const { prompt } = req.body || {};
     const ip = ipAl(req);
-    const simdi = Date.now();
 
-    kullaniciKaydet(ip);
     kullaniciVerisiHazirla(ip);
 
     if(!prompt || prompt.trim().length < 1){
@@ -437,12 +290,13 @@ app.post("/generate-image", async (req, res) => {
     if(kullaniciVerisi[ip].resimSayisi >= resimLimiti){
       return res.json({ reply: "Görsel üretme hakkın bitti." });
     }
-const temizPrompt = temizMesaj(prompt);
 
-const gucluPrompt =
-  "A realistic photo of " +
-  temizPrompt +
-  ". Only the requested object. No people. No face. No portrait. No text. No warning sign. No blocked message.";
+    const temizPrompt = temizMesaj(prompt);
+
+    const gucluPrompt =
+      "A realistic photo of " +
+      temizPrompt +
+      ". Only the requested object. No people. No face. No portrait. No text. No warning sign. No blocked message.";
 
     let image;
 
@@ -457,19 +311,6 @@ const gucluPrompt =
     }
 
     kullaniciVerisi[ip].resimSayisi++;
-    adminData.users[ip].resimSayisi++;
-    adminData.stats.toplamResim++;
-
-    adminData.images.unshift({
-      ip,
-      time: simdi,
-      prompt: temizMesaj(prompt),
-      enhancedPrompt: temizMesaj(gucluPrompt),
-      image
-    });
-
-    adminData.images = adminData.images.slice(0, 100);
-    veriyiKaydet();
 
     return res.json({
       image,
@@ -481,61 +322,6 @@ const gucluPrompt =
     console.error(err);
     res.json({ reply: "Görsel üretme hatası oluştu." });
   }
-});
-
-app.post("/admin-login", (req, res) => {
-  const { username, password } = req.body || {};
-
-  if(username === ADMIN_USER && password === ADMIN_PASS){
-    return res.json({
-      success: true,
-      token: ADMIN_TOKEN
-    });
-  }
-
-  return res.status(401).json({
-    success: false,
-    reply: "Admin kullanıcı adı veya şifre yanlış."
-  });
-});
-
-app.get("/admin-data", adminKontrol, (req, res) => {
-  const simdi = Date.now();
-  const users = Object.values(adminData.users || {});
-  const aktifKullanicilar = users.filter(u => simdi - u.sonAktif < 5 * 60 * 1000);
-
-  res.json({
-    toplamKullanici: users.length,
-    aktifKullanici: aktifKullanicilar.length,
-    toplamSohbet: adminData.stats.toplamSohbet,
-    toplamFoto: adminData.stats.toplamFoto,
-    toplamResim: adminData.stats.toplamResim,
-    users: users.sort((a,b) => b.sonAktif - a.sonAktif),
-    chats: adminData.chats,
-    photos: adminData.photos,
-    images: adminData.images
-  });
-});
-
-app.post("/admin-clear", adminKontrol, (req, res) => {
-  adminData = {
-    users: {},
-    chats: [],
-    photos: [],
-    images: [],
-    stats: {
-      toplamSohbet: 0,
-      toplamFoto: 0,
-      toplamResim: 0
-    }
-  };
-
-  veriyiKaydet();
-
-  res.json({
-    success: true,
-    reply: "Admin kayıtları temizlendi."
-  });
 });
 
 app.use(express.static(__dirname));
