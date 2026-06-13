@@ -656,7 +656,6 @@ body::before{
         <button onclick="kisaMod()">Kısa Mod</button>
         <button onclick="uzunMod()">Uzun Mod</button>
         <button onclick="sesAcKapat()" id="sesBtn">🔊</button>
-        <button onclick="window.location.href='/admin.html'">Admin Giriş</button>
       </div>
     </div>
 
@@ -680,29 +679,10 @@ body::before{
 </div>
 
 <div class="guvenlikYazi">
-  NeuraAI Güvenlik şartlarından dolayı IP'nizi ve konuştuğunuz sohbetleri görebilir.
-  <span onclick="guvenlikAc()">Tıklayın.</span>
+  NeuraAI bir yapay zeka olduğu için hata yapabilir. Önemli bilgileri kontrol ediniz.
 </div>
 
-<div class="popupArka" id="popupArka">
-  <div class="popup">
-    <h2>NeuraAI Güvenlik Bilgilendirmesi</h2>
-    <p>
-      NeuraAI sistemi; güvenlik, spam engelleme, geliştirme ve kötüye kullanımı önlemek amacıyla:
-    </p>
-    <ul>
-      <li>IP adresinizi</li>
-      <li>Gönderdiğiniz mesajları</li>
-      <li>Gönderdiğiniz görselleri</li>
-      <li>Kullanım istatistiklerinizi</li>
-    </ul>
-    <p>geçici veya kalıcı şekilde kayıt altına alabilir.</p>
-    <p>
-      Sistem kötüye kullanım, spam, saldırı veya güvenlik ihlallerini tespit etmek amacıyla admin panel üzerinden denetlenebilir.
-    </p>
-    <button onclick="guvenlikKapat()">Tamam</button>
-  </div>
-</div>
+
 
 <div class="popupArka" id="modPopup">
   <div class="popup">
@@ -969,14 +949,6 @@ let aktifSohbetId = localStorage.getItem("aktif_sohbet_id")
   : null;
 
 document.getElementById("sesBtn").innerText = sesAcik ? "🔊" : "🔇";
-
-function guvenlikAc(){
-  document.getElementById("popupArka").style.display = "flex";
-}
-
-function guvenlikKapat(){
-  document.getElementById("popupArka").style.display = "none";
-}
 
 function sesleriYukle(){
   mevcutSesler = speechSynthesis.getVoices();
@@ -1817,10 +1789,12 @@ if("serviceWorker" in navigator){
 }
 
 yukleKayit();
-dogumGunuKontrolEt();
+if(typeof dogumGunuKontrolEt === "function") dogumGunuKontrolEt();
 function sidebarAcKapat(){
   document.querySelector(".solPanel").classList.toggle("acik");
 }
 </script>
 </body>
 </html>
+
+
