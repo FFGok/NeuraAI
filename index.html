@@ -631,10 +631,103 @@ body::before{
 .sohbetItem.sabit{border-color:rgba(255,213,79,.55);background:rgba(255,213,79,.10)}
 @media (max-width:700px){.ozellikGrid{grid-template-columns:1fr}.miniAksiyonlar button{font-size:11px;padding:5px 7px}}
 
+
+/* === Mini Araçlar Sağ Köşe === */
+.miniAracBtn{
+  position:fixed;
+  right:18px;
+  top:18px;
+  z-index:100000;
+  width:52px;
+  height:52px;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,0.15);
+  background:linear-gradient(135deg,#7b2cff,#3d7cff);
+  color:white;
+  font-size:24px;
+  cursor:pointer;
+  box-shadow:0 14px 35px rgba(0,0,0,0.35),0 0 24px rgba(123,44,255,0.35);
+}
+
+.miniAracPopup{
+  max-width:760px;
+}
+
+.miniAracGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  max-height:70vh;
+  overflow-y:auto;
+  padding-right:4px;
+}
+
+.miniAracKart{
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.10);
+  border-radius:18px;
+  padding:14px;
+}
+
+.miniAracKart h3{
+  margin:0 0 10px;
+  font-size:16px;
+}
+
+.miniAracKart input,
+.miniAracKart select{
+  width:100%;
+  margin:5px 0;
+  padding:10px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,0.12);
+  background:rgba(255,255,255,0.07);
+  color:white;
+  outline:none;
+}
+
+.miniAracKart select option{
+  color:black;
+}
+
+.miniAracKart button{
+  width:100%;
+  margin-top:6px;
+  padding:10px;
+  border:none;
+  border-radius:12px;
+  background:white;
+  color:black;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.miniSonuc{
+  min-height:22px;
+  margin-top:8px;
+  color:#ddd;
+  font-size:13px;
+  word-break:break-word;
+}
+
+@media (max-width:700px){
+  .miniAracBtn{
+    right:12px;
+    top:12px;
+    width:46px;
+    height:46px;
+    font-size:21px;
+  }
+  .miniAracGrid{
+    grid-template-columns:1fr;
+  }
+}
+
 </style>
 </head>
 
 <body>
+<button class="miniAracBtn" onclick="miniAracPanelAc()" title="Mini Araçlar">🧰</button>
 <div class="splashScreen">
   <img src="./splash.png" alt="NeuraAI Açılış">
 </div>
@@ -652,12 +745,8 @@ body::before{
       <button class="sidebarMiniBtn" onclick="aktifSohbetiSil()">Bu sohbeti sil</button>
       <button class="sidebarMiniBtn" onclick="sohbetiDisaAktar()">Sohbeti dışa aktar</button>
       <button class="sidebarMiniBtn" onclick="yeniGizliSohbet()">🔒 Gizli sohbet başlat</button>
-      <button class="sidebarMiniBtn" onclick="aktifSohbetiSabitle()">📌 Sohbeti sabitle</button>
       <button class="sidebarMiniBtn" onclick="aktifSohbetiYenidenAdlandir()">✏️ Sohbet adını değiştir</button>
-      <button class="sidebarMiniBtn" onclick="aktifSohbetKlasorDegistir()">📁 Klasör seç</button>
       <button class="sidebarMiniBtn" onclick="sohbetiPdfIndir()">📄 PDF indir</button>
-      <button class="sidebarMiniBtn" onclick="aktifSohbetiArsivle()">🗄️ Arşivle</button>
-      <button class="sidebarMiniBtn" onclick="ozellikPanelAc()">⚙️ Araçlar</button>
     </div>
 
     <div class="gecmisBaslik">⭐ Favori Sohbetler</div>
@@ -857,6 +946,106 @@ body::before{
     </select>
     <button onclick="sesAyarKaydet()">Kaydet</button>
     <button onclick="sesAyarPanelKapat()">Kapat</button>
+  </div>
+</div>
+
+
+
+<div class="popupArka" id="miniAracPopup">
+  <div class="popup miniAracPopup">
+    <h2>🧰 Mini Araçlar</h2>
+
+    <div class="miniAracGrid">
+      <div class="miniAracKart">
+        <h3>🧮 Hesap Makinesi</h3>
+        <input id="calcInput" placeholder="Örn: 12*(5+3)">
+        <button onclick="miniHesapla()">Hesapla</button>
+        <div class="miniSonuc" id="calcSonuc"></div>
+      </div>
+
+      <div class="miniAracKart">
+        <h3>💱 TL / Dolar / Euro</h3>
+        <input id="paraMiktar" type="number" placeholder="Miktar">
+        <select id="paraTur">
+          <option value="TRY">TL</option>
+          <option value="USD">Dolar</option>
+          <option value="EUR">Euro</option>
+        </select>
+        <input id="usdKur" type="number" step="0.01" placeholder="1 Dolar kaç TL?">
+        <input id="eurKur" type="number" step="0.01" placeholder="1 Euro kaç TL?">
+        <button onclick="paraCevir()">Çevir</button>
+        <div class="miniSonuc" id="paraSonuc"></div>
+      </div>
+
+      <div class="miniAracKart">
+        <h3>📊 Yüzde Hesaplayıcı</h3>
+        <input id="yuzdeSayi" type="number" placeholder="Sayı">
+        <input id="yuzdeOran" type="number" placeholder="Yüzde">
+        <button onclick="yuzdeHesapla()">Hesapla</button>
+        <div class="miniSonuc" id="yuzdeSonuc"></div>
+      </div>
+
+      <div class="miniAracKart">
+        <h3>🔐 Şifre Oluşturucu</h3>
+        <input id="sifreUzunluk" type="number" value="12" min="6" max="40">
+        <button onclick="sifreOlustur()">Şifre oluştur</button>
+        <div class="miniSonuc" id="sifreSonuc"></div>
+      </div>
+
+      <div class="miniAracKart">
+        <h3>⏱️ Kronometre</h3>
+        <div class="miniSonuc" id="kronoSonuc">0 saniye</div>
+        <button onclick="kronometreBaslat()">Başlat / Devam</button>
+        <button onclick="kronometreDur()">Dur</button>
+        <button onclick="kronometreSifirla()">Sıfırla</button>
+      </div>
+
+      <div class="miniAracKart">
+        <h3>⏳ Geri Sayım</h3>
+        <input id="geriSaniye" type="number" placeholder="Saniye">
+        <button onclick="geriSayimBaslat()">Başlat</button>
+        <div class="miniSonuc" id="geriSonuc"></div>
+      </div>
+
+      <div class="miniAracKart">
+        <h3>🔤 Kelime / Karakter Sayacı</h3>
+        <input id="metinSayInput" placeholder="Metin yaz">
+        <button onclick="metinSay()">Say</button>
+        <div class="miniSonuc" id="metinSaySonuc"></div>
+      </div>
+
+      <div class="miniAracKart">
+        <h3>📏 Birim Dönüştürücü</h3>
+        <input id="birimDeger" type="number" placeholder="Değer">
+        <select id="birimTur">
+          <option value="km-mi">Km → Mil</option>
+          <option value="mi-km">Mil → Km</option>
+          <option value="kg-lb">Kg → Libre</option>
+          <option value="lb-kg">Libre → Kg</option>
+          <option value="cm-inch">Cm → İnç</option>
+          <option value="inch-cm">İnç → Cm</option>
+        </select>
+        <button onclick="birimCevir()">Çevir</button>
+        <div class="miniSonuc" id="birimSonuc"></div>
+      </div>
+
+      <div class="miniAracKart">
+        <h3>📚 Not Ortalaması</h3>
+        <input id="notlarInput" placeholder="Örn: 80,90,75">
+        <button onclick="notOrtalamasi()">Ortalama al</button>
+        <div class="miniSonuc" id="notSonuc"></div>
+      </div>
+
+      <div class="miniAracKart">
+        <h3>💰 Gelir Hesaplayıcı</h3>
+        <input id="gelirAdet" type="number" placeholder="Kaç satış / kişi?">
+        <input id="gelirFiyat" type="number" placeholder="Birim fiyat">
+        <button onclick="gelirHesapla()">Hesapla</button>
+        <div class="miniSonuc" id="gelirSonuc"></div>
+      </div>
+    </div>
+
+    <button onclick="miniAracPanelKapat()">Kapat</button>
   </div>
 </div>
 
@@ -2248,6 +2437,191 @@ if("serviceWorker" in navigator){
 }
 
 uygulamaSifresiKontrol();
+
+/* === Mini Araçlar JS === */
+let kronoSaniye = 0;
+let kronoTimer = null;
+let geriTimer = null;
+
+function miniAracPanelAc(){
+  document.getElementById("miniAracPopup").style.display = "flex";
+}
+
+function miniAracPanelKapat(){
+  document.getElementById("miniAracPopup").style.display = "none";
+}
+
+function miniHesapla(){
+  const ifade = document.getElementById("calcInput").value.trim();
+  const sonuc = document.getElementById("calcSonuc");
+
+  if(!/^[0-9+\-*/().,%\s]+$/.test(ifade)){
+    sonuc.innerText = "Sadece sayı ve işlem işaretleri kullan.";
+    return;
+  }
+
+  try{
+    sonuc.innerText = "Sonuç: " + Function('"use strict"; return (' + ifade.replace(/,/g, ".") + ')')();
+  }catch(err){
+    sonuc.innerText = "Hesaplanamadı.";
+  }
+}
+
+function paraCevir(){
+  const miktar = Number(document.getElementById("paraMiktar").value);
+  const tur = document.getElementById("paraTur").value;
+  const usd = Number(document.getElementById("usdKur").value);
+  const eur = Number(document.getElementById("eurKur").value);
+  const sonuc = document.getElementById("paraSonuc");
+
+  if(!miktar || !usd || !eur){
+    sonuc.innerText = "Miktar, dolar kuru ve euro kurunu yaz.";
+    return;
+  }
+
+  let tl = miktar;
+  if(tur === "USD") tl = miktar * usd;
+  if(tur === "EUR") tl = miktar * eur;
+
+  const dolar = tl / usd;
+  const euro = tl / eur;
+
+  sonuc.innerText =
+    "TL: " + tl.toFixed(2) +
+    " | Dolar: " + dolar.toFixed(2) +
+    " | Euro: " + euro.toFixed(2);
+}
+
+function yuzdeHesapla(){
+  const sayi = Number(document.getElementById("yuzdeSayi").value);
+  const oran = Number(document.getElementById("yuzdeOran").value);
+  const sonuc = document.getElementById("yuzdeSonuc");
+
+  if(isNaN(sayi) || isNaN(oran)){
+    sonuc.innerText = "Sayı ve yüzde gir.";
+    return;
+  }
+
+  sonuc.innerText = sayi + " sayısının %" + oran + " kadarı: " + ((sayi * oran) / 100).toFixed(2);
+}
+
+function sifreOlustur(){
+  const uzunluk = Math.max(6, Math.min(40, Number(document.getElementById("sifreUzunluk").value) || 12));
+  const karakterler = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%";
+  let sifre = "";
+
+  for(let i = 0; i < uzunluk; i++){
+    sifre += karakterler[Math.floor(Math.random() * karakterler.length)];
+  }
+
+  document.getElementById("sifreSonuc").innerText = sifre;
+}
+
+function kronometreYaz(){
+  document.getElementById("kronoSonuc").innerText = kronoSaniye + " saniye";
+}
+
+function kronometreBaslat(){
+  if(kronoTimer) return;
+  kronoTimer = setInterval(() => {
+    kronoSaniye++;
+    kronometreYaz();
+  }, 1000);
+}
+
+function kronometreDur(){
+  clearInterval(kronoTimer);
+  kronoTimer = null;
+}
+
+function kronometreSifirla(){
+  kronometreDur();
+  kronoSaniye = 0;
+  kronometreYaz();
+}
+
+function geriSayimBaslat(){
+  clearInterval(geriTimer);
+
+  let kalan = Number(document.getElementById("geriSaniye").value);
+  const sonuc = document.getElementById("geriSonuc");
+
+  if(!kalan || kalan < 1){
+    sonuc.innerText = "Saniye yaz.";
+    return;
+  }
+
+  sonuc.innerText = kalan + " saniye kaldı";
+
+  geriTimer = setInterval(() => {
+    kalan--;
+
+    if(kalan <= 0){
+      clearInterval(geriTimer);
+      sonuc.innerText = "Süre bitti.";
+      return;
+    }
+
+    sonuc.innerText = kalan + " saniye kaldı";
+  }, 1000);
+}
+
+function metinSay(){
+  const metin = document.getElementById("metinSayInput").value.trim();
+  const kelime = metin ? metin.split(/\s+/).length : 0;
+  document.getElementById("metinSaySonuc").innerText =
+    "Kelime: " + kelime + " | Karakter: " + metin.length;
+}
+
+function birimCevir(){
+  const deger = Number(document.getElementById("birimDeger").value);
+  const tur = document.getElementById("birimTur").value;
+  const sonuc = document.getElementById("birimSonuc");
+
+  if(isNaN(deger)){
+    sonuc.innerText = "Değer yaz.";
+    return;
+  }
+
+  const katsayi = {
+    "km-mi": 0.621371,
+    "mi-km": 1.60934,
+    "kg-lb": 2.20462,
+    "lb-kg": 0.453592,
+    "cm-inch": 0.393701,
+    "inch-cm": 2.54
+  };
+
+  sonuc.innerText = "Sonuç: " + (deger * katsayi[tur]).toFixed(3);
+}
+
+function notOrtalamasi(){
+  const notlar = document.getElementById("notlarInput").value
+    .split(",")
+    .map(x => Number(x.trim()))
+    .filter(x => !isNaN(x));
+
+  if(notlar.length === 0){
+    document.getElementById("notSonuc").innerText = "Notları virgülle yaz.";
+    return;
+  }
+
+  const ort = notlar.reduce((a,b) => a + b, 0) / notlar.length;
+  document.getElementById("notSonuc").innerText = "Ortalama: " + ort.toFixed(2);
+}
+
+function gelirHesapla(){
+  const adet = Number(document.getElementById("gelirAdet").value);
+  const fiyat = Number(document.getElementById("gelirFiyat").value);
+
+  if(isNaN(adet) || isNaN(fiyat)){
+    document.getElementById("gelirSonuc").innerText = "Adet ve fiyat yaz.";
+    return;
+  }
+
+  document.getElementById("gelirSonuc").innerText = "Toplam gelir: " + (adet * fiyat).toFixed(2) + " TL";
+}
+
 yukleKayit();
 if(typeof dogumGunuKontrolEt === "function") dogumGunuKontrolEt();
 function sidebarAcKapat(){
