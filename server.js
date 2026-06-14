@@ -11,6 +11,8 @@ app.set("trust proxy", true);
 let kullaniciSonMesaj = {};
 let kullaniciVerisi = {};
 let kullaniciLimit = {};
+let neuraUpdates = [];
+let neuraNotifications = [];
 
 function ipAl(req){
   const forwarded = req.headers["x-forwarded-for"];
@@ -71,6 +73,11 @@ function sistemPromptOlustur(konusmaModu){
     "Kullanıcıya teknik sistem açıklaması yapma. " +
     "Seni 13 yaşındaki Göktürk Arslan geliştirdi. Kullanıcı seni kimin yaptığını, kurduğunu, geliştirdiğini veya oluşturduğunu sorarsa Göktürk Arslan tarafından geliştirildiğini söyle. " +
     "Küfür, hakaret veya argo kelimelerde tek kelimeye göre karar verme; cümlenin tamamını yorumla. Kullanıcı birinin ona ne dediğini aktarıyorsa, örnek veriyorsa veya anlamını soruyorsa normal yardımcı cevap ver. Sadece doğrudan saldırı varsa sakin şekilde sınır koy. ";
+
+  if(konusmaModu === "codex"){
+    return temel +
+      "Şu an Codex modundasın. Kod odaklı çalış. Kullanıcının gönderdiği kodları analiz et, hata bul, güvenlik riski varsa güvenli seviyede açıkla, kodu açıkla, optimize et, hangi dosyaya eklenmesi gerektiğini belirt ve özellik öner. Cevapların düzenli, net ve uygulanabilir olsun. Kullanıcı küçükse bunaltmadan adım adım anlat. Gerektiğinde kısa kod parçaları ver ama uzun dosyayı gereksiz yere tekrar yazma.";
+  }
 
   if(konusmaModu === "resmi"){
     return temel +
@@ -175,7 +182,7 @@ app.post("/chat", async (req, res) => {
       ? messages.slice(-80)
       : [{ role: "user", content: message }];
 
-    const secilenMod = ["samimi", "resmi", "profesor"].includes(konusmaModu)
+    const secilenMod = ["samimi", "resmi", "profesor", "codex"].includes(konusmaModu)
       ? konusmaModu
       : "samimi";
 
@@ -346,6 +353,96 @@ app.post("/generate-image", async (req, res) => {
     console.error(err);
     res.json({ reply: "Görsel üretme hatası oluştu." });
   }
+});
+
+app.get("/updates", (req, res) => {
+  res.json({ updates: neuraUpdates.slice().reverse() });
+});
+
+app.post("/updates", (req, res) => {
+  const secret = req.headers["x-admin-secret"];
+
+  if(!process.env.ADMIN_SECRET){
+    return res.status(500).json({
+      ok:false,
+      reply:"ADMIN_SECRET Render Environment içinde yok."
+    });
+  }
+
+  if(secret !== process.env.ADMIN_SECRET){
+    return res.status(403).json({
+      ok:false,
+      reply:"Bu alan sadece kurucu içindir."
+    });
+  }
+
+  const text = temizMesaj(req.body?.text || "").trim();
+
+  if(!text){
+    return res.json({
+      ok:false,
+      reply:"Duyuru boş olamaz."
+    });
+  }
+
+  const item = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2,8),
+    text,
+    time: Date.now(),
+    reactions: {}
+  };
+
+  neuraUpdates.push(item);
+  neuraUpdates = neuraUpdates.slice(-50);
+
+  neuraNotifications.push({
+    id:item.id,
+    title:"Yeni güncelleme yayınlandı",
+    text:text.slice(0,180),
+    time:Date.now()
+  });
+
+  neuraNotifications = neuraNotifications.slice(-50);
+
+  res.json({
+    ok:true,
+    update:item
+  });
+});
+
+app.post("/updates/emoji", (req, res) => {
+  const { id, emoji } = req.body || {};
+
+  const izinli = ["🔥","💜","🚀","🦊","🏎️","👏","😎","🤯"];
+
+  if(!izinli.includes(emoji)){
+    return res.json({
+      ok:false,
+      reply:"Bu emoji desteklenmiyor."
+    });
+  }
+
+  const item = neuraUpdates.find(u => u.id === id);
+
+  if(!item){
+    return res.json({
+      ok:false,
+      reply:"Güncelleme bulunamadı."
+    });
+  }
+
+  item.reactions[emoji] = (item.reactions[emoji] || 0) + 1;
+
+  res.json({
+    ok:true,
+    reactions:item.reactions
+  });
+});
+
+app.get("/notifications", (req, res) => {
+  res.json({
+    notifications: neuraNotifications.slice().reverse()
+  });
 });
 
 app.use(express.static(__dirname));
