@@ -32,6 +32,37 @@ function kullaniciVerisiHazirla(ip){
   }
 }
 
+function promptuIngilizceyeYaklastir(prompt){
+  let p = temizMesaj(prompt).trim();
+
+  const sozluk = [
+    ["kedi", "cat"], ["köpek", "dog"], ["kopek", "dog"], ["tilki", "fox"],
+    ["araba", "car"], ["ferrari", "Ferrari"], ["kuş", "bird"], ["kus", "bird"],
+    ["ejderha", "dragon"], ["ev", "house"], ["orman", "forest"], ["uzay", "space"],
+    ["kırmızı", "red"], ["kirmizi", "red"], ["mavi", "blue"], ["yeşil", "green"], ["yesil", "green"],
+    ["siyah", "black"], ["beyaz", "white"], ["turuncu", "orange"],
+    ["gerçekçi", "realistic"], ["gercekci", "realistic"], ["çizgi film", "cartoon"]
+  ];
+
+  for(const [tr,en] of sozluk){
+    p = p.replace(new RegExp("\\b" + tr + "\\b", "gi"), en);
+  }
+
+  return p;
+}
+
+function stilPromptu(style){
+  if(style === "anime") return "anime style, clean detailed illustration";
+  if(style === "3d") return "high quality 3D render, smooth lighting";
+  if(style === "logo") return "simple modern logo design, centered, clean background";
+  return "realistic photo, high detail, natural lighting";
+}
+
+function boyutTemizle(size){
+  const izinli = ["1024x1024", "768x768", "512x512"];
+  return izinli.includes(size) ? size : "1024x1024";
+}
+
 function sistemPromptOlustur(konusmaModu){
   const temel =
     "Sen NeuraAI adında net, yardımcı ve güvenli bir yapay zekasın. " +
@@ -55,7 +86,7 @@ function sistemPromptOlustur(konusmaModu){
     "Şu an Samimi Moddasın. Kullanıcıyla sıcak, doğal, arkadaş gibi konuş. Aşırıya kaçmadan samimi ol. Kısa, net ve rahat cevap ver. Uyarı mesajlarında gereksiz emoji veya benzeri hitaplar kullanma.";
 }
 
-async function pollinationsGorselAl(prompt){
+async function pollinationsGorselAl(prompt, size){
   if(!process.env.POLLINATIONS_API_KEY){
     throw new Error("POLLINATIONS_API_KEY Render Environment içinde yok.");
   }
@@ -70,7 +101,7 @@ async function pollinationsGorselAl(prompt){
       prompt,
       model: "flux",
       n: 1,
-      size: "1024x1024",
+      size: boyutTemizle(size),
       quality: "medium",
       response_format: "b64_json",
       safe: false
@@ -233,21 +264,13 @@ app.post("/chat-image", async (req, res) => {
           {
             role: "system",
             content:
-              "Sen NeuraAI adında samimi ve net bir görsel analiz asistanısın. Kullanıcı hangi dilde yazarsa o dile uygun cevap ver. Görselde ne olduğunu açıkla. Emin olmadığın şeyleri kesinmiş gibi söyleme."
+              "Sen NeuraAI adında samimi ve net bir görsel analiz asistanısın. Kullanıcı hangi dilde yazarsa o dile uygun cevap ver. Görselde ne olduğunu açıkla. Emin olmadığın şeyleri kesinmiş gibi söyleme. Kullanıcı fotoğrafı çizgi film/anime/3D yap derse fotoğrafa göre açıklayıcı bir prompt öner."
           },
           {
             role: "user",
             content: [
-              {
-                type: "text",
-                text: message || "Bu görseli analiz et."
-              },
-              {
-                type: "image_url",
-                image_url: {
-                  url: image
-                }
-              }
+              { type: "text", text: message || "Bu görseli analiz et." },
+              { type: "image_url", image_url: { url: image } }
             ]
           }
         ]
@@ -276,7 +299,7 @@ app.post("/chat-image", async (req, res) => {
 
 app.post("/generate-image", async (req, res) => {
   try{
-    const { prompt } = req.body || {};
+    const { prompt, style, size } = req.body || {};
     const ip = ipAl(req);
 
     kullaniciVerisiHazirla(ip);
@@ -285,23 +308,24 @@ app.post("/generate-image", async (req, res) => {
       return res.json({ reply: "Ne çizelim?" });
     }
 
-    const resimLimiti = 10;
+    const resimLimiti = 100;
 
     if(kullaniciVerisi[ip].resimSayisi >= resimLimiti){
       return res.json({ reply: "Görsel üretme hakkın bitti." });
     }
 
-    const temizPrompt = temizMesaj(prompt);
+    const temizPrompt = promptuIngilizceyeYaklastir(prompt);
+    const secilenStil = stilPromptu(style);
 
     const gucluPrompt =
-      "A realistic photo of " +
+      secilenStil + ". " +
       temizPrompt +
-      ". Only the requested object. No people. No face. No portrait. No text. No warning sign. No blocked message.";
+      ". Only the requested subject. No extra people unless user asks. No text. No watermark. No warning sign. No blocked message. High quality.";
 
     let image;
 
     try{
-      image = await pollinationsGorselAl(gucluPrompt);
+      image = await pollinationsGorselAl(gucluPrompt, size);
     }catch(err){
       console.error("Pollinations görsel hatası:", err.message);
       return res.json({
