@@ -613,6 +613,24 @@ body::before{
     visibility:hidden;
   }
 }
+
+/* === NeuraAI Ek Özellikler === */
+.ozellikGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.ozellikGrid button,.popup select,.popup input{width:100%;margin-top:8px}
+.miniAksiyonlar{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.miniAksiyonlar button{
+  background:rgba(255,255,255,0.08);
+  color:#eee;
+  border:1px solid rgba(255,255,255,0.09);
+  border-radius:10px;
+  padding:6px 8px;
+  cursor:pointer;
+  font-size:12px;
+}
+.arsivGizli{display:none!important}
+.sohbetItem.sabit{border-color:rgba(255,213,79,.55);background:rgba(255,213,79,.10)}
+@media (max-width:700px){.ozellikGrid{grid-template-columns:1fr}.miniAksiyonlar button{font-size:11px;padding:5px 7px}}
+
 </style>
 </head>
 
@@ -634,6 +652,12 @@ body::before{
       <button class="sidebarMiniBtn" onclick="aktifSohbetiSil()">Bu sohbeti sil</button>
       <button class="sidebarMiniBtn" onclick="sohbetiDisaAktar()">Sohbeti dışa aktar</button>
       <button class="sidebarMiniBtn" onclick="yeniGizliSohbet()">🔒 Gizli sohbet başlat</button>
+      <button class="sidebarMiniBtn" onclick="aktifSohbetiSabitle()">📌 Sohbeti sabitle</button>
+      <button class="sidebarMiniBtn" onclick="aktifSohbetiYenidenAdlandir()">✏️ Sohbet adını değiştir</button>
+      <button class="sidebarMiniBtn" onclick="aktifSohbetKlasorDegistir()">📁 Klasör seç</button>
+      <button class="sidebarMiniBtn" onclick="sohbetiPdfIndir()">📄 PDF indir</button>
+      <button class="sidebarMiniBtn" onclick="aktifSohbetiArsivle()">🗄️ Arşivle</button>
+      <button class="sidebarMiniBtn" onclick="ozellikPanelAc()">⚙️ Araçlar</button>
     </div>
 
     <div class="gecmisBaslik">⭐ Favori Sohbetler</div>
@@ -764,6 +788,75 @@ body::before{
         <button onclick="profilPanelKapat()">Kapat</button>
       </div>
     </div>
+  </div>
+</div>
+
+
+
+<div class="popupArka" id="ozellikPopup">
+  <div class="popup">
+    <h2>⚙️ NeuraAI Araçları</h2>
+    <div class="ozellikGrid">
+      <button onclick="gorselAyarPanelAc()">🖼️ Görsel Ayarları</button>
+      <button onclick="gorselGecmisiAc()">🎨 Görsel Geçmişi</button>
+      <button onclick="gizlilikPanelAc()">🔒 Gizlilik</button>
+      <button onclick="sesAyarPanelAc()">🎤 Ses Ayarları</button>
+      <button onclick="arsivModuDegistir()">🗄️ Arşivi Göster/Gizle</button>
+      <button onclick="ozellikPanelKapat()">Kapat</button>
+    </div>
+  </div>
+</div>
+
+<div class="popupArka" id="gorselAyarPopup">
+  <div class="popup">
+    <h2>🖼️ Görsel Ayarları</h2>
+    <label>Stil</label>
+    <select id="gorselStilSec" class="profilInput">
+      <option value="realistic">Gerçekçi</option>
+      <option value="anime">Anime</option>
+      <option value="3d">3D</option>
+      <option value="logo">Logo</option>
+    </select>
+    <label>Boyut</label>
+    <select id="gorselBoyutSec" class="profilInput">
+      <option value="1024x1024">1024 x 1024</option>
+      <option value="768x768">768 x 768</option>
+      <option value="512x512">512 x 512</option>
+    </select>
+    <button onclick="gorselAyarKaydet()">Kaydet</button>
+    <button onclick="gorselAyarPanelKapat()">Kapat</button>
+  </div>
+</div>
+
+<div class="popupArka" id="gizlilikPopup">
+  <div class="popup">
+    <h2>🔒 Gizlilik</h2>
+    <div class="ozellikGrid">
+      <button onclick="aktifGizliSifreDegistir()">Gizli sohbet şifresini değiştir</button>
+      <button onclick="aktifGizliKilitle()">Gizli sohbeti kilitle</button>
+      <button onclick="uygulamaSifresiAyarla()">Uygulama açılış şifresi</button>
+      <button onclick="tumLocalVerileriTemizle()">LocalStorage temizle</button>
+      <button onclick="gizlilikPanelKapat()">Kapat</button>
+    </div>
+    <p style="font-size:13px;color:#bbb;margin-top:12px">
+      Not: Bu bilgiler bu cihazdaki tarayıcı hafızasında saklanır. Cihaz değişirse görünmeyebilir.
+    </p>
+  </div>
+</div>
+
+<div class="popupArka" id="sesAyarPopup">
+  <div class="popup">
+    <h2>🎤 Ses Ayarları</h2>
+    <label>Ses hızı</label>
+    <input id="sesHizInput" class="profilInput" type="number" min="0.5" max="2" step="0.05">
+    <label>Mikrofon dili</label>
+    <select id="mikrofonDilSec" class="profilInput">
+      <option value="tr-TR">Türkçe</option>
+      <option value="en-US">English</option>
+      <option value="ar-SA">Arabic</option>
+    </select>
+    <button onclick="sesAyarKaydet()">Kaydet</button>
+    <button onclick="sesAyarPanelKapat()">Kapat</button>
   </div>
 </div>
 
@@ -949,6 +1042,13 @@ let recognition;
 let sesliSohbetAktif = false;
 let mikrofonCalisiyor = false;
 let sesliCevapBekleniyor = false;
+let gorselStil = localStorage.getItem("neura_gorsel_stil") || "realistic";
+let gorselBoyut = localStorage.getItem("neura_gorsel_boyut") || "1024x1024";
+let gorselGecmisi = JSON.parse(localStorage.getItem("neura_gorsel_gecmisi")) || [];
+let arsivleriGoster = false;
+let sesHizi = Number(localStorage.getItem("neura_ses_hizi") || 1.02);
+let mikrofonDili = localStorage.getItem("neura_mikrofon_dili") || "tr-TR";
+
 
 let tumSohbetler = JSON.parse(localStorage.getItem("tum_sohbetler")) || [];
 let aktifSohbetId = localStorage.getItem("aktif_sohbet_id")
@@ -1046,7 +1146,7 @@ function sesliOku(text){
   const ses = new SpeechSynthesisUtterance(okunacak);
 
   ses.lang = lang;
-  ses.rate = 1.02;
+  ses.rate = sesHizi;
   ses.pitch = 0.92;
   ses.volume = 1;
 
@@ -1092,7 +1192,7 @@ function mikrofonuDinle(){
     recognition = new SpeechRecognition();
     recognition.continuous = false;
     recognition.interimResults = true;
-    recognition.lang = "tr-TR";
+    recognition.lang = mikrofonDili;
 
     recognition.onstart = function(){
       mikrofonCalisiyor = true;
@@ -1186,7 +1286,217 @@ function temizleMetin(m){
   return (m || "").toLowerCase().replace(/\s+/g, " ").trim();
 }
 
-function mesajEkle(text, kim, foto = null, extraClass = "", kopyala = false){
+
+function neuraId(){
+  return Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+}
+
+function ozellikPanelAc(){ document.getElementById("ozellikPopup").style.display = "flex"; }
+function ozellikPanelKapat(){ document.getElementById("ozellikPopup").style.display = "none"; }
+function gorselAyarPanelAc(){
+  document.getElementById("gorselStilSec").value = gorselStil;
+  document.getElementById("gorselBoyutSec").value = gorselBoyut;
+  document.getElementById("gorselAyarPopup").style.display = "flex";
+}
+function gorselAyarPanelKapat(){ document.getElementById("gorselAyarPopup").style.display = "none"; }
+function gorselAyarKaydet(){
+  gorselStil = document.getElementById("gorselStilSec").value;
+  gorselBoyut = document.getElementById("gorselBoyutSec").value;
+  localStorage.setItem("neura_gorsel_stil", gorselStil);
+  localStorage.setItem("neura_gorsel_boyut", gorselBoyut);
+  sistemMesaji("🖼️ Görsel ayarları kaydedildi.");
+  gorselAyarPanelKapat();
+}
+function gizlilikPanelAc(){ document.getElementById("gizlilikPopup").style.display = "flex"; }
+function gizlilikPanelKapat(){ document.getElementById("gizlilikPopup").style.display = "none"; }
+function sesAyarPanelAc(){
+  document.getElementById("sesHizInput").value = sesHizi;
+  document.getElementById("mikrofonDilSec").value = mikrofonDili;
+  document.getElementById("sesAyarPopup").style.display = "flex";
+}
+function sesAyarPanelKapat(){ document.getElementById("sesAyarPopup").style.display = "none"; }
+function sesAyarKaydet(){
+  sesHizi = Number(document.getElementById("sesHizInput").value || 1.02);
+  mikrofonDili = document.getElementById("mikrofonDilSec").value || "tr-TR";
+  localStorage.setItem("neura_ses_hizi", String(sesHizi));
+  localStorage.setItem("neura_mikrofon_dili", mikrofonDili);
+  if(recognition) recognition.lang = mikrofonDili;
+  sistemMesaji("🎤 Ses ayarları kaydedildi.");
+  sesAyarPanelKapat();
+}
+function arsivModuDegistir(){
+  arsivleriGoster = !arsivleriGoster;
+  sohbetleriGoster();
+  sistemMesaji(arsivleriGoster ? "🗄️ Arşivler gösteriliyor." : "🗄️ Arşivler gizlendi.");
+}
+
+function aktifSohbetiSabitle(){
+  const aktif = aktifSohbetBul();
+  if(!aktif) return;
+  aktif.sabit = !aktif.sabit;
+  sohbetleriKaydet();
+  sohbetleriGoster();
+  sistemMesaji(aktif.sabit ? "📌 Sohbet sabitlendi." : "📌 Sabitleme kaldırıldı.");
+}
+
+function aktifSohbetiYenidenAdlandir(){
+  const aktif = aktifSohbetBul();
+  if(!aktif) return;
+  const ad = prompt("Yeni sohbet adı:", aktif.baslik || "Yeni Sohbet");
+  if(!ad) return;
+  aktif.baslik = ad.slice(0,40);
+  sohbetleriKaydet();
+  sohbetleriGoster();
+  sistemMesaji("✏️ Sohbet adı değişti.");
+}
+
+function aktifSohbetKlasorDegistir(){
+  const aktif = aktifSohbetBul();
+  if(!aktif) return;
+  const klasor = prompt("Klasör adı:", aktif.klasor || "Genel");
+  if(!klasor) return;
+  aktif.klasor = klasor.slice(0,28);
+  sohbetleriKaydet();
+  sohbetleriGoster();
+  sistemMesaji("📁 Klasör kaydedildi.");
+}
+
+function aktifSohbetiArsivle(){
+  const aktif = aktifSohbetBul();
+  if(!aktif) return;
+  aktif.arsiv = !aktif.arsiv;
+  sohbetleriKaydet();
+  sohbetleriGoster();
+  sistemMesaji(aktif.arsiv ? "🗄️ Sohbet arşivlendi." : "🗄️ Sohbet arşivden çıkarıldı.");
+}
+
+function sohbetiPdfIndir(){
+  const aktif = aktifSohbetBul();
+  if(!aktif) return;
+  const metin = aktif.mesajlar.map(m => `${m.kim === "user" ? "Sen" : "NeuraAI"}: ${m.text || ""}`).join("\\n\\n");
+  const w = window.open("", "_blank");
+  w.document.write("<pre style='font-family:Arial;white-space:pre-wrap'>" + metin.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])) + "</pre>");
+  w.document.close();
+  w.print();
+}
+
+function aktifGizliSifreDegistir(){
+  const aktif = aktifSohbetBul();
+  if(!aktif || !aktif.gizli){ sistemMesaji("Önce gizli bir sohbet aç."); return; }
+  const eski = prompt("Eski şifre:");
+  if(eski !== aktif.sifre){ sistemMesaji("Yanlış şifre."); return; }
+  const yeni = prompt("Yeni şifre:");
+  if(!yeni) return;
+  aktif.sifre = yeni;
+  aktif.kilitli = true;
+  sohbetleriKaydet();
+  sistemMesaji("🔐 Şifre değiştirildi.");
+}
+function aktifGizliKilitle(){
+  const aktif = aktifSohbetBul();
+  if(!aktif || !aktif.gizli){ sistemMesaji("Bu sohbet gizli değil."); return; }
+  aktif.kilitli = true;
+  sohbetleriKaydet();
+  sistemMesaji("🔒 Gizli sohbet kilitlendi.");
+}
+function uygulamaSifresiAyarla(){
+  const mevcut = localStorage.getItem("neura_app_sifre");
+  if(mevcut){
+    const eski = prompt("Eski uygulama şifresi:");
+    if(eski !== mevcut){ sistemMesaji("Yanlış şifre."); return; }
+  }
+  const yeni = prompt("Yeni uygulama açılış şifresi boş bırakılırsa kaldırılır:");
+  if(!yeni){
+    localStorage.removeItem("neura_app_sifre");
+    sistemMesaji("Uygulama şifresi kaldırıldı.");
+  }else{
+    localStorage.setItem("neura_app_sifre", yeni);
+    sistemMesaji("Uygulama şifresi ayarlandı.");
+  }
+}
+function uygulamaSifresiKontrol(){
+  const sifre = localStorage.getItem("neura_app_sifre");
+  if(!sifre) return;
+  const giris = prompt("NeuraAI uygulama şifresi:");
+  if(giris !== sifre){
+    document.body.innerHTML = "<div style='color:white;background:#050505;height:100vh;display:flex;align-items:center;justify-content:center;font-family:Arial'>🔒 Yanlış şifre.</div>";
+  }
+}
+function tumLocalVerileriTemizle(){
+  if(!confirm("Bu cihazdaki NeuraAI kayıtları silinsin mi?")) return;
+  localStorage.clear();
+  location.reload();
+}
+
+function mesajBul(msgId){
+  const aktif = aktifSohbetBul();
+  if(!aktif) return null;
+  return aktif.mesajlar.find(m => m.id === msgId);
+}
+function mesajSil(msgId){
+  const aktif = aktifSohbetBul();
+  if(!aktif) return;
+  aktif.mesajlar = aktif.mesajlar.filter(m => m.id !== msgId);
+  sohbetleriKaydet();
+  sohbetAc(aktif.id);
+}
+function mesajDuzenle(msgId){
+  const m = mesajBul(msgId);
+  if(!m) return;
+  const yeni = prompt("Mesajı düzenle:", m.text || "");
+  if(yeni === null) return;
+  m.text = yeni;
+  sohbetleriKaydet();
+  sohbetAc(aktifSohbetId);
+}
+function mesajBegen(msgId, deger){
+  const m = mesajBul(msgId);
+  if(!m) return;
+  m.begeni = deger;
+  sohbetleriKaydet();
+  sohbetAc(aktifSohbetId);
+}
+function favoriMesaj(msgId){
+  const m = mesajBul(msgId);
+  if(!m) return;
+  m.favoriMesaj = !m.favoriMesaj;
+  sohbetleriKaydet();
+  sohbetAc(aktifSohbetId);
+}
+
+function gorselGecmisiKaydet(){
+  localStorage.setItem("neura_gorsel_gecmisi", JSON.stringify(gorselGecmisi.slice(0,50)));
+}
+function gorselIndir(dataUrl, ad="neuraai-gorsel.png"){
+  const a = document.createElement("a");
+  a.href = dataUrl;
+  a.download = ad;
+  a.click();
+}
+function gorselGecmisiAc(){
+  if(gorselGecmisi.length === 0){ sistemMesaji("Görsel geçmişi boş."); return; }
+  gorselGecmisi.slice(0,8).forEach(g => mesajEkle(g.prompt || "Görsel geçmişi", "ai", g.image, "", false));
+}
+function sonGorseliTekrarUret(){
+  const son = gorselGecmisi[0];
+  if(!son){ sistemMesaji("Tekrar üretilecek görsel yok."); return; }
+  gorselUret(son.prompt || "yaratıcı gerçekçi bir sahne");
+}
+function gorselIstegiMi(m){
+  return (
+    m.includes("çiz") || m.includes("ciz") ||
+    m.includes("draw") ||
+    m.includes("generate image") ||
+    m.includes("create image") ||
+    m.includes("make image") ||
+    m.includes("image of") ||
+    m.includes("resim oluştur") || m.includes("resim olustur") ||
+    m.includes("görsel oluştur") || m.includes("gorsel olustur") ||
+    m.includes("fotoğraf oluştur") || m.includes("fotograf olustur")
+  );
+}
+
+function mesajEkle(text, kim, foto = null, extraClass = "", kopyala = false, msgId = null){
   const satir = document.createElement("div");
   satir.className = "satir " + kim;
 
@@ -1210,6 +1520,19 @@ function mesajEkle(text, kim, foto = null, extraClass = "", kopyala = false){
       };
       balon.appendChild(btn);
     }
+  }
+
+  if(msgId){
+    const aksiyon = document.createElement("div");
+    aksiyon.className = "miniAksiyonlar";
+    aksiyon.innerHTML = `
+      <button onclick="mesajDuzenle('${msgId}')">Düzenle</button>
+      <button onclick="mesajSil('${msgId}')">Sil</button>
+      <button onclick="mesajBegen('${msgId}','like')">👍</button>
+      <button onclick="mesajBegen('${msgId}','dislike')">👎</button>
+      <button onclick="favoriMesaj('${msgId}')">⭐</button>
+    `;
+    balon.appendChild(aksiyon);
   }
 
   if(foto){
@@ -1240,6 +1563,18 @@ function mesajEkle(text, kim, foto = null, extraClass = "", kopyala = false){
     };
 
     balon.appendChild(img);
+
+    const imgAksiyon = document.createElement("div");
+    imgAksiyon.className = "miniAksiyonlar";
+    imgAksiyon.innerHTML = `
+      <button>İndir</button>
+      <button>Tekrar üret</button>
+      <button>Varyasyon</button>
+    `;
+    imgAksiyon.children[0].onclick = () => gorselIndir(foto);
+    imgAksiyon.children[1].onclick = () => sonGorseliTekrarUret();
+    imgAksiyon.children[2].onclick = () => sonGorseliTekrarUret();
+    balon.appendChild(imgAksiyon);
   }
 
   satir.appendChild(balon);
@@ -1264,7 +1599,7 @@ function mesajiSohbeteKaydet(text, kim, foto = null){
   const aktif = aktifSohbetBul();
   if(!aktif) return;
 
-  aktif.mesajlar.push({ text, kim, foto, zaman: Date.now() });
+  aktif.mesajlar.push({ id: neuraId(), text, kim, foto, zaman: Date.now(), begeni:null, favoriMesaj:false });
 
   if(kim === "user"){
     profilIstatistikEkle("sohbet");
@@ -1374,25 +1709,32 @@ function sohbetleriGoster(){
     ? sohbetAramaInput.value.toLowerCase().trim()
     : "";
 
-  const filtreliSohbetler = tumSohbetler.filter(sohbet => {
+  const filtreliSohbetler = tumSohbetler
+  .filter(sohbet => {
+    if(sohbet.arsiv && !arsivleriGoster) return false;
     const baslik = (sohbet.baslik || "").toLowerCase();
+    const klasor = (sohbet.klasor || "").toLowerCase();
 
     const mesajlar = (sohbet.mesajlar || [])
       .map(m => m.text || "")
       .join(" ")
       .toLowerCase();
 
-    return !arama || baslik.includes(arama) || mesajlar.includes(arama);
-  });
+    return !arama || baslik.includes(arama) || klasor.includes(arama) || mesajlar.includes(arama);
+  })
+  .sort((a,b) => Number(!!b.sabit) - Number(!!a.sabit));
 
   filtreliSohbetler.forEach(sohbet => {
     const item = document.createElement("div");
 
     item.className =
-      "sohbetItem" + (sohbet.id === aktifSohbetId ? " aktif" : "");
+      "sohbetItem" + (sohbet.id === aktifSohbetId ? " aktif" : "") + (sohbet.sabit ? " sabit" : "");
 
     item.innerHTML =
+      (sohbet.sabit ? "📌 " : "") +
+      (sohbet.arsiv ? "🗄️ " : "") +
       (sohbet.gizli ? "🔒 " : (sohbet.favori ? "❤️ " : "🤍 ")) +
+      (sohbet.klasor ? "[" + sohbet.klasor + "] " : "") +
       (sohbet.baslik || "Yeni Sohbet");
 
     item.ondblclick = () => {
@@ -1438,7 +1780,12 @@ const yeni = {
   id: aktifSohbetId,
   baslik: "Yeni Sohbet",
   favori: false,
+  sabit: false,
+  arsiv: false,
+  klasor: "Genel",
   gizli: false,
+  sifre: "",
+  kilitli: false,
   mesajlar: []
 };
   tumSohbetler.unshift(yeni);
@@ -1450,6 +1797,12 @@ const yeni = {
 }
 
 function yeniGizliSohbet(){
+  const sifre = prompt("Gizli sohbet için şifre belirle:");
+  if(!sifre){
+    sistemMesaji("Şifre belirlenmedi, gizli sohbet oluşturulmadı.");
+    return;
+  }
+
   chat.innerHTML = "";
   sohbetGecmisi = [];
   speechSynthesis.cancel();
@@ -1460,7 +1813,12 @@ function yeniGizliSohbet(){
     id: aktifSohbetId,
     baslik: "Gizli Sohbet",
     favori: false,
+    sabit: false,
+    arsiv: false,
+    klasor: "Gizli",
     gizli: true,
+    sifre: sifre,
+    kilitli: true,
     mesajlar: []
   };
 
@@ -1476,6 +1834,15 @@ function sohbetAc(id){
   const sohbet = tumSohbetler.find(s => s.id === id);
   if(!sohbet) return;
 
+  if(sohbet.gizli && sohbet.kilitli){
+    const giris = prompt("Bu gizli sohbetin şifresini gir:");
+    if(giris !== sohbet.sifre){
+      sistemMesaji("Yanlış şifre.");
+      return;
+    }
+    sohbet.kilitli = false;
+  }
+
   aktifSohbetId = id;
   localStorage.setItem("aktif_sohbet_id", String(aktifSohbetId));
   speechSynthesis.cancel();
@@ -1483,7 +1850,7 @@ function sohbetAc(id){
   chat.innerHTML = "";
 
   sohbet.mesajlar.forEach(m => {
-    mesajEkle(m.text, m.kim, m.foto || null, "", m.kim === "ai");
+    mesajEkle((m.favoriMesaj ? "⭐ " : "") + (m.text || ""), m.kim, m.foto || null, "", m.kim === "ai", m.id || null);
   });
 
   sohbetGecmisi = sohbet.mesajlar
@@ -1705,13 +2072,18 @@ async function gorselUret(mesaj){
     .replace(/ciz/gi, "")
     .replace(/oluştur/gi, "")
     .replace(/olustur/gi, "")
+    .replace(/draw/gi, "")
+    .replace(/generate image/gi, "")
+    .replace(/create image/gi, "")
+    .replace(/make image/gi, "")
+    .replace(/image of/gi, "")
     .trim() || "yaratıcı gerçekçi bir sahne";
 
   try{
     const res = await fetch("/generate-image", {
       method:"POST",
       headers:{ "Content-Type":"application/json" },
-      body:JSON.stringify({ prompt })
+      body:JSON.stringify({ prompt, style:gorselStil, size:gorselBoyut })
     });
 
     const data = await res.json().catch(() => ({}));
@@ -1725,6 +2097,8 @@ async function gorselUret(mesaj){
       profilIstatistikEkle("resim");
       mesajEkle(yazi, "ai", data.image, "", false);
       mesajiSohbeteKaydet(yazi, "ai", data.image);
+      gorselGecmisi.unshift({ prompt, image:data.image, zaman:Date.now() });
+      gorselGecmisiKaydet();
     }else{
       await cevap(data.reply || "Görsel üretilemedi. Sunucu yoğun olabilir, biraz sonra tekrar dene.", true);
     }
@@ -1751,7 +2125,12 @@ async function gonder(){
   id: aktifSohbetId,
   baslik: "Yeni Sohbet",
   favori: false,
+  sabit: false,
+  arsiv: false,
+  klasor: "Genel",
   gizli: false,
+  sifre: "",
+  kilitli: false,
   mesajlar: []
 });
 
@@ -1803,7 +2182,7 @@ async function gonder(){
     return;
   }
 
-  if(m.includes("çiz") || m.includes("ciz")){
+  if(gorselIstegiMi(m)){
     await gorselUret(mesaj);
     return;
   }
@@ -1868,6 +2247,7 @@ if("serviceWorker" in navigator){
   });
 }
 
+uygulamaSifresiKontrol();
 yukleKayit();
 if(typeof dogumGunuKontrolEt === "function") dogumGunuKontrolEt();
 function sidebarAcKapat(){
