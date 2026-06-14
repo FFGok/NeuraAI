@@ -624,26 +624,28 @@ body::before{
   <div class="solPanel">
     <div class="solUst">
       <button class="yeniSohbetBtn" onclick="yeniSohbet()">+ Yeni Sohbet</button>
-<button class="sidebarMiniBtn" onclick="modPanelAc()">🎭 Modlar</button>
+      <button class="sidebarMiniBtn" onclick="modPanelAc()">🎭 Modlar</button>
       <button class="sidebarMiniBtn" onclick="profilPanelAc()">👤 Profil</button>
       <input
-  id="sohbetAramaInput"
-  class="profilInput"
-  placeholder="🔍 Sohbet ara..."
-  oninput="sohbetleriGoster()">
+        id="sohbetAramaInput"
+        class="profilInput"
+        placeholder="🔍 Sohbet ara..."
+        oninput="sohbetleriGoster()">
       <button class="sidebarMiniBtn" onclick="aktifSohbetiSil()">Bu sohbeti sil</button>
       <button class="sidebarMiniBtn" onclick="sohbetiDisaAktar()">Sohbeti dışa aktar</button>
+      <button class="sidebarMiniBtn" onclick="yeniGizliSohbet()">🔒 Gizli sohbet başlat</button>
     </div>
-    <div class="gecmisBaslik">⭐ Favori Sohbetler</div>
-<div id="favoriListesi" class="sohbetListesi"></div>
 
-<div class="gecmisBaslik">💬 Sohbetler</div>
+    <div class="gecmisBaslik">⭐ Favori Sohbetler</div>
+    <div id="favoriListesi" class="sohbetListesi"></div>
+
+    <div class="gecmisBaslik">💬 Sohbetler</div>
     <div id="sohbetListesi" class="sohbetListesi"></div>
+
+    <div class="gecmisBaslik">🔒 Gizli Sohbetler</div>
+    <div id="gizliListesi" class="sohbetListesi"></div>
   </div>
 
-<div class="gecmisBaslik">🔒 Gizli Sohbetler </div>
-  <div id="gizliListesi" class= "sohbetListesi"></div>
-  
   <div class="anaAlan">
     <div class="ust">
 
@@ -777,6 +779,8 @@ const durumYazi = document.getElementById("durumYazi");
 const gonderBtn = document.getElementById("gonderBtn");
 const favoriListesi =
 document.getElementById("favoriListesi");
+const gizliListesi =
+document.getElementById("gizliListesi");
 const sohbetAramaInput =
 document.getElementById("sohbetAramaInput");
 const profilPopup = document.getElementById("profilPopup");
@@ -954,11 +958,24 @@ let aktifSohbetId = localStorage.getItem("aktif_sohbet_id")
 document.getElementById("sesBtn").innerText = sesAcik ? "🔊" : "🔇";
 
 function sesleriYukle(){
-  mevcutSesler = speechSynthesis.getVoices();
+  if(!("speechSynthesis" in window)){
+    mevcutSesler = [];
+    return;
+  }
+
+  mevcutSesler = window.speechSynthesis.getVoices() || [];
+
+  if(mevcutSesler.length === 0){
+    setTimeout(sesleriYukle, 300);
+  }
 }
 
-speechSynthesis.onvoiceschanged = sesleriYukle;
-sesleriYukle();
+if("speechSynthesis" in window){
+  speechSynthesis.onvoiceschanged = sesleriYukle;
+  sesleriYukle();
+  setTimeout(sesleriYukle, 500);
+  setTimeout(sesleriYukle, 1200);
+}
 
 function sesiTemizle(text){
   return String(text || "")
@@ -981,28 +998,49 @@ function dilAlgila(text){
 }
 
 function sesSec(lang){
+  if(!mevcutSesler || mevcutSesler.length === 0){
+    sesleriYukle();
+  }
+
   const anaDil = lang.split("-")[0].toLowerCase();
+  const sesler = mevcutSesler || [];
 
   const erkekIsimleri = [
-    "tolga", "ahmet", "murat", "male", "man", "erkek", "google us english", "microsoft david"
+    "tolga", "ahmet", "murat", "male", "man", "erkek",
+    "microsoft ahmet", "microsoft david", "google us english"
   ];
 
-  return mevcutSesler.find(s =>
-    s.lang === lang && erkekIsimleri.some(isim => s.name.toLowerCase().includes(isim))
+  return sesler.find(s =>
+    s.lang && s.lang.toLowerCase() === lang.toLowerCase() &&
+    erkekIsimleri.some(isim => s.name.toLowerCase().includes(isim))
   ) ||
-  mevcutSesler.find(s => s.lang === lang) ||
-  mevcutSesler.find(s => s.lang && s.lang.toLowerCase().startsWith(anaDil)) ||
-  mevcutSesler.find(s => s.lang && s.lang.toLowerCase().startsWith("tr")) ||
-  mevcutSesler[0];
+  sesler.find(s =>
+    s.lang && s.lang.toLowerCase().startsWith(anaDil) &&
+    erkekIsimleri.some(isim => s.name.toLowerCase().includes(isim))
+  ) ||
+  sesler.find(s => s.lang && s.lang.toLowerCase() === lang.toLowerCase()) ||
+  sesler.find(s => s.lang && s.lang.toLowerCase().startsWith(anaDil)) ||
+  sesler.find(s => s.lang && s.lang.toLowerCase().startsWith("tr")) ||
+  sesler[0] ||
+  null;
 }
 
 function sesliOku(text){
   if(!sesAcik || !text) return;
 
+  if(!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)){
+    durumYazi.innerText = "Bu tarayıcı sesli okumayı desteklemiyor.";
+    setTimeout(() => {
+      if(!cooldownTimer) durumYazi.innerText = "";
+    }, 1800);
+    return;
+  }
+
   const okunacak = sesiTemizle(text);
   if(!okunacak) return;
 
   speechSynthesis.cancel();
+  sesleriYukle();
 
   const lang = dilAlgila(okunacak);
   const ses = new SpeechSynthesisUtterance(okunacak);
@@ -1025,7 +1063,11 @@ function sesliOku(text){
     }
   };
 
-  speechSynthesis.speak(ses);
+  try{
+    speechSynthesis.speak(ses);
+  }catch(err){
+    console.log("Sesli okuma hatası:", err);
+  }
 }
 
 function sesAcKapat(){
@@ -1039,7 +1081,7 @@ function mikrofonuDinle(){
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
   if(!SpeechRecognition){
-    cevap("Tarayıcın mikrofonlu konuşmayı desteklemiyor. Chrome kullanmanı öneririm.", false);
+    cevap("Tarayıcın mikrofonlu konuşmayı desteklemiyor. Edge güncel değilse Chrome deneyebilirsin.", false);
     sesliSohbetAktif = false;
     return;
   }
@@ -1325,21 +1367,24 @@ function sohbetleriGoster(){
 
   liste.innerHTML = "";
   favoriListesi.innerHTML = "";
-const arama =
-  sohbetAramaInput
-  ? sohbetAramaInput.value.toLowerCase().trim()
-  : "";
+  if(gizliListesi) gizliListesi.innerHTML = "";
 
-const filtreliSohbetler = tumSohbetler.filter(sohbet => {
-  const baslik = (sohbet.baslik || "").toLowerCase();
+  const arama =
+    sohbetAramaInput
+    ? sohbetAramaInput.value.toLowerCase().trim()
+    : "";
 
-  const mesajlar = (sohbet.mesajlar || [])
-    .map(m => m.text || "")
-    .join(" ")
-    .toLowerCase();
+  const filtreliSohbetler = tumSohbetler.filter(sohbet => {
+    const baslik = (sohbet.baslik || "").toLowerCase();
 
-  return !arama || baslik.includes(arama) || mesajlar.includes(arama);
-});
+    const mesajlar = (sohbet.mesajlar || [])
+      .map(m => m.text || "")
+      .join(" ")
+      .toLowerCase();
+
+    return !arama || baslik.includes(arama) || mesajlar.includes(arama);
+  });
+
   filtreliSohbetler.forEach(sohbet => {
     const item = document.createElement("div");
 
@@ -1347,10 +1392,12 @@ const filtreliSohbetler = tumSohbetler.filter(sohbet => {
       "sohbetItem" + (sohbet.id === aktifSohbetId ? " aktif" : "");
 
     item.innerHTML =
-      (sohbet.favori ? "❤️ " : "🤍 ") +
+      (sohbet.gizli ? "🔒 " : (sohbet.favori ? "❤️ " : "🤍 ")) +
       (sohbet.baslik || "Yeni Sohbet");
 
     item.ondblclick = () => {
+      if(sohbet.gizli) return;
+
       sohbet.favori = !sohbet.favori;
       sohbetleriKaydet();
       sohbetleriGoster();
@@ -1360,6 +1407,11 @@ const filtreliSohbetler = tumSohbetler.filter(sohbet => {
       sohbetAc(sohbet.id);
       document.querySelector(".solPanel").classList.remove("acik");
     };
+
+    if(sohbet.gizli){
+      if(gizliListesi) gizliListesi.appendChild(item);
+      return;
+    }
 
     liste.appendChild(item);
 
@@ -1386,6 +1438,7 @@ const yeni = {
   id: aktifSohbetId,
   baslik: "Yeni Sohbet",
   favori: false,
+  gizli: false,
   mesajlar: []
 };
   tumSohbetler.unshift(yeni);
@@ -1394,6 +1447,29 @@ const yeni = {
   sohbetleriGoster();
 
   sistemMesaji("Yeni sohbet başlatıldı.");
+}
+
+function yeniGizliSohbet(){
+  chat.innerHTML = "";
+  sohbetGecmisi = [];
+  speechSynthesis.cancel();
+
+  aktifSohbetId = Date.now();
+
+  const yeni = {
+    id: aktifSohbetId,
+    baslik: "Gizli Sohbet",
+    favori: false,
+    gizli: true,
+    mesajlar: []
+  };
+
+  tumSohbetler.unshift(yeni);
+
+  sohbetleriKaydet();
+  sohbetleriGoster();
+
+  sistemMesaji("🔒 Gizli sohbet başlatıldı.");
 }
 
 function sohbetAc(id){
@@ -1675,6 +1751,7 @@ async function gonder(){
   id: aktifSohbetId,
   baslik: "Yeni Sohbet",
   favori: false,
+  gizli: false,
   mesajlar: []
 });
 
