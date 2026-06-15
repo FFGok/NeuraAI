@@ -65,6 +65,39 @@ function boyutTemizle(size){
   return izinli.includes(size) ? size : "1024x1024";
 }
 
+function adminKontrol(req, res){
+  const secret = req.headers["x-admin-secret"];
+
+  if(!process.env.ADMIN_SECRET){
+    res.status(500).json({
+      ok:false,
+      reply:"ADMIN_SECRET Render Environment içinde yok."
+    });
+    return false;
+  }
+
+  if(secret !== process.env.ADMIN_SECRET){
+    res.status(403).json({
+      ok:false,
+      reply:"Bu alan sadece kurucu içindir."
+    });
+    return false;
+  }
+
+  return true;
+}
+
+function bildirimEkle(title, text){
+  neuraNotifications.push({
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2,8),
+    title,
+    text: temizMesaj(text || "").slice(0,180),
+    time: Date.now()
+  });
+
+  neuraNotifications = neuraNotifications.slice(-50);
+}
+
 function sistemPromptOlustur(konusmaModu){
   const temel =
     "Sen NeuraAI adında net, yardımcı ve güvenli bir yapay zekasın. " +
@@ -360,21 +393,7 @@ app.get("/updates", (req, res) => {
 });
 
 app.post("/updates", (req, res) => {
-  const secret = req.headers["x-admin-secret"];
-
-  if(!process.env.ADMIN_SECRET){
-    return res.status(500).json({
-      ok:false,
-      reply:"ADMIN_SECRET Render Environment içinde yok."
-    });
-  }
-
-  if(secret !== process.env.ADMIN_SECRET){
-    return res.status(403).json({
-      ok:false,
-      reply:"Bu alan sadece kurucu içindir."
-    });
-  }
+  if(!adminKontrol(req, res)) return;
 
   const text = temizMesaj(req.body?.text || "").trim();
 
@@ -389,20 +408,15 @@ app.post("/updates", (req, res) => {
     id: Date.now().toString(36) + Math.random().toString(36).slice(2,8),
     text,
     time: Date.now(),
-    reactions: {}
+    editedTime: null,
+    reactions: {},
+    reactedUsers: {}
   };
 
   neuraUpdates.push(item);
   neuraUpdates = neuraUpdates.slice(-50);
 
-  neuraNotifications.push({
-    id:item.id,
-    title:"Yeni güncelleme yayınlandı",
-    text:text.slice(0,180),
-    time:Date.now()
-  });
-
-  neuraNotifications = neuraNotifications.slice(-50);
+  bildirimEkle("Yeni güncelleme yayınlandı", text);
 
   res.json({
     ok:true,
@@ -410,8 +424,64 @@ app.post("/updates", (req, res) => {
   });
 });
 
+app.put("/updates/:id", (req, res) => {
+  if(!adminKontrol(req, res)) return;
+
+  const id = req.params.id;
+  const text = temizMesaj(req.body?.text || "").trim();
+
+  if(!text){
+    return res.json({
+      ok:false,
+      reply:"Duyuru boş olamaz."
+    });
+  }
+
+  const item = neuraUpdates.find(u => u.id === id);
+
+  if(!item){
+    return res.status(404).json({
+      ok:false,
+      reply:"Duyuru bulunamadı."
+    });
+  }
+
+  item.text = text;
+  item.editedTime = Date.now();
+
+  bildirimEkle("Bir güncelleme düzenlendi", text);
+
+  res.json({
+    ok:true,
+    update:item
+  });
+});
+
+app.delete("/updates/:id", (req, res) => {
+  if(!adminKontrol(req, res)) return;
+
+  const id = req.params.id;
+  const oncekiUzunluk = neuraUpdates.length;
+
+  neuraUpdates = neuraUpdates.filter(u => u.id !== id);
+
+  if(neuraUpdates.length === oncekiUzunluk){
+    return res.status(404).json({
+      ok:false,
+      reply:"Duyuru bulunamadı."
+    });
+  }
+
+  neuraNotifications = neuraNotifications.filter(n => n.id !== id);
+
+  res.json({
+    ok:true
+  });
+});
+
 app.post("/updates/emoji", (req, res) => {
   const { id, emoji } = req.body || {};
+  const userKey = ipAl(req);
 
   const izinli = ["🔥","💜","🚀","🦊","🏎️","👏","😎","🤯"];
 
@@ -431,6 +501,28 @@ app.post("/updates/emoji", (req, res) => {
     });
   }
 
+  if(!item.reactions) item.reactions = {};
+  if(!item.reactedUsers) item.reactedUsers = {};
+
+  const eskiEmoji = item.reactedUsers[userKey];
+
+  if(eskiEmoji === emoji){
+    return res.json({
+      ok:true,
+      reply:"Bu duyuruya zaten bu emojiyi attın.",
+      reactions:item.reactions
+    });
+  }
+
+  if(eskiEmoji && item.reactions[eskiEmoji]){
+    item.reactions[eskiEmoji]--;
+
+    if(item.reactions[eskiEmoji] <= 0){
+      delete item.reactions[eskiEmoji];
+    }
+  }
+
+  item.reactedUsers[userKey] = emoji;
   item.reactions[emoji] = (item.reactions[emoji] || 0) + 1;
 
   res.json({
