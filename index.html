@@ -729,6 +729,80 @@ body::before{
 .codexSayfa{display:none;position:relative;z-index:2;width:92%;max-width:1120px;height:88vh;background:rgba(7,7,12,0.86);border-radius:24px;border:1px solid rgba(255,255,255,0.08);box-shadow:0 25px 60px rgba(0,0,0,0.55),0 0 40px rgba(0,180,255,0.08);backdrop-filter:blur(16px);overflow:hidden;flex-direction:column}
 .codexUst{padding:16px 18px;display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,0.08);flex-wrap:wrap}.codexBaslik{font-size:24px;font-weight:bold}.codexAlt{font-size:13px;color:#cfcfcf;margin-top:4px}.codexGovde{flex:1;display:grid;grid-template-columns:1.1fr .9fr;gap:14px;padding:16px;overflow:hidden}.codexPanel{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:18px;padding:14px;overflow:auto}.codexTextarea{width:100%;min-height:260px;resize:vertical;border-radius:14px;border:1px solid rgba(255,255,255,0.10);background:rgba(0,0,0,0.30);color:white;outline:none;padding:12px;font-family:Consolas,monospace;font-size:13px}.codexKucukTextarea{min-height:120px}.codexButonGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.codexButonGrid button,.codexUst button,.duyuruBtn,.bildirimBtn{background:rgba(255,255,255,0.08);color:white;border:1px solid rgba(255,255,255,0.10);border-radius:12px;padding:10px 12px;cursor:pointer;font-weight:bold}.codexCevap{white-space:pre-wrap;background:rgba(0,0,0,0.28);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:12px;min-height:220px;font-family:Arial,sans-serif;line-height:1.45}.codexHafizaItem,.duyuruItem,.bildirimItem,.todoItem{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:10px;margin:8px 0}.todoItem{display:flex;align-items:center;gap:8px;justify-content:space-between}.todoItem span{flex:1}.duyuruBtn{position:fixed;right:18px;bottom:18px;z-index:100000;background:linear-gradient(135deg,#7b2cff,#ff2ca8)}.bildirimBtn{position:fixed;right:18px;bottom:74px;z-index:100000;background:linear-gradient(135deg,#3d7cff,#00c2ff)}.duyuruPanelPopup{max-width:760px}.duyuruYazi{width:100%;min-height:120px;border-radius:14px;border:1px solid rgba(255,255,255,0.10);background:rgba(255,255,255,0.06);color:white;padding:12px;outline:none;resize:vertical}.emojiSatir{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.emojiSatir button{padding:7px 9px;border-radius:10px;border:none;cursor:pointer;background:rgba(255,255,255,0.10);color:white}@media(max-width:700px){.codexSayfa{width:100%;height:100dvh;border-radius:0}.codexGovde{grid-template-columns:1fr;overflow:auto}.duyuruBtn{right:10px;bottom:12px}.bildirimBtn{right:10px;bottom:64px}.codexButonGrid{grid-template-columns:1fr}}
 
+
+/* === Güncelleme Merkezi v2 === */
+.guncellemeArama{
+  width:100%;
+  padding:12px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,0.10);
+  background:rgba(255,255,255,0.06);
+  color:white;
+  outline:none;
+  margin:8px 0 12px;
+}
+.duyuruUstSatir{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:8px;
+}
+.surumRozeti{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:8px 12px;
+  border-radius:999px;
+  background:linear-gradient(135deg,#7b2cff,#ff2ca8);
+  color:white;
+  font-weight:900;
+  letter-spacing:.4px;
+  box-shadow:0 0 18px rgba(123,44,255,.35);
+  animation:surumParla 1.8s ease-in-out infinite;
+}
+.yeniEtiket{
+  display:inline-flex;
+  align-items:center;
+  padding:6px 10px;
+  border-radius:999px;
+  background:rgba(0,255,170,.14);
+  border:1px solid rgba(0,255,170,.35);
+  color:#a9ffe5;
+  font-size:12px;
+  font-weight:bold;
+}
+.duyuruTarih{
+  color:#bbb;
+  font-size:12px;
+}
+.duyuruAksiyonlar{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+.duyuruAksiyonlar button{
+  margin-top:0;
+  padding:7px 9px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(255,255,255,.08);
+  color:white;
+  cursor:pointer;
+  font-size:12px;
+}
+.emojiSatir button.emojiSecili{
+  background:rgba(123,44,255,.45);
+  box-shadow:0 0 14px rgba(123,44,255,.30);
+}
+@keyframes surumParla{
+  0%{ transform:translateY(0) scale(1); filter:brightness(1); }
+  50%{ transform:translateY(-1px) scale(1.03); filter:brightness(1.16); }
+  100%{ transform:translateY(0) scale(1); filter:brightness(1); }
+}
+
 </style>
 </head>
 
@@ -811,7 +885,7 @@ body::before{
   <div class="codexUst"><div><div class="codexBaslik">💻 Codex</div><div class="codexAlt">Merhaba, ben Codex. Kodlarını düzeltebilir, açıklayabilir, optimize edebilir ve proje hafızası tutabilirim.</div></div><div class="ustButonlar"><button onclick="codexHafizaKaydet()">🧠 Kod hafızasına kaydet</button><button onclick="codexCevapKopyala()">📋 Cevabı kopyala</button><button onclick="naiDon()">🤖 NeuraAI’ye dön</button></div></div>
   <div class="codexGovde"><div class="codexPanel"><h3>📄 Kod Alanı</h3><input type="file" id="codexDosyaInput" accept=".txt,.html,.css,.js,.json,.md,.py,.java,.c,.cpp" onchange="codexDosyaOku(event)"><textarea id="codexKod" class="codexTextarea" placeholder="Kodunu buraya yapıştır veya dosya yükle..."></textarea><h3>📌 Codex İşlemleri</h3><div class="codexButonGrid"><button onclick="codexGonder('hata')">🔍 Hata Bul</button><button onclick="codexGonder('acikla')">📖 Kodu Açıkla</button><button onclick="codexGonder('optimize')">⚡ Optimize Et</button><button onclick="codexGonder('guvenlik')">🛡️ Güvenlik Açığı Ara</button><button onclick="codexGonder('ozellik')">💡 Özellik Öner</button><button onclick="codexGonder('dosya')">📁 Hangi Dosyaya Ekle?</button><button onclick="codexDilAnalizi('html')">🌐 HTML Analizi</button><button onclick="codexDilAnalizi('css')">🎨 CSS Analizi</button><button onclick="codexDilAnalizi('javascript')">🟨 JavaScript Analizi</button><button onclick="codexDilAnalizi('nodejs')">🟩 Node.js Analizi</button></div><h3>🔁 Dosya Karşılaştırma</h3><textarea id="codexEskiKod" class="codexTextarea codexKucukTextarea" placeholder="Eski kod..."></textarea><textarea id="codexYeniKod" class="codexTextarea codexKucukTextarea" placeholder="Yeni kod..."></textarea><button onclick="codexKarsilastir()">🔁 Dosyaları Karşılaştır</button><h3>📋 Yapılacaklar Listesi</h3><input id="todoInput" class="profilInput" placeholder="Yeni görev yaz..."><button onclick="todoEkle()">Görev ekle</button><div id="todoListe"></div><div id="todoYuzde" class="miniSonuc"></div></div><div class="codexPanel"><h3>🤖 Codex Cevabı</h3><div id="codexCevap" class="codexCevap">Codex hazır. Kodunu gönder, birlikte inceleyelim.</div><h3>🧠 Proje Hafızası</h3><input id="projeHafizaBaslik" class="profilInput" placeholder="Örn: index.html, server.js, sw.js"><button onclick="projeHafizaKaydet()">Projeye kaydet</button><div id="projeHafizaListe"></div></div></div>
 </div>
-<div class="popupArka" id="guncellemePopup"><div class="popup duyuruPanelPopup"><h2>📢 Güncelleme Merkezi</h2><p style="color:#bbb;font-size:13px">Burada sadece kurucu duyuru paylaşır. Kullanıcılar okuyabilir ve emoji bırakabilir.</p><textarea id="guncellemeYazi" class="duyuruYazi" placeholder="Sadece kurucu: Eklenen özellikleri yaz..."></textarea><input id="guncellemeSecret" class="profilInput" type="password" placeholder="Kurucu şifresi"><button onclick="guncellemeEkle()">Duyuru ekle</button><div id="guncellemeListe"></div><button onclick="guncellemePanelKapat()">Kapat</button></div></div>
+<div class="popupArka" id="guncellemePopup"><div class="popup duyuruPanelPopup"><h2>📢 Güncelleme Merkezi</h2><p style="color:#bbb;font-size:13px">Burada sadece kurucu duyuru paylaşır. Kullanıcılar okuyabilir ve emoji bırakabilir.</p><input id="guncellemeArama" class="guncellemeArama" placeholder="🔍 Duyuru ara..." oninput="guncellemeleriYukle()"><textarea id="guncellemeYazi" class="duyuruYazi" placeholder="Sadece kurucu: Eklenen özellikleri yaz... Örn: *v1.2*"></textarea><input id="guncellemeSecret" class="profilInput" type="password" placeholder="Kurucu şifresi"><button onclick="guncellemeEkle()">Duyuru ekle</button><div id="guncellemeListe"></div><button onclick="guncellemePanelKapat()">Kapat</button></div></div>
 <div class="popupArka" id="bildirimPopup"><div class="popup duyuruPanelPopup"><h2>🔔 Bildirim Merkezi</h2><div id="bildirimListe"></div><button onclick="bildirimPanelKapat()">Kapat</button></div></div>
 
 <div class="guvenlikYazi">
@@ -2668,8 +2742,237 @@ function codexHafizaKaydet(){const kod=codexKod.value.trim();if(!kod){codexCevap
 function projeHafizaKaydet(){const baslik=projeHafizaBaslik.value.trim()||"Kod Parçası",kod=codexKod.value.trim();if(!kod){codexCevap.innerText="Projeye kaydetmek için kod yaz.";return}projeHafizasi.unshift({id:neuraId(),baslik,kod,zaman:Date.now()});projeHafizasi=projeHafizasi.slice(0,30);localStorage.setItem("neura_proje_hafizasi",JSON.stringify(projeHafizasi));projeHafizaGoster()}
 function projeHafizaGoster(){const a=document.getElementById("projeHafizaListe");if(!a)return;a.innerHTML="";projeHafizasi.slice(0,8).forEach(p=>{const d=document.createElement("div");d.className="codexHafizaItem";d.innerHTML=`<b>${p.baslik}</b><br><small>${new Date(p.zaman).toLocaleString("tr-TR")}</small><div class="miniAksiyonlar"><button>Yükle</button><button>Sil</button></div>`;d.querySelectorAll("button")[0].onclick=()=>{codexKod.value=p.kod;projeHafizaBaslik.value=p.baslik};d.querySelectorAll("button")[1].onclick=()=>{projeHafizasi=projeHafizasi.filter(x=>x.id!==p.id);localStorage.setItem("neura_proje_hafizasi",JSON.stringify(projeHafizasi));projeHafizaGoster()};a.appendChild(d)})}
 function todoKaydet(){localStorage.setItem("neura_codex_todo",JSON.stringify(todoListesi))}function todoEkle(){const text=todoInput.value.trim();if(!text)return;todoListesi.push({id:neuraId(),text,done:false});todoInput.value="";todoKaydet();todoGoster()}function todoToggle(id){const t=todoListesi.find(x=>x.id===id);if(t){t.done=!t.done;todoKaydet();todoGoster()}}function todoSil(id){todoListesi=todoListesi.filter(x=>x.id!==id);todoKaydet();todoGoster()}function todoGoster(){const a=document.getElementById("todoListe"),y=document.getElementById("todoYuzde");if(!a)return;a.innerHTML="";todoListesi.forEach(t=>{const d=document.createElement("div");d.className="todoItem";d.innerHTML=`<input type="checkbox" ${t.done?"checked":""}><span>${t.done?"<s>"+t.text+"</s>":t.text}</span><button>Sil</button>`;d.querySelector("input").onchange=()=>todoToggle(t.id);d.querySelector("button").onclick=()=>todoSil(t.id);a.appendChild(d)});const oran=todoListesi.length?Math.round(todoListesi.filter(t=>t.done).length/todoListesi.length*100):0;if(y)y.innerText="İlerleme: %"+oran}
-async function guncellemePanelAc(){document.getElementById("guncellemePopup").style.display="flex";await guncellemeleriYukle()}function guncellemePanelKapat(){guncellemePopup.style.display="none"}async function guncellemeleriYukle(){guncellemeListe.innerHTML="Yükleniyor...";try{const res=await fetch("/updates"),data=await res.json();guncellemeListe.innerHTML="";(data.updates||[]).forEach(u=>{const d=document.createElement("div");d.className="duyuruItem";const et=Object.entries(u.reactions||{}).map(([e,c])=>`${e} ${c}`).join("  ");d.innerHTML=`<b>📢 Güncelleme</b><br><small>${new Date(u.time).toLocaleString("tr-TR")}</small><p>${String(u.text).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}</p><div>${et||"Henüz emoji yok"}</div><div class="emojiSatir"></div>`;["🔥","💜","🚀","🦊","🏎️","👏","😎","🤯"].forEach(e=>{const b=document.createElement("button");b.innerText=e;b.onclick=()=>guncellemeEmoji(u.id,e);d.querySelector(".emojiSatir").appendChild(b)});guncellemeListe.appendChild(d)})}catch(e){guncellemeListe.innerHTML="Güncellemeler alınamadı."}}
-async function guncellemeEkle(){const text=guncellemeYazi.value.trim(),secret=guncellemeSecret.value.trim();if(!text||!secret)return;const res=await fetch("/updates",{method:"POST",headers:{"Content-Type":"application/json","x-admin-secret":secret},body:JSON.stringify({text})}),data=await res.json();if(!data.ok){alert(data.reply||"Eklenemedi");return}guncellemeYazi.value="";await guncellemeleriYukle();await bildirimleriYukle()}async function guncellemeEmoji(id,emoji){await fetch("/updates/emoji",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id,emoji})});await guncellemeleriYukle()}
+async async function guncellemePanelAc(){
+  document.getElementById("guncellemePopup").style.display = "flex";
+  await guncellemeleriYukle();
+}
+
+function guncellemePanelKapat(){
+  guncellemePopup.style.display = "none";
+}
+
+function htmlTemizle(text){
+  return String(text || "").replace(/[&<>]/g, c => ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;"
+  }[c]));
+}
+
+function duyuruParcala(text){
+  const ham = String(text || "");
+  const match = ham.match(/^\s*\*(v\d+(?:\.\d+)*)\*\s*/i);
+
+  if(!match){
+    return {
+      surum:"",
+      metin:ham
+    };
+  }
+
+  return {
+    surum:match[1],
+    metin:ham.replace(match[0], "").trim()
+  };
+}
+
+function tarihSadeYaz(time){
+  return new Date(time).toLocaleDateString("tr-TR", {
+    day:"numeric",
+    month:"long",
+    year:"numeric"
+  });
+}
+
+function yeniMi(time){
+  return Date.now() - Number(time || 0) < 3 * 24 * 60 * 60 * 1000;
+}
+
+function adminSecretAl(){
+  const inputSecret = document.getElementById("guncellemeSecret")?.value?.trim();
+  if(inputSecret) return inputSecret;
+
+  return prompt("Kurucu şifresi:") || "";
+}
+
+async function guncellemeleriYukle(){
+  guncellemeListe.innerHTML = "Yükleniyor...";
+
+  try{
+    const res = await fetch("/updates");
+    const data = await res.json();
+    const arama = (document.getElementById("guncellemeArama")?.value || "").toLowerCase().trim();
+
+    guncellemeListe.innerHTML = "";
+
+    let liste = data.updates || [];
+
+    if(arama){
+      liste = liste.filter(u => {
+        const p = duyuruParcala(u.text);
+        return (
+          String(u.text || "").toLowerCase().includes(arama) ||
+          String(p.surum || "").toLowerCase().includes(arama)
+        );
+      });
+    }
+
+    if(liste.length === 0){
+      guncellemeListe.innerHTML = "Duyuru bulunamadı.";
+      return;
+    }
+
+    liste.forEach(u => {
+      const d = document.createElement("div");
+      d.className = "duyuruItem";
+
+      const p = duyuruParcala(u.text);
+      const reaksiyonlar = u.reactions || {};
+
+      const surumHtml = p.surum
+        ? `<span class="surumRozeti">🚀 ${htmlTemizle(p.surum)}</span>`
+        : `<b>📢 Güncelleme</b>`;
+
+      const yeniHtml = yeniMi(u.time)
+        ? `<span class="yeniEtiket">🆕 YENİ</span>`
+        : "";
+
+      d.innerHTML = `
+        <div class="duyuruUstSatir">
+          <div>${surumHtml}</div>
+          <div>${yeniHtml}</div>
+        </div>
+
+        <div class="duyuruTarih">📅 ${tarihSadeYaz(u.time)}</div>
+
+        <p>${htmlTemizle(p.metin)}</p>
+
+        <div class="emojiSatir"></div>
+
+        <div class="duyuruAksiyonlar">
+          <button onclick="guncellemeDuzenle('${u.id}')">✏️ Düzenle</button>
+          <button onclick="guncellemeSil('${u.id}')">🗑️ Sil</button>
+        </div>
+      `;
+
+      const emojiSatir = d.querySelector(".emojiSatir");
+
+      ["🔥","💜","🚀","🦊","🏎️","👏","😎","🤯"].forEach(e => {
+        const b = document.createElement("button");
+        const sayi = reaksiyonlar[e] || 0;
+        b.innerText = `${e} ${sayi}`;
+        b.onclick = () => guncellemeEmoji(u.id, e);
+        emojiSatir.appendChild(b);
+      });
+
+      guncellemeListe.appendChild(d);
+    });
+
+  }catch(e){
+    console.error(e);
+    guncellemeListe.innerHTML = "Güncellemeler alınamadı.";
+  }
+}
+
+async function guncellemeEkle(){
+  const text = guncellemeYazi.value.trim();
+  const secret = guncellemeSecret.value.trim();
+
+  if(!text || !secret){
+    alert("Duyuru ve kurucu şifresi gerekli.");
+    return;
+  }
+
+  const res = await fetch("/updates", {
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "x-admin-secret":secret
+    },
+    body:JSON.stringify({ text })
+  });
+
+  const data = await res.json();
+
+  if(!data.ok){
+    alert(data.reply || "Eklenemedi");
+    return;
+  }
+
+  guncellemeYazi.value = "";
+  await guncellemeleriYukle();
+  await bildirimleriYukle();
+}
+
+async function guncellemeDuzenle(id){
+  const yeniMetin = prompt("Duyurunun yeni metni:");
+  if(yeniMetin === null) return;
+
+  const secret = adminSecretAl();
+  if(!secret) return;
+
+  const res = await fetch("/updates/" + encodeURIComponent(id), {
+    method:"PUT",
+    headers:{
+      "Content-Type":"application/json",
+      "x-admin-secret":secret
+    },
+    body:JSON.stringify({ text:yeniMetin })
+  });
+
+  const data = await res.json();
+
+  if(!data.ok){
+    alert(data.reply || "Düzenlenemedi");
+    return;
+  }
+
+  await guncellemeleriYukle();
+  await bildirimleriYukle();
+}
+
+async function guncellemeSil(id){
+  if(!confirm("Bu duyuru silinsin mi?")) return;
+
+  const secret = adminSecretAl();
+  if(!secret) return;
+
+  const res = await fetch("/updates/" + encodeURIComponent(id), {
+    method:"DELETE",
+    headers:{
+      "x-admin-secret":secret
+    }
+  });
+
+  const data = await res.json();
+
+  if(!data.ok){
+    alert(data.reply || "Silinemedi");
+    return;
+  }
+
+  await guncellemeleriYukle();
+  await bildirimleriYukle();
+}
+
+async function guncellemeEmoji(id, emoji){
+  const res = await fetch("/updates/emoji", {
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json"
+    },
+    body:JSON.stringify({ id, emoji })
+  });
+
+  const data = await res.json();
+
+  if(!data.ok){
+    alert(data.reply || "Emoji eklenemedi");
+  }
+
+  await guncellemeleriYukle();
+}
+
 async function bildirimPanelAc(){document.getElementById("bildirimPopup").style.display="flex";await bildirimleriYukle()}function bildirimPanelKapat(){bildirimPopup.style.display="none"}async function bildirimleriYukle(){if(!document.getElementById("bildirimListe"))return;bildirimListe.innerHTML="Yükleniyor...";try{const res=await fetch("/notifications"),data=await res.json();bildirimListe.innerHTML="";(data.notifications||[]).forEach(n=>{const d=document.createElement("div");d.className="bildirimItem";d.innerHTML=`<b>🔔 ${n.title||"Bildirim"}</b><br><small>${new Date(n.time).toLocaleString("tr-TR")}</small><p>${String(n.text||"").replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}</p>`;bildirimListe.appendChild(d)})}catch(e){bildirimListe.innerHTML="Bildirimler alınamadı."}}
 
 
