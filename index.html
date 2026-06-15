@@ -2923,7 +2923,9 @@ async function guncellemeleriYukle(){
     }
 
     if(liste.length === 0){
-      guncellemeListe.innerHTML = "Duyuru bulunamadı.";
+      guncellemeListe.innerHTML = arama
+        ? "Aramaya uygun duyuru bulunamadı."
+        : "Henüz duyuru yok.";
       return;
     }
 
@@ -2988,25 +2990,35 @@ async function guncellemeEkle(){
     return;
   }
 
-  const res = await fetch("/updates", {
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json",
-      "x-admin-secret":secret
-    },
-    body:JSON.stringify({ text })
-  });
+  try{
+    const res = await fetch("/updates", {
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "x-admin-secret":secret
+      },
+      body:JSON.stringify({ text })
+    });
 
-  const data = await res.json();
+    const data = await res.json();
 
-  if(!data.ok){
-    alert(data.reply || "Eklenemedi");
-    return;
+    if(!data.ok){
+      alert(data.reply || "Eklenemedi");
+      return;
+    }
+
+    guncellemeYazi.value = "";
+
+    const aramaInput = document.getElementById("guncellemeArama");
+    if(aramaInput) aramaInput.value = "";
+
+    await guncellemeleriYukle();
+    await bildirimleriYukle();
+
+  }catch(err){
+    console.error(err);
+    alert("Duyuru eklenirken bağlantı hatası oldu.");
   }
-
-  guncellemeYazi.value = "";
-  await guncellemeleriYukle();
-  await bildirimleriYukle();
 }
 
 async function guncellemeDuzenle(id){
