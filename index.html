@@ -803,6 +803,85 @@ body::before{
   100%{ transform:translateY(0) scale(1); filter:brightness(1); }
 }
 
+
+/* === Yaklaşan Güncellemeler + Oylama Merkezi === */
+.merkezButonSatir{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin:10px 0;
+}
+.merkezButonSatir button{
+  margin-top:0;
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(255,255,255,.08);
+  color:white;
+  cursor:pointer;
+  font-weight:bold;
+}
+.yaklasanItem,.oylamaItem{
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:16px;
+  padding:12px;
+  margin:10px 0;
+}
+.yaklasanVersiyon{
+  display:inline-flex;
+  padding:7px 11px;
+  border-radius:999px;
+  background:linear-gradient(135deg,#3d7cff,#7b2cff);
+  font-weight:900;
+  box-shadow:0 0 16px rgba(61,124,255,.28);
+}
+.yaklasanDurum{
+  display:inline-flex;
+  margin-left:6px;
+  padding:6px 10px;
+  border-radius:999px;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.10);
+  font-size:12px;
+}
+.oySecenek{
+  width:100%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  margin:7px 0;
+  padding:10px;
+  border-radius:12px;
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.10);
+}
+.oySecenek button{
+  margin-top:0;
+  padding:8px 10px;
+  border-radius:10px;
+}
+.oyBar{
+  height:8px;
+  border-radius:999px;
+  background:rgba(255,255,255,.08);
+  overflow:hidden;
+  margin-top:6px;
+}
+.oyBar span{
+  display:block;
+  height:100%;
+  background:linear-gradient(135deg,#7b2cff,#ff2ca8);
+  width:0%;
+}
+.merkezKapatX{
+  float:right;
+  margin-top:0!important;
+  border-radius:12px!important;
+  padding:8px 11px!important;
+}
+
 </style>
 </head>
 
@@ -885,8 +964,33 @@ body::before{
   <div class="codexUst"><div><div class="codexBaslik">💻 Codex</div><div class="codexAlt">Merhaba, ben Codex. Kodlarını düzeltebilir, açıklayabilir, optimize edebilir ve proje hafızası tutabilirim.</div></div><div class="ustButonlar"><button onclick="codexHafizaKaydet()">🧠 Kod hafızasına kaydet</button><button onclick="codexCevapKopyala()">📋 Cevabı kopyala</button><button onclick="naiDon()">🤖 NeuraAI’ye dön</button></div></div>
   <div class="codexGovde"><div class="codexPanel"><h3>📄 Kod Alanı</h3><input type="file" id="codexDosyaInput" accept=".txt,.html,.css,.js,.json,.md,.py,.java,.c,.cpp" onchange="codexDosyaOku(event)"><textarea id="codexKod" class="codexTextarea" placeholder="Kodunu buraya yapıştır veya dosya yükle..."></textarea><h3>📌 Codex İşlemleri</h3><div class="codexButonGrid"><button onclick="codexGonder('hata')">🔍 Hata Bul</button><button onclick="codexGonder('acikla')">📖 Kodu Açıkla</button><button onclick="codexGonder('optimize')">⚡ Optimize Et</button><button onclick="codexGonder('guvenlik')">🛡️ Güvenlik Açığı Ara</button><button onclick="codexGonder('ozellik')">💡 Özellik Öner</button><button onclick="codexGonder('dosya')">📁 Hangi Dosyaya Ekle?</button><button onclick="codexDilAnalizi('html')">🌐 HTML Analizi</button><button onclick="codexDilAnalizi('css')">🎨 CSS Analizi</button><button onclick="codexDilAnalizi('javascript')">🟨 JavaScript Analizi</button><button onclick="codexDilAnalizi('nodejs')">🟩 Node.js Analizi</button></div><h3>🔁 Dosya Karşılaştırma</h3><textarea id="codexEskiKod" class="codexTextarea codexKucukTextarea" placeholder="Eski kod..."></textarea><textarea id="codexYeniKod" class="codexTextarea codexKucukTextarea" placeholder="Yeni kod..."></textarea><button onclick="codexKarsilastir()">🔁 Dosyaları Karşılaştır</button><h3>📋 Yapılacaklar Listesi</h3><input id="todoInput" class="profilInput" placeholder="Yeni görev yaz..."><button onclick="todoEkle()">Görev ekle</button><div id="todoListe"></div><div id="todoYuzde" class="miniSonuc"></div></div><div class="codexPanel"><h3>🤖 Codex Cevabı</h3><div id="codexCevap" class="codexCevap">Codex hazır. Kodunu gönder, birlikte inceleyelim.</div><h3>🧠 Proje Hafızası</h3><input id="projeHafizaBaslik" class="profilInput" placeholder="Örn: index.html, server.js, sw.js"><button onclick="projeHafizaKaydet()">Projeye kaydet</button><div id="projeHafizaListe"></div></div></div>
 </div>
-<div class="popupArka" id="guncellemePopup"><div class="popup duyuruPanelPopup"><h2>📢 Güncelleme Merkezi</h2><p style="color:#bbb;font-size:13px">Burada sadece kurucu duyuru paylaşır. Kullanıcılar okuyabilir ve emoji bırakabilir.</p><input id="guncellemeArama" class="guncellemeArama" placeholder="🔍 Duyuru ara..." oninput="guncellemeleriYukle()"><textarea id="guncellemeYazi" class="duyuruYazi" placeholder="Sadece kurucu: Eklenen özellikleri yaz... Örn: *v1.2*"></textarea><input id="guncellemeSecret" class="profilInput" type="password" placeholder="Kurucu şifresi"><button onclick="guncellemeEkle()">Duyuru ekle</button><div id="guncellemeListe"></div><button onclick="guncellemePanelKapat()">Kapat</button></div></div>
+<div class="popupArka" id="guncellemePopup"><div class="popup duyuruPanelPopup"><h2>📢 Güncelleme Merkezi</h2><div class="merkezButonSatir"><button onclick="yaklasanPanelAc()">🚀 Yaklaşan Güncellemeler</button><button onclick="oylamaPanelAc()">🗳️ Oylama Merkezi</button></div><p style="color:#bbb;font-size:13px">Burada sadece kurucu duyuru paylaşır. Kullanıcılar okuyabilir ve emoji bırakabilir.</p><input id="guncellemeArama" class="guncellemeArama" placeholder="🔍 Duyuru ara..." oninput="guncellemeleriYukle()"><textarea id="guncellemeYazi" class="duyuruYazi" placeholder="Sadece kurucu: Eklenen özellikleri yaz... Örn: *v1.2*"></textarea><input id="guncellemeSecret" class="profilInput" type="password" placeholder="Kurucu şifresi"><button onclick="guncellemeEkle()">Duyuru ekle</button><div id="guncellemeListe"></div><button onclick="guncellemePanelKapat()">Kapat</button></div></div>
 <div class="popupArka" id="bildirimPopup"><div class="popup duyuruPanelPopup"><h2>🔔 Bildirim Merkezi</h2><div id="bildirimListe"></div><button onclick="bildirimPanelKapat()">Kapat</button></div></div>
+<div class="popupArka" id="yaklasanPopup">
+  <div class="popup duyuruPanelPopup">
+    <button class="merkezKapatX" onclick="yaklasanPanelKapat()">✖</button>
+    <h2>🚀 Yaklaşan Güncellemeler</h2>
+    <p style="color:#bbb;font-size:13px">Burada gelecek sürümler görünür. Kullanıcılar sadece okur.</p>
+    <input id="yaklasanVersiyon" class="profilInput" placeholder="Versiyon: v2.0">
+    <textarea id="yaklasanYazi" class="duyuruYazi" placeholder="Yaklaşan güncelleme açıklaması..."></textarea>
+    <input id="yaklasanSecret" class="profilInput" type="password" placeholder="Kurucu şifresi">
+    <button onclick="yaklasanEkle()">Yaklaşan güncelleme ekle</button>
+    <div id="yaklasanListe"></div>
+  </div>
+</div>
+
+<div class="popupArka" id="oylamaPopup">
+  <div class="popup duyuruPanelPopup">
+    <button class="merkezKapatX" onclick="oylamaPanelKapat()">✖</button>
+    <h2>🗳️ Oylama Merkezi</h2>
+    <p style="color:#bbb;font-size:13px">1 kullanıcı sadece 1 oy verebilir. Oylama 24 saat sürer. Son karar kurucudadır.</p>
+    <input id="oylamaBaslik" class="profilInput" placeholder="Oylama başlığı">
+    <textarea id="oylamaSecenekler" class="duyuruYazi" placeholder="Seçenekleri alt alta yaz. Örn:&#10;Plus Sistemi&#10;Seri Sistemi&#10;NeuraHub"></textarea>
+    <input id="oylamaSecret" class="profilInput" type="password" placeholder="Kurucu şifresi">
+    <button onclick="oylamaEkle()">Oylama başlat</button>
+    <div id="oylamaListe"></div>
+  </div>
+</div>
 
 <div class="guvenlikYazi">
   NeuraAI bir yapay zeka olduğu için hata yapabilir. Önemli bilgileri kontrol ediniz.
@@ -2974,6 +3078,279 @@ async function guncellemeEmoji(id, emoji){
 }
 
 async function bildirimPanelAc(){document.getElementById("bildirimPopup").style.display="flex";await bildirimleriYukle()}function bildirimPanelKapat(){bildirimPopup.style.display="none"}async function bildirimleriYukle(){if(!document.getElementById("bildirimListe"))return;bildirimListe.innerHTML="Yükleniyor...";try{const res=await fetch("/notifications"),data=await res.json();bildirimListe.innerHTML="";(data.notifications||[]).forEach(n=>{const d=document.createElement("div");d.className="bildirimItem";d.innerHTML=`<b>🔔 ${n.title||"Bildirim"}</b><br><small>${new Date(n.time).toLocaleString("tr-TR")}</small><p>${String(n.text||"").replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}</p>`;bildirimListe.appendChild(d)})}catch(e){bildirimListe.innerHTML="Bildirimler alınamadı."}}
+
+
+/* === Yaklaşan Güncellemeler + Oylama Merkezi JS === */
+function merkezEscape(s){
+  return String(s || "").replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+}
+
+function yaklasanPanelAc(){
+  document.getElementById("guncellemePopup").style.display = "none";
+  document.getElementById("yaklasanPopup").style.display = "flex";
+  yaklasanlariYukle();
+}
+
+function yaklasanPanelKapat(){
+  document.getElementById("yaklasanPopup").style.display = "none";
+  document.getElementById("guncellemePopup").style.display = "flex";
+  guncellemeleriYukle();
+}
+
+async function yaklasanlariYukle(){
+  const liste = document.getElementById("yaklasanListe");
+  if(!liste) return;
+  liste.innerHTML = "Yükleniyor...";
+
+  try{
+    const res = await fetch("/upcoming");
+    const data = await res.json();
+    liste.innerHTML = "";
+
+    const items = data.upcoming || [];
+
+    if(items.length === 0){
+      liste.innerHTML = "<p style='color:#bbb'>Henüz yaklaşan güncelleme yok.</p>";
+      return;
+    }
+
+    items.forEach(item => {
+      const d = document.createElement("div");
+      d.className = "yaklasanItem";
+      d.innerHTML = `
+        <div>
+          <span class="yaklasanVersiyon">🚀 ${merkezEscape(item.version || "Yakında")}</span>
+          <span class="yaklasanDurum">${merkezEscape(item.status || "Planlandı")}</span>
+        </div>
+        <p>${merkezEscape(item.text)}</p>
+        <div class="duyuruAksiyonlar">
+          <button onclick="yaklasanDuzenle('${item.id}')">✏️ Düzenle</button>
+          <button onclick="yaklasanSil('${item.id}')">🗑️ Sil</button>
+        </div>
+      `;
+      liste.appendChild(d);
+    });
+  }catch(e){
+    console.error(e);
+    liste.innerHTML = "Yaklaşan güncellemeler alınamadı.";
+  }
+}
+
+async function yaklasanEkle(){
+  const version = document.getElementById("yaklasanVersiyon").value.trim();
+  const text = document.getElementById("yaklasanYazi").value.trim();
+  const secret = document.getElementById("yaklasanSecret").value.trim();
+
+  if(!version || !text || !secret){
+    alert("Versiyon, açıklama ve kurucu şifresi gerekli.");
+    return;
+  }
+
+  const res = await fetch("/upcoming", {
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "x-admin-secret":secret
+    },
+    body:JSON.stringify({ version, text })
+  });
+
+  const data = await res.json();
+
+  if(!data.ok){
+    alert(data.reply || "Eklenemedi");
+    return;
+  }
+
+  document.getElementById("yaklasanVersiyon").value = "";
+  document.getElementById("yaklasanYazi").value = "";
+  await yaklasanlariYukle();
+}
+
+async function yaklasanDuzenle(id){
+  const version = prompt("Yeni versiyon:");
+  if(version === null) return;
+
+  const text = prompt("Yeni açıklama:");
+  if(text === null) return;
+
+  const secret = adminSecretAl();
+  if(!secret) return;
+
+  const res = await fetch("/upcoming/" + encodeURIComponent(id), {
+    method:"PUT",
+    headers:{
+      "Content-Type":"application/json",
+      "x-admin-secret":secret
+    },
+    body:JSON.stringify({ version, text })
+  });
+
+  const data = await res.json();
+
+  if(!data.ok){
+    alert(data.reply || "Düzenlenemedi");
+    return;
+  }
+
+  await yaklasanlariYukle();
+}
+
+async function yaklasanSil(id){
+  if(!confirm("Bu yaklaşan güncelleme silinsin mi?")) return;
+
+  const secret = adminSecretAl();
+  if(!secret) return;
+
+  const res = await fetch("/upcoming/" + encodeURIComponent(id), {
+    method:"DELETE",
+    headers:{ "x-admin-secret":secret }
+  });
+
+  const data = await res.json();
+
+  if(!data.ok){
+    alert(data.reply || "Silinemedi");
+    return;
+  }
+
+  await yaklasanlariYukle();
+}
+
+function oylamaPanelAc(){
+  document.getElementById("guncellemePopup").style.display = "none";
+  document.getElementById("oylamaPopup").style.display = "flex";
+  oylamalariYukle();
+}
+
+function oylamaPanelKapat(){
+  document.getElementById("oylamaPopup").style.display = "none";
+  document.getElementById("guncellemePopup").style.display = "flex";
+  guncellemeleriYukle();
+}
+
+async function oylamalariYukle(){
+  const liste = document.getElementById("oylamaListe");
+  if(!liste) return;
+  liste.innerHTML = "Yükleniyor...";
+
+  try{
+    const res = await fetch("/polls");
+    const data = await res.json();
+    const polls = data.polls || [];
+    liste.innerHTML = "";
+
+    if(polls.length === 0){
+      liste.innerHTML = "<p style='color:#bbb'>Henüz aktif oylama yok.</p>";
+      return;
+    }
+
+    polls.forEach(poll => {
+      const bitti = Date.now() > Number(poll.endsAt || 0);
+      const toplamOy = (poll.options || []).reduce((a,o) => a + Number(o.votes || 0), 0);
+      const d = document.createElement("div");
+      d.className = "oylamaItem";
+
+      let html = `
+        <b>🗳️ ${merkezEscape(poll.title)}</b>
+        <div class="duyuruTarih">${bitti ? "⏱️ Oylama bitti" : "⏳ Oylama devam ediyor"} • Toplam oy: ${toplamOy}</div>
+      `;
+
+      (poll.options || []).forEach(opt => {
+        const oran = toplamOy > 0 ? Math.round((Number(opt.votes || 0) / toplamOy) * 100) : 0;
+        html += `
+          <div class="oySecenek">
+            <span>${merkezEscape(opt.text)} — ${opt.votes || 0} oy</span>
+            <button ${bitti ? "disabled" : ""} onclick="oyVer('${poll.id}','${opt.id}')">Oy ver</button>
+          </div>
+          <div class="oyBar"><span style="width:${oran}%"></span></div>
+        `;
+      });
+
+      html += `
+        <div class="duyuruAksiyonlar">
+          <button onclick="oylamaSil('${poll.id}')">🗑️ Oylamayı sil</button>
+        </div>
+      `;
+
+      d.innerHTML = html;
+      liste.appendChild(d);
+    });
+  }catch(e){
+    console.error(e);
+    liste.innerHTML = "Oylamalar alınamadı.";
+  }
+}
+
+async function oylamaEkle(){
+  const title = document.getElementById("oylamaBaslik").value.trim();
+  const raw = document.getElementById("oylamaSecenekler").value.trim();
+  const secret = document.getElementById("oylamaSecret").value.trim();
+  const options = raw.split(/\n|,/).map(x => x.trim()).filter(Boolean);
+
+  if(!title || options.length < 2 || !secret){
+    alert("Başlık, en az 2 seçenek ve kurucu şifresi gerekli.");
+    return;
+  }
+
+  const res = await fetch("/polls", {
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "x-admin-secret":secret
+    },
+    body:JSON.stringify({ title, options, durationHours:24 })
+  });
+
+  const data = await res.json();
+
+  if(!data.ok){
+    alert(data.reply || "Oylama oluşturulamadı");
+    return;
+  }
+
+  document.getElementById("oylamaBaslik").value = "";
+  document.getElementById("oylamaSecenekler").value = "";
+  await oylamalariYukle();
+}
+
+async function oyVer(pollId, optionId){
+  const res = await fetch("/polls/" + encodeURIComponent(pollId) + "/vote", {
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({ optionId })
+  });
+
+  const data = await res.json();
+
+  if(!data.ok){
+    alert(data.reply || "Oy verilemedi");
+    return;
+  }
+
+  await oylamalariYukle();
+}
+
+async function oylamaSil(id){
+  if(!confirm("Bu oylama silinsin mi?")) return;
+
+  const secret = adminSecretAl();
+  if(!secret) return;
+
+  const res = await fetch("/polls/" + encodeURIComponent(id), {
+    method:"DELETE",
+    headers:{ "x-admin-secret":secret }
+  });
+
+  const data = await res.json();
+
+  if(!data.ok){
+    alert(data.reply || "Silinemedi");
+    return;
+  }
+
+  await oylamalariYukle();
+}
 
 
 yukleKayit();
