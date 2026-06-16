@@ -122,14 +122,71 @@ function bildirimEkle(title, text){
   neuraNotifications = neuraNotifications.slice(-50);
 }
 
-function sistemPromptOlustur(konusmaModu){
+function aiModelProfili(aiModelTipi){
+  const tip = String(aiModelTipi || "akilli").toLowerCase();
+
+  if(tip === "hizli"){
+    return {
+      ad:"Hızlı",
+      model:process.env.OPENROUTER_FAST_MODEL || "openai/gpt-4o-mini",
+      maxKisa:650,
+      maxUzun:1600,
+      prompt:"Cevapları hızlı, kısa, net ve pratik ver. Gereksiz uzatma. Kullanıcı kod istiyorsa direkt uygulanabilir anlat."
+    };
+  }
+
+  if(tip === "yaratici"){
+    return {
+      ad:"Yaratıcı",
+      model:process.env.OPENROUTER_CREATIVE_MODEL || "openai/gpt-4o-mini",
+      maxKisa:1200,
+      maxUzun:2600,
+      prompt:"Daha yaratıcı, fikir odaklı ve enerjik cevap ver. Kullanıcı proje fikri istiyorsa sıradan değil, özgün seçenekler üret."
+    };
+  }
+
+  if(tip === "kod"){
+    return {
+      ad:"Kod",
+      model:process.env.OPENROUTER_CODE_MODEL || "openai/gpt-4o-mini",
+      maxKisa:1400,
+      maxUzun:3200,
+      prompt:"Kod ve hata çözümüne odaklan. Gerektiğinde dosya, fonksiyon, endpoint ve yerleştirme mantığını net söyle. Yanlış tahmin yapma; emin değilsen belirt."
+    };
+  }
+
+  return {
+    ad:"Akıllı",
+    model:process.env.OPENROUTER_SMART_MODEL || "openai/gpt-4o-mini",
+    maxKisa:1100,
+    maxUzun:2800,
+    prompt:"Dengeli, akıllı, bağlamı güçlü takip eden ve kaliteli cevap ver. Kullanıcının önceki mesajlarını dikkatle yorumla."
+  };
+}
+
+function baglamsalRandomEmojiKurallari(){
+  return (
+    "Emoji ve random mesajları bağlama göre yorumla. " +
+    "😭 emojisi her zaman üzülmek değildir; Türkçe internet dilinde gülme, aşırı şaşırma, sevinç veya abartı anlamına da gelebilir. " +
+    "AHAHA, PUHAHA, hdhshd, asdfghjkl, random harfler, büyük harfli patlamalar çoğu zaman gülme veya heyecan belirtisidir. " +
+    "Kullanıcı sadece random harf yazarsa direkt 'anlamadım' deme; önce bağlama bak. Önceki konu komikse gülme olarak yorumla. " +
+    "Önceki konu stresliyse klavye karışmış olabilir diye kısa ve doğal cevap ver. " +
+    "Kullanıcı gerçekten üzgün olduğunu açıkça yazmadıkça sadece emojiye bakıp 'üzülmüş gibisin' deme. "
+  );
+}
+
+function sistemPromptOlustur(konusmaModu, aiModelTipi){
+  const profil = aiModelProfili(aiModelTipi);
+
   const temel =
     "Sen NeuraAI adında net, yardımcı ve güvenli bir yapay zekasın. " +
     "Kullanıcı Türkçe yazarsa Türkçe cevap ver. Kullanıcı İngilizce, Arapça veya başka bir dilde yazarsa o dile uygun cevap ver. " +
     "Önceki konuşmaları güçlü şekilde dikkate al. Kullanıcı 'onu', 'az önceki', 'bununla', 'sonucu' gibi şeyler derse önceki mesajlardan anlam çıkar. Uzun konuşmalarda konu, kararlar, kodlar, hatalar ve kullanıcı tercihlerini takip et. " +
     "Kullanıcıya teknik sistem açıklaması yapma. " +
     "Seni 13 yaşındaki Göktürk Arslan geliştirdi. Kullanıcı seni kimin yaptığını, kurduğunu, geliştirdiğini veya oluşturduğunu sorarsa Göktürk Arslan tarafından geliştirildiğini söyle. " +
-    "Küfür, hakaret veya argo kelimelerde tek kelimeye göre karar verme; cümlenin tamamını yorumla. Kullanıcı birinin ona ne dediğini aktarıyorsa, örnek veriyorsa veya anlamını soruyorsa normal yardımcı cevap ver. Sadece doğrudan saldırı varsa sakin şekilde sınır koy. ";
+    "Küfür, hakaret veya argo kelimelerde tek kelimeye göre karar verme; cümlenin tamamını yorumla. Kullanıcı birinin ona ne dediğini aktarıyorsa, örnek veriyorsa veya anlamını soruyorsa normal yardımcı cevap ver. Sadece doğrudan saldırı varsa sakin şekilde sınır koy. " +
+    baglamsalRandomEmojiKurallari() +
+    " Seçili AI modu: " + profil.ad + ". " + profil.prompt + " ";
 
   if(konusmaModu === "codex"){
     return temel +
@@ -189,7 +246,7 @@ async function pollinationsGorselAl(prompt, size){
 
 app.post("/chat", async (req, res) => {
   try{
-    const { message, messages, mode, konusmaModu } = req.body || {};
+    const { message, messages, mode, konusmaModu, aiModelTipi } = req.body || {};
     const ip = ipAl(req);
     const simdi = Date.now();
 
@@ -243,6 +300,8 @@ app.post("/chat", async (req, res) => {
       ? konusmaModu
       : "samimi";
 
+    const secilenAiModel = aiModelProfili(aiModelTipi);
+
     const aiRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -250,12 +309,12 @@ app.post("/chat", async (req, res) => {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "openai/gpt-4o-mini",
-        max_tokens: mode === "uzun" ? 2500 : 1000,
+        model: secilenAiModel.model,
+        max_tokens: mode === "uzun" ? secilenAiModel.maxUzun : secilenAiModel.maxKisa,
         messages: [
           {
             role: "system",
-            content: sistemPromptOlustur(secilenMod)
+            content: sistemPromptOlustur(secilenMod, aiModelTipi)
           },
           ...hafiza
         ]
@@ -279,6 +338,63 @@ app.post("/chat", async (req, res) => {
   }catch(err){
     console.error(err);
     res.json({ reply: "Hata oluştu." });
+  }
+});
+
+app.post("/smart-title", async (req, res) => {
+  try{
+    const message = temizMesaj(req.body?.message || "").trim();
+    const reply = temizMesaj(req.body?.reply || "").trim();
+
+    if(!message){
+      return res.json({ ok:false, title:"" });
+    }
+
+    if(!process.env.OPENROUTER_API_KEY){
+      const local = message.split(/\s+/).slice(0, 4).join(" ");
+      return res.json({ ok:true, title: local || "Yeni Sohbet" });
+    }
+
+    const aiRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method:"POST",
+      headers:{
+        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify({
+        model: process.env.OPENROUTER_FAST_MODEL || "openai/gpt-4o-mini",
+        max_tokens: 30,
+        messages:[
+          {
+            role:"system",
+            content:"Sadece Türkçe, kısa bir sohbet başlığı üret. En fazla 4 kelime. Emoji kullanabilirsin. Tırnak, nokta, açıklama yazma."
+          },
+          {
+            role:"user",
+            content:"Kullanıcı mesajı: " + message + "\nAI cevabı: " + reply.slice(0, 500)
+          }
+        ]
+      })
+    });
+
+    const data = await aiRes.json().catch(() => ({}));
+    let title = data.choices?.[0]?.message?.content || "";
+
+    title = String(title)
+      .replace(/["'`]/g, "")
+      .replace(/\n/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 38);
+
+    if(!title){
+      title = message.split(/\s+/).slice(0, 4).join(" ") || "Yeni Sohbet";
+    }
+
+    res.json({ ok:true, title });
+  }catch(err){
+    console.error("smart-title hata:", err);
+    res.json({ ok:false, title:"" });
   }
 });
 
@@ -555,7 +671,6 @@ app.post("/updates/emoji", (req, res) => {
   });
 });
 
-
 app.get("/upcoming", (req, res) => {
   res.json({
     upcoming: neuraUpcoming.slice().reverse()
@@ -750,7 +865,6 @@ app.delete("/polls/:id", (req, res) => {
 
   res.json({ ok:true });
 });
-
 
 app.get("/notifications", (req, res) => {
   res.json({
