@@ -2,6 +2,84 @@ const fetch = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
 
 const express = require("express");
+const fs = require("fs");
+const path = require("path");
+
+const DATA_FILE = path.join(__dirname, "neura-data.json");
+
+function varsayilanYaklasanlar(){
+  return [
+    {
+      id: "v2-plan",
+      version: "v2.0",
+      text: "Plus Plan, Pro Plan ve Profesör Modu hazırlanıyor.",
+      status: "Planlandı",
+      time: Date.now()
+    },
+    {
+      id: "v21-plan",
+      version: "v2.1",
+      text: "Günlük Seri Sistemi ve ödüller hazırlanıyor.",
+      status: "Planlandı",
+      time: Date.now()
+    },
+    {
+      id: "v3-plan",
+      version: "v3.0",
+      text: "Topluluk Odası / NeuraHub sistemi planlanıyor.",
+      status: "Planlandı",
+      time: Date.now()
+    }
+  ];
+}
+
+function veriOku(){
+  try{
+    if(!fs.existsSync(DATA_FILE)){
+      return {
+        updates: [],
+        notifications: [],
+        upcoming: varsayilanYaklasanlar(),
+        polls: []
+      };
+    }
+
+    const raw = fs.readFileSync(DATA_FILE, "utf8");
+    const data = JSON.parse(raw || "{}");
+
+    return {
+      updates: Array.isArray(data.updates) ? data.updates : [],
+      notifications: Array.isArray(data.notifications) ? data.notifications : [],
+      upcoming: Array.isArray(data.upcoming) && data.upcoming.length > 0 ? data.upcoming : varsayilanYaklasanlar(),
+      polls: Array.isArray(data.polls) ? data.polls : []
+    };
+  }catch(err){
+    console.error("Veri okuma hatası:", err);
+    return {
+      updates: [],
+      notifications: [],
+      upcoming: varsayilanYaklasanlar(),
+      polls: []
+    };
+  }
+}
+
+function veriKaydet(){
+  try{
+    const data = {
+      updates: neuraUpdates,
+      notifications: neuraNotifications,
+      upcoming: neuraUpcoming,
+      polls: neuraPolls
+    };
+
+    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), "utf8");
+  }catch(err){
+    console.error("Veri kaydetme hatası:", err);
+  }
+}
+
+const kayitliVeri = veriOku();
 
 const app = express();
 
@@ -11,32 +89,10 @@ app.set("trust proxy", true);
 let kullaniciSonMesaj = {};
 let kullaniciVerisi = {};
 let kullaniciLimit = {};
-let neuraUpdates = [];
-let neuraNotifications = [];
-let neuraUpcoming = [
-  {
-    id: "v2-plan",
-    version: "v2.0",
-    text: "Plus Plan, Pro Plan ve Profesör Modu hazırlanıyor.",
-    status: "Planlandı",
-    time: Date.now()
-  },
-  {
-    id: "v21-plan",
-    version: "v2.1",
-    text: "Günlük Seri Sistemi ve ödüller hazırlanıyor.",
-    status: "Planlandı",
-    time: Date.now()
-  },
-  {
-    id: "v3-plan",
-    version: "v3.0",
-    text: "Topluluk Odası / NeuraHub sistemi planlanıyor.",
-    status: "Planlandı",
-    time: Date.now()
-  }
-];
-let neuraPolls = [];
+let neuraUpdates = kayitliVeri.updates || [];
+let neuraNotifications = kayitliVeri.notifications || [];
+let neuraUpcoming = kayitliVeri.upcoming || varsayilanYaklasanlar();
+let neuraPolls = kayitliVeri.polls || [];
 
 function ipAl(req){
   const forwarded = req.headers["x-forwarded-for"];
@@ -120,6 +176,7 @@ function bildirimEkle(title, text){
   });
 
   neuraNotifications = neuraNotifications.slice(-50);
+  veriKaydet();
 }
 
 function aiModelProfili(aiModelTipi){
@@ -557,6 +614,7 @@ app.post("/updates", (req, res) => {
   neuraUpdates = neuraUpdates.slice(-50);
 
   bildirimEkle("Yeni güncelleme yayınlandı", text);
+  veriKaydet();
 
   res.json({
     ok:true,
@@ -590,6 +648,7 @@ app.put("/updates/:id", (req, res) => {
   item.editedTime = Date.now();
 
   bildirimEkle("Bir güncelleme düzenlendi", text);
+  veriKaydet();
 
   res.json({
     ok:true,
@@ -613,6 +672,7 @@ app.delete("/updates/:id", (req, res) => {
   }
 
   neuraNotifications = neuraNotifications.filter(n => n.id !== id);
+  veriKaydet();
 
   res.json({
     ok:true
@@ -664,6 +724,7 @@ app.post("/updates/emoji", (req, res) => {
 
   item.reactedUsers[userKey] = emoji;
   item.reactions[emoji] = (item.reactions[emoji] || 0) + 1;
+  veriKaydet();
 
   res.json({
     ok:true,
@@ -701,6 +762,7 @@ app.post("/upcoming", (req, res) => {
 
   neuraUpcoming.push(item);
   neuraUpcoming = neuraUpcoming.slice(-30);
+  veriKaydet();
 
   res.json({
     ok:true,
@@ -735,6 +797,7 @@ app.put("/upcoming/:id", (req, res) => {
   item.text = text;
   item.status = status || "Planlandı";
   item.editedTime = Date.now();
+  veriKaydet();
 
   res.json({
     ok:true,
@@ -755,6 +818,7 @@ app.delete("/upcoming/:id", (req, res) => {
     });
   }
 
+  veriKaydet();
   res.json({ ok:true });
 });
 
@@ -798,6 +862,7 @@ app.post("/polls", (req, res) => {
 
   neuraPolls.push(poll);
   neuraPolls = neuraPolls.slice(-20);
+  veriKaydet();
 
   res.json({
     ok:true,
@@ -843,6 +908,7 @@ app.post("/polls/:id/vote", (req, res) => {
 
   poll.voters[userKey] = optionId;
   option.votes++;
+  veriKaydet();
 
   res.json({
     ok:true,
@@ -863,6 +929,7 @@ app.delete("/polls/:id", (req, res) => {
     });
   }
 
+  veriKaydet();
   res.json({ ok:true });
 });
 
