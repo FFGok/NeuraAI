@@ -882,6 +882,41 @@ body::before{
   padding:8px 11px!important;
 }
 
+/* === NeuraAI Model + Akıllı Sistemler === */
+.aiModelSec{
+  background:rgba(255,255,255,0.06);
+  color:white;
+  border:1px solid rgba(255,255,255,0.09);
+  border-radius:12px;
+  padding:10px 12px;
+  cursor:pointer;
+  outline:none;
+  font-weight:bold;
+}
+.aiModelSec option{
+  color:black;
+}
+.duzenlendiEtiket{
+  display:inline-block;
+  margin-top:6px;
+  padding:4px 8px;
+  border-radius:999px;
+  background:rgba(255,255,255,.08);
+  color:#bbb;
+  font-size:11px;
+}
+.modelBilgiMini{
+  color:#bbb;
+  font-size:12px;
+  margin-top:4px;
+}
+@media(max-width:700px){
+  .aiModelSec{
+    width:100%;
+    font-size:13px;
+  }
+}
+
 </style>
 </head>
 
@@ -931,6 +966,12 @@ body::before{
       </div>
 
       <div class="ustButonlar">
+        <select id="aiModelSec" class="aiModelSec" onchange="aiModelDegisti()">
+          <option value="hizli">⚡ Hızlı</option>
+          <option value="akilli">🧠 Akıllı</option>
+          <option value="yaratici">🎨 Yaratıcı</option>
+          <option value="kod">💻 Kod</option>
+        </select>
         <button onclick="sohbetiTemizle()">Temizle</button>
         <button onclick="kaydet()">Kaydet</button>
         <button onclick="kisaMod()">Kısa Mod</button>
@@ -1379,6 +1420,29 @@ let konusmaModu =
 localStorage.getItem("neura_konusma_modu")
 || "samimi";
 
+let aiModelTipi =
+localStorage.getItem("neura_ai_model_tipi")
+|| "akilli";
+
+function aiModelAdiYaz(tip){
+  if(tip === "hizli") return "⚡ Hızlı";
+  if(tip === "yaratici") return "🎨 Yaratıcı";
+  if(tip === "kod") return "💻 Kod";
+  return "🧠 Akıllı";
+}
+
+function aiModelDegisti(){
+  const sec = document.getElementById("aiModelSec");
+  aiModelTipi = sec ? sec.value : "akilli";
+  localStorage.setItem("neura_ai_model_tipi", aiModelTipi);
+  sistemMesaji("🤖 AI modeli değişti: " + aiModelAdiYaz(aiModelTipi));
+}
+
+setTimeout(() => {
+  const sec = document.getElementById("aiModelSec");
+  if(sec) sec.value = aiModelTipi;
+}, 0);
+
 function modPanelAc(){
   document.getElementById("modPopup").style.display = "flex";
 }
@@ -1826,14 +1890,89 @@ function mesajSil(msgId){
   sohbetleriKaydet();
   sohbetAc(aktif.id);
 }
-function mesajDuzenle(msgId){
+async function mesajDuzenle(msgId){
+  const aktif = aktifSohbetBul();
   const m = mesajBul(msgId);
-  if(!m) return;
-  const yeni = prompt("Mesajı düzenle:", m.text || "");
+  if(!aktif || !m) return;
+
+  const eski = m.text || "";
+  const yeni = prompt("Mesajı düzenle:", eski);
   if(yeni === null) return;
-  m.text = yeni;
+
+  const temizYeni = yeni.trim();
+  if(!temizYeni){
+    sistemMesaji("Boş mesaj kaydedilmez.");
+    return;
+  }
+
+  m.text = temizYeni;
+  m.duzenlendi = true;
+  m.duzenlenmeZamani = Date.now();
+
   sohbetleriKaydet();
   sohbetAc(aktifSohbetId);
+
+  if(m.kim !== "user"){
+    sistemMesaji("Mesaj düzenlendi.");
+    return;
+  }
+
+  if(confirm("Bu mesajdan sonraki AI cevabı yeniden oluşturulsun mu?")){
+    await mesajdanSonraTekrarCevapla(msgId);
+  }
+}
+
+async function mesajdanSonraTekrarCevapla(msgId){
+  const aktif = aktifSohbetBul();
+  if(!aktif) return;
+
+  const index = aktif.mesajlar.findIndex(x => x.id === msgId);
+  if(index < 0) return;
+
+  aktif.mesajlar = aktif.mesajlar.slice(0, index + 1);
+  sohbetleriKaydet();
+  sohbetAc(aktif.id);
+
+  const sonUser = aktif.mesajlar[index]?.text || "";
+  const loading = yaziyorEfektiGoster();
+
+  sohbetGecmisi = aktif.mesajlar
+    .filter(m => m.kim === "user" || m.kim === "ai")
+    .map(m => ({
+      role: m.kim === "user" ? "user" : "assistant",
+      content: m.text
+    }))
+    .slice(-80);
+
+  try{
+    const res = await fetch("/chat", {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify({
+        message:sonUser,
+        mode:cevapModu,
+        konusmaModu:konusmaModu,
+        aiModelTipi:aiModelTipi,
+        messages:sohbetGecmisi
+      })
+    });
+
+    const data = await res.json();
+    yaziyorEfektiKapat(loading);
+
+    if(data.reply){
+      sohbetGecmisi.push({ role:"assistant", content:data.reply });
+      sohbetGecmisi = sohbetGecmisi.slice(-80);
+      await cevap(data.reply, true);
+      await akilliBaslikOlustur(sonUser, data.reply);
+    }else{
+      await cevap("Cevap gelmedi.", true);
+    }
+  }catch(err){
+    yaziyorEfektiKapat(loading);
+    await cevap("Bağlantı hatası.", true);
+    console.error(err);
+  }
 }
 function mesajBegen(msgId, deger){
   const m = mesajBul(msgId);
@@ -1893,6 +2032,16 @@ function mesajEkle(text, kim, foto = null, extraClass = "", kopyala = false, msg
     const yazi = document.createElement("div");
     yazi.innerText = text;
     balon.appendChild(yazi);
+
+    if(msgId){
+      const aktifMsg = mesajBul(msgId);
+      if(aktifMsg && aktifMsg.duzenlendi){
+        const etiket = document.createElement("span");
+        etiket.className = "duzenlendiEtiket";
+        etiket.innerText = "düzenlendi";
+        balon.appendChild(etiket);
+      }
+    }
 
     if(kopyala && kim === "ai"){
       const btn = document.createElement("button");
@@ -1981,6 +2130,63 @@ function sohbetleriKaydet(){
   }
 }
 
+function yerelAkilliBaslik(text){
+  const t = (text || "").toLowerCase();
+
+  if(t.includes("roblox")) return "🎮 Roblox Projesi";
+  if(t.includes("minecraft")) return "⛏️ Minecraft Sohbeti";
+  if(t.includes("python")) return "🐍 Python";
+  if(t.includes("html") || t.includes("css") || t.includes("javascript") || t.includes("js")) return "💻 Kodlama";
+  if(t.includes("hata") || t.includes("bug")) return "🐞 Hata Çözümü";
+  if(t.includes("yapay zeka") || t.includes("ai") || t.includes("neuraai")) return "🤖 Yapay Zeka";
+  if(t.includes("ders") || t.includes("ödev") || t.includes("odev")) return "📚 Ders Yardımı";
+  if(t.includes("reklam") || t.includes("youtube")) return "🎬 Reklam Planı";
+  if(t.includes("plus") || t.includes("pro")) return "💎 Plan Sistemi";
+  if(t.includes("görsel") || t.includes("gorsel") || t.includes("çiz") || t.includes("ciz")) return "🎨 Görsel";
+  if(t.includes("selam") || t.includes("merhaba")) return "👋 Selamlaşma";
+
+  const temiz = (text || "")
+    .replace(/[^\p{L}\p{N}\s]/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if(!temiz) return "Yeni Sohbet";
+
+  const kelimeler = temiz.split(" ").filter(k => k.length > 1).slice(0, 4);
+  return kelimeler.length ? kelimeler.join(" ") : "Yeni Sohbet";
+}
+
+async function akilliBaslikOlustur(ilkMesaj, aiCevap){
+  const aktif = aktifSohbetBul();
+  if(!aktif || aktif.akilliBaslik) return;
+
+  const userMesajSayisi = (aktif.mesajlar || []).filter(m => m.kim === "user").length;
+  if(userMesajSayisi > 2) return;
+
+  try{
+    const res = await fetch("/smart-title", {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify({
+        message:ilkMesaj,
+        reply:aiCevap
+      })
+    });
+
+    const data = await res.json();
+
+    if(data.ok && data.title){
+      aktif.baslik = data.title.slice(0, 38);
+      aktif.akilliBaslik = true;
+      sohbetleriKaydet();
+      sohbetleriGoster();
+    }
+  }catch(err){
+    console.log("Akıllı başlık oluşturulamadı:", err);
+  }
+}
+
+
 function mesajiSohbeteKaydet(text, kim, foto = null){
   const aktif = aktifSohbetBul();
   if(!aktif) return;
@@ -1991,34 +2197,10 @@ function mesajiSohbeteKaydet(text, kim, foto = null){
     profilIstatistikEkle("sohbet");
   }
 
-if(kim === "user" && aktif.baslik === "Yeni Sohbet"){
-
-  const t = (text || "").toLowerCase();
-
-  if(t.includes("selam") || t.includes("merhaba")){
-    aktif.baslik = "Selamlaşma Sohbeti";
-
-  }else if(t.includes("nasılsın") || t.includes("nasilsin")){
-    aktif.baslik = "Günlük Sohbet";
-
-  }else if(t.includes("minecraft")){
-    aktif.baslik = "Minecraft Sohbeti";
-
-  }else if(t.includes("python")){
-    aktif.baslik = "Python Öğrenme";
-
-  }else if(t.includes("yapay zeka") || t.includes("ai")){
-    aktif.baslik = "Yapay Zeka Sohbeti";
-
-  }else{
-
-    aktif.baslik =
-      text
-      .split(" ")
-      .slice(0,3)
-      .join(" ");
+if(kim === "user" && (!aktif.akilliBaslik || aktif.baslik === "Yeni Sohbet")){
+    aktif.baslik = yerelAkilliBaslik(text);
+    aktif.akilliBaslik = false;
   }
-}
 
   sohbetleriKaydet();
   sohbetleriGoster();
@@ -2172,6 +2354,7 @@ const yeni = {
   gizli: false,
   sifre: "",
   kilitli: false,
+  akilliBaslik: false,
   mesajlar: []
 };
   tumSohbetler.unshift(yeni);
@@ -2517,6 +2700,7 @@ async function gonder(){
   gizli: false,
   sifre: "",
   kilitli: false,
+  akilliBaslik: false,
   mesajlar: []
 });
 
@@ -2545,11 +2729,8 @@ async function gonder(){
   mesajEkle(userMesaj, "user", gonderilenFoto);
   mesajiSohbeteKaydet(userMesaj, "user", gonderilenFoto);
 
-  if(randomMesajMi(m)){
-    await cevap("Ne demek istediğini biraz daha açık yaz.", true);
-    fotoTemizle();
-    return;
-  }
+  // Random/emoji mesajlar artık direkt engellenmiyor.
+  // NeuraAI bağlama göre bunun gülme, şaşırma, sevinç veya klavye karışması olduğunu anlayacak.
 
   if(m.includes("uzun cevap ver")){
     uzunMod();
@@ -2588,6 +2769,7 @@ async function gonder(){
         message:mesaj,
         mode:cevapModu,
         konusmaModu:konusmaModu,
+        aiModelTipi:aiModelTipi,
         messages:sohbetGecmisi
       })
     });
@@ -2603,6 +2785,7 @@ async function gonder(){
 
       sohbetGecmisi = sohbetGecmisi.slice(-80);
       await cevap(data.reply, true);
+      await akilliBaslikOlustur(mesaj, data.reply);
     }else{
       await cevap("Cevap gelmedi.", true);
     }
