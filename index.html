@@ -917,12 +917,27 @@ body::before{
   }
 }
 
+
+/* === Özel AI Karakterleri + Eklenenler === */
+.ozelAiBaslikSatir{display:flex;align-items:center;justify-content:space-between;gap:6px;color:#bbb;font-size:13px;margin-top:6px}
+.ozelAiBaslikSatir button{background:rgba(255,255,255,0.08);color:white;border:1px solid rgba(255,255,255,0.10);border-radius:10px;padding:6px 8px;cursor:pointer;font-size:12px}
+.ozelAiItem{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:10px;cursor:pointer;transition:.2s;color:white;font-size:13px}
+.ozelAiItem:hover{background:rgba(255,255,255,0.10)}
+.ozelAiItem.aktif{background:rgba(255,179,0,0.16);border-color:rgba(255,179,0,0.40)}
+.ozelAiMini{color:#bbb;font-size:11px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.karakterBtn{position:fixed;right:18px;bottom:186px;z-index:100000;background:linear-gradient(135deg,#00c2ff,#7b2cff);color:white;border:1px solid rgba(255,255,255,0.10);border-radius:12px;padding:10px 12px;cursor:pointer;font-weight:bold}
+.eklenenBtn{position:fixed;right:18px;bottom:74px;z-index:100000;background:linear-gradient(135deg,#ffb300,#ff2ca8);color:white;border:1px solid rgba(255,255,255,0.10);border-radius:12px;padding:10px 12px;cursor:pointer;font-weight:bold}
+.kazananRozeti{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:999px;background:linear-gradient(135deg,#ffb300,#ff2ca8);color:white;font-weight:900;letter-spacing:.5px;box-shadow:0 0 18px rgba(255,179,0,.35);animation:kazananParla 1.8s ease-in-out infinite;margin-bottom:8px}
+@keyframes kazananParla{0%{transform:translateY(0) scale(1);filter:brightness(1)}50%{transform:translateY(-1px) scale(1.04);filter:brightness(1.18)}100%{transform:translateY(0) scale(1);filter:brightness(1)}}
+@media(max-width:700px){.karakterBtn{right:10px;bottom:168px}.eklenenBtn{right:10px;bottom:64px}}
+
 </style>
 </head>
 
 <body>
+<button class="karakterBtn" onclick="ozelAiPanelAc()">🤖 AI Oluştur</button>
 <button class="oylamaBtn" onclick="oylamaPanelAc()">🗳️ Oylama</button>
-<button class="bildirimBtn" onclick="bildirimPanelAc()">🔔 Bildirim</button>
+<button class="eklenenBtn" onclick="eklenenPanelAc()">🎉 Eklenenler</button>
 <button class="duyuruBtn" onclick="guncellemePanelAc()">📢 Güncellemeler</button>
 <button class="miniAracBtn" onclick="miniAracPanelAc()" title="Mini Araçlar">🧰</button>
 <div class="splashScreen">
@@ -945,6 +960,12 @@ body::before{
       <button class="sidebarMiniBtn" onclick="aktifSohbetiYenidenAdlandir()">✏️ Sohbet adını değiştir</button>
       <button class="sidebarMiniBtn" onclick="sohbetiPdfIndir()">📄 PDF indir</button>
     </div>
+
+    <div class="ozelAiBaslikSatir">
+      <span>🤖 Özel AI'lar</span>
+      <button onclick="ozelAiPanelAc()">➕</button>
+    </div>
+    <div id="ozelAiListesi" class="sohbetListesi"></div>
 
     <div class="gecmisBaslik">⭐ Favori Sohbetler</div>
     <div id="favoriListesi" class="sohbetListesi"></div>
@@ -1007,7 +1028,17 @@ body::before{
   <div class="codexGovde"><div class="codexPanel"><h3>📄 Kod Alanı</h3><input type="file" id="codexDosyaInput" accept=".txt,.html,.css,.js,.json,.md,.py,.java,.c,.cpp" onchange="codexDosyaOku(event)"><textarea id="codexKod" class="codexTextarea" placeholder="Kodunu buraya yapıştır veya dosya yükle..."></textarea><h3>📌 Codex İşlemleri</h3><div class="codexButonGrid"><button onclick="codexGonder('hata')">🔍 Hata Bul</button><button onclick="codexGonder('acikla')">📖 Kodu Açıkla</button><button onclick="codexGonder('optimize')">⚡ Optimize Et</button><button onclick="codexGonder('guvenlik')">🛡️ Güvenlik Açığı Ara</button><button onclick="codexGonder('ozellik')">💡 Özellik Öner</button><button onclick="codexGonder('dosya')">📁 Hangi Dosyaya Ekle?</button><button onclick="codexDilAnalizi('html')">🌐 HTML Analizi</button><button onclick="codexDilAnalizi('css')">🎨 CSS Analizi</button><button onclick="codexDilAnalizi('javascript')">🟨 JavaScript Analizi</button><button onclick="codexDilAnalizi('nodejs')">🟩 Node.js Analizi</button></div><h3>🔁 Dosya Karşılaştırma</h3><textarea id="codexEskiKod" class="codexTextarea codexKucukTextarea" placeholder="Eski kod..."></textarea><textarea id="codexYeniKod" class="codexTextarea codexKucukTextarea" placeholder="Yeni kod..."></textarea><button onclick="codexKarsilastir()">🔁 Dosyaları Karşılaştır</button><h3>📋 Yapılacaklar Listesi</h3><input id="todoInput" class="profilInput" placeholder="Yeni görev yaz..."><button onclick="todoEkle()">Görev ekle</button><div id="todoListe"></div><div id="todoYuzde" class="miniSonuc"></div></div><div class="codexPanel"><h3>🤖 Codex Cevabı</h3><div id="codexCevap" class="codexCevap">Codex hazır. Kodunu gönder, birlikte inceleyelim.</div><h3>🧠 Proje Hafızası</h3><input id="projeHafizaBaslik" class="profilInput" placeholder="Örn: index.html, server.js, sw.js"><button onclick="projeHafizaKaydet()">Projeye kaydet</button><div id="projeHafizaListe"></div></div></div>
 </div>
 <div class="popupArka" id="guncellemePopup"><div class="popup duyuruPanelPopup"><h2>📢 Güncelleme Merkezi</h2><div class="merkezButonSatir"><button onclick="yaklasanPanelAc()">🚀 Yaklaşan Güncellemeler</button></div><p style="color:#bbb;font-size:13px">Burada sadece kurucu duyuru paylaşır. Kullanıcılar okuyabilir ve emoji bırakabilir.</p><input id="guncellemeArama" class="guncellemeArama" placeholder="🔍 Duyuru ara..." oninput="guncellemeleriYukle()"><textarea id="guncellemeYazi" class="duyuruYazi" placeholder="Sadece kurucu: Eklenen özellikleri yaz... Örn: *v1.2*"></textarea><input id="guncellemeSecret" class="profilInput" type="password" placeholder="Kurucu şifresi"><button onclick="guncellemeEkle()">Duyuru ekle</button><div id="guncellemeListe"></div><button onclick="guncellemePanelKapat()">Kapat</button></div></div>
-<div class="popupArka" id="bildirimPopup"><div class="popup duyuruPanelPopup"><h2>🔔 Bildirim Merkezi</h2><div id="bildirimListe"></div><button onclick="bildirimPanelKapat()">Kapat</button></div></div>
+<div class="popupArka" id="eklenenPopup">
+  <div class="popup duyuruPanelPopup">
+    <button class="merkezKapatX" onclick="eklenenPanelKapat()">✖</button>
+    <h2>🎉 Eklenenler</h2>
+    <p style="color:#bbb;font-size:13px">Buraya sadece kurucu yazar. Oylama kazananları ve gerçekten eklenen özellikler burada görünür.</p>
+    <textarea id="eklenenYazi" class="duyuruYazi" placeholder="Örn: *KAZANANLAR*&#10;🗳️ İlk oylama kazananı: Kendi AI Karakterini Oluştur"></textarea>
+    <input id="eklenenSecret" class="profilInput" type="password" placeholder="Kurucu şifresi">
+    <button onclick="eklenenEkle()">Eklenen kaydı paylaş</button>
+    <div id="eklenenListe"></div>
+  </div>
+</div>
 <div class="popupArka" id="yaklasanPopup">
   <div class="popup duyuruPanelPopup">
     <button class="merkezKapatX" onclick="yaklasanPanelKapat()">✖</button>
@@ -1031,6 +1062,34 @@ body::before{
     <input id="oylamaSecret" class="profilInput" type="password" placeholder="Kurucu şifresi">
     <button onclick="oylamaEkle()">Oylama başlat</button>
     <div id="oylamaListe"></div>
+  </div>
+</div>
+
+<div class="popupArka" id="ozelAiPopup">
+  <div class="popup duyuruPanelPopup">
+    <button class="merkezKapatX" onclick="ozelAiPanelKapat()">✖</button>
+    <h2>🤖 Kendi AI Karakterini Oluştur</h2>
+    <p style="color:#bbb;font-size:13px">Ücretsiz 1, Plus 3, Pro 5 özel AI oluşturabilir.</p>
+    <input id="ozelAiAd" class="profilInput" placeholder="AI adı: Mehmet">
+    <input id="ozelAiTur" class="profilInput" placeholder="Karakter türü: Yazar, oyuncu, kod uzmanı...">
+    <select id="ozelAiTarz" class="profilInput">
+      <option value="Samimi">Samimi</option>
+      <option value="Resmi">Resmi</option>
+      <option value="Profesör gibi">Profesör gibi</option>
+      <option value="Yaratıcı">Yaratıcı</option>
+      <option value="Eleştirel ama nazik">Eleştirel ama nazik</option>
+    </select>
+    <select id="ozelAiEmoji" class="profilInput">
+      <option value="Az">Emoji az</option>
+      <option value="Orta" selected>Emoji orta</option>
+      <option value="Çok">Emoji çok</option>
+      <option value="Yok">Emoji yok</option>
+    </select>
+    <input id="ozelAiUzmanlik" class="profilInput" placeholder="Uzmanlık: Oyun teorisi, JavaScript, hikaye yazma...">
+    <textarea id="ozelAiAciklama" class="duyuruYazi" placeholder="Karakter açıklaması: Nasıl davransın, neye odaklansın?"></textarea>
+    <button onclick="ozelAiKaydet()">AI Karakterini Kaydet</button>
+    <button onclick="ozelAiSec(null)">🤖 Normal NeuraAI'ye dön</button>
+    <div id="ozelAiPanelListe"></div>
   </div>
 </div>
 
@@ -1442,6 +1501,71 @@ setTimeout(() => {
   const sec = document.getElementById("aiModelSec");
   if(sec) sec.value = aiModelTipi;
 }, 0);
+
+
+let ozelAIs = JSON.parse(localStorage.getItem("neura_ozel_ailer") || "[]");
+let aktifOzelAIId = localStorage.getItem("neura_aktif_ozel_ai") || "";
+let kullaniciPlan = localStorage.getItem("neura_plan") || "free";
+
+function planOzelAiLimiti(){
+  if(kullaniciPlan === "pro") return 5;
+  if(kullaniciPlan === "plus") return 3;
+  return 1;
+}
+function aktifOzelAiBul(){ return ozelAIs.find(a => a.id === aktifOzelAIId) || null; }
+function ozelAiKaydetLocal(){ localStorage.setItem("neura_ozel_ailer", JSON.stringify(ozelAIs)); localStorage.setItem("neura_aktif_ozel_ai", aktifOzelAIId || ""); }
+function ozelAiKisaBilgi(ai){ return [ai.type, ai.style, ai.expertise].filter(Boolean).join(" • "); }
+function ozelAiListeGoster(){
+  const liste = document.getElementById("ozelAiListesi");
+  const panelListe = document.getElementById("ozelAiPanelListe");
+  const render = (container, detayli=false) => {
+    if(!container) return;
+    container.innerHTML = "";
+    if(!ozelAIs.length){ container.innerHTML = `<div class="ozelAiMini">Henüz özel AI yok. ➕ ile oluştur.</div>`; return; }
+    ozelAIs.forEach(ai => {
+      const div = document.createElement("div");
+      div.className = "ozelAiItem" + (ai.id === aktifOzelAIId ? " aktif" : "");
+      div.innerHTML = `<b>🤖 ${escapeHtml(ai.name)}</b><div class="ozelAiMini">${escapeHtml(ozelAiKisaBilgi(ai))}</div>${detayli ? `<div class="duyuruAksiyonlar"><button onclick="ozelAiSec('${ai.id}')">Seç</button><button onclick="ozelAiSil('${ai.id}')">Sil</button></div>` : ""}`;
+      div.onclick = () => ozelAiSec(ai.id);
+      container.appendChild(div);
+    });
+  };
+  render(liste, false);
+  render(panelListe, true);
+  const aktif = aktifOzelAiBul();
+  if(aktif){ durumYazi.innerText = `🤖 Özel AI aktif: ${aktif.name}`; }
+  else if(durumYazi.innerText.startsWith("🤖 Özel AI aktif:")){ durumYazi.innerText = ""; }
+}
+function ozelAiPanelAc(){ document.getElementById("ozelAiPopup").style.display = "flex"; ozelAiListeGoster(); }
+function ozelAiPanelKapat(){ document.getElementById("ozelAiPopup").style.display = "none"; }
+function ozelAiKaydet(){
+  const limit = planOzelAiLimiti();
+  if(ozelAIs.length >= limit){ alert(`Bu planda en fazla ${limit} özel AI oluşturabilirsin. Free: 1, Plus: 3, Pro: 5`); return; }
+  const name = document.getElementById("ozelAiAd").value.trim();
+  const type = document.getElementById("ozelAiTur").value.trim();
+  const style = document.getElementById("ozelAiTarz").value;
+  const emoji = document.getElementById("ozelAiEmoji").value;
+  const expertise = document.getElementById("ozelAiUzmanlik").value.trim();
+  const description = document.getElementById("ozelAiAciklama").value.trim();
+  if(!name){ alert("AI adı gerekli."); return; }
+  const ai = { id:"ai_" + Date.now().toString(36) + Math.random().toString(36).slice(2,6), name:name.slice(0,40), type:(type || "Genel yardımcı").slice(0,80), style, emoji, expertise:(expertise || "Genel konular").slice(0,220), description:description.slice(0,500), createdAt:Date.now() };
+  ozelAIs.push(ai); aktifOzelAIId = ai.id; ozelAiKaydetLocal(); ozelAiListeGoster();
+  document.getElementById("ozelAiAd").value = ""; document.getElementById("ozelAiTur").value = ""; document.getElementById("ozelAiUzmanlik").value = ""; document.getElementById("ozelAiAciklama").value = "";
+  sistemMesaji(`🤖 ${ai.name} adlı özel AI oluşturuldu ve aktif edildi.`);
+}
+function ozelAiSec(id){
+  aktifOzelAIId = id || ""; ozelAiKaydetLocal(); ozelAiListeGoster();
+  const aktif = aktifOzelAiBul();
+  sistemMesaji(aktif ? `🤖 Artık ${aktif.name} ile konuşuyorsun.` : "🤖 Normal NeuraAI aktif.");
+}
+function ozelAiSil(id){
+  const ai = ozelAIs.find(a => a.id === id); if(!ai) return;
+  if(!confirm(`${ai.name} adlı özel AI silinsin mi?`)) return;
+  ozelAIs = ozelAIs.filter(a => a.id !== id);
+  if(aktifOzelAIId === id) aktifOzelAIId = "";
+  ozelAiKaydetLocal(); ozelAiListeGoster();
+}
+setTimeout(ozelAiListeGoster, 0);
 
 function modPanelAc(){
   document.getElementById("modPopup").style.display = "flex";
@@ -1953,6 +2077,7 @@ async function mesajdanSonraTekrarCevapla(msgId){
         mode:cevapModu,
         konusmaModu:konusmaModu,
         aiModelTipi:aiModelTipi,
+        customAi:aktifOzelAiBul(),
         messages:sohbetGecmisi
       })
     });
@@ -2770,6 +2895,7 @@ async function gonder(){
         mode:cevapModu,
         konusmaModu:konusmaModu,
         aiModelTipi:aiModelTipi,
+        customAi:aktifOzelAiBul(),
         messages:sohbetGecmisi
       })
     });
@@ -3011,7 +3137,7 @@ function codexAc(){
 
   document.getElementById("miniAracPopup").style.display = "none";
   document.getElementById("guncellemePopup").style.display = "none";
-  document.getElementById("bildirimPopup").style.display = "none";
+  const ep=document.getElementById("eklenenPopup"); if(ep) ep.style.display = "none";
 
   projeHafizaGoster();
   todoGoster();
@@ -3196,7 +3322,6 @@ async function guncellemeEkle(){
     if(aramaInput) aramaInput.value = "";
 
     await guncellemeleriYukle();
-    await bildirimleriYukle();
 
   }catch(err){
     console.error(err);
@@ -3228,7 +3353,6 @@ async function guncellemeDuzenle(id){
   }
 
   await guncellemeleriYukle();
-  await bildirimleriYukle();
 }
 
 async function guncellemeSil(id){
@@ -3252,7 +3376,6 @@ async function guncellemeSil(id){
   }
 
   await guncellemeleriYukle();
-  await bildirimleriYukle();
 }
 
 async function guncellemeEmoji(id, emoji){
@@ -3273,7 +3396,107 @@ async function guncellemeEmoji(id, emoji){
   await guncellemeleriYukle();
 }
 
-async function bildirimPanelAc(){document.getElementById("bildirimPopup").style.display="flex";await bildirimleriYukle()}function bildirimPanelKapat(){bildirimPopup.style.display="none"}async function bildirimleriYukle(){if(!document.getElementById("bildirimListe"))return;bildirimListe.innerHTML="Yükleniyor...";try{const res=await fetch("/notifications"),data=await res.json();bildirimListe.innerHTML="";(data.notifications||[]).forEach(n=>{const d=document.createElement("div");d.className="bildirimItem";d.innerHTML=`<b>🔔 ${n.title||"Bildirim"}</b><br><small>${new Date(n.time).toLocaleString("tr-TR")}</small><p>${String(n.text||"").replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}</p>`;bildirimListe.appendChild(d)})}catch(e){bildirimListe.innerHTML="Bildirimler alınamadı."}}
+function kazananEtiketAyikla(text){
+  const t = String(text || "");
+  const match = t.match(/^\*(KAZANANLAR|GAZANANLAR)\*\s*/i);
+  if(!match){
+    return { etiket:"", kalan:t };
+  }
+  return {
+    etiket:"KAZANANLAR",
+    kalan:t.replace(match[0], "").trim()
+  };
+}
+
+function eklenenPanelAc(){
+  document.getElementById("eklenenPopup").style.display="flex";
+  eklenenleriYukle();
+}
+
+function eklenenPanelKapat(){
+  document.getElementById("eklenenPopup").style.display="none";
+}
+
+async function eklenenleriYukle(){
+  const liste = document.getElementById("eklenenListe");
+  if(!liste) return;
+  liste.innerHTML = "Yükleniyor...";
+  try{
+    const res = await fetch("/added");
+    const data = await res.json();
+    const arr = data.added || [];
+    liste.innerHTML = "";
+    if(!arr.length){
+      liste.innerHTML = "Henüz eklenen kayıt yok.";
+      return;
+    }
+    arr.forEach(item => {
+      const parsed = kazananEtiketAyikla(item.text || "");
+      const div = document.createElement("div");
+      div.className = "bildirimItem";
+      div.innerHTML = `
+        ${parsed.etiket ? `<div class="kazananRozeti">🏆 ${parsed.etiket}</div>` : ""}
+        <small>${new Date(item.time).toLocaleDateString("tr-TR", { day:"numeric", month:"long", year:"numeric" })}${item.editedTime ? " • düzenlendi" : ""}</small>
+        <p>${escapeHtml(parsed.kalan || item.text || "")}</p>
+        <div class="duyuruAksiyonlar">
+          <button onclick="eklenenDuzenle('${item.id}')">✏️ Düzenle</button>
+          <button onclick="eklenenSil('${item.id}')">🗑️ Sil</button>
+        </div>`;
+      liste.appendChild(div);
+    });
+  }catch(e){
+    liste.innerHTML = "Eklenenler alınamadı.";
+  }
+}
+
+async function eklenenEkle(){
+  const text = document.getElementById("eklenenYazi").value.trim();
+  const secret = document.getElementById("eklenenSecret").value.trim();
+  if(!text){ alert("Eklenenler boş olamaz."); return; }
+  if(!secret){ alert("Kurucu şifresi gerekli."); return; }
+  try{
+    const res = await fetch("/added", {
+      method:"POST",
+      headers:{ "Content-Type":"application/json", "x-admin-secret":secret },
+      body:JSON.stringify({ text })
+    });
+    const data = await res.json();
+    if(!data.ok){ alert(data.reply || "Eklenenler eklenemedi."); return; }
+    document.getElementById("eklenenYazi").value = "";
+    await eklenenleriYukle();
+  }catch(e){
+    alert("Bağlantı hatası.");
+  }
+}
+
+async function eklenenDuzenle(id){
+  const secret = document.getElementById("eklenenSecret").value.trim() || prompt("Kurucu şifresi:");
+  if(!secret) return;
+  const text = prompt("Eklenenler yazısını düzenle:");
+  if(text === null) return;
+  if(!text.trim()){ alert("Boş olamaz."); return; }
+  const res = await fetch("/added/" + id, {
+    method:"PUT",
+    headers:{ "Content-Type":"application/json", "x-admin-secret":secret },
+    body:JSON.stringify({ text:text.trim() })
+  });
+  const data = await res.json();
+  if(!data.ok){ alert(data.reply || "Düzenlenemedi."); return; }
+  await eklenenleriYukle();
+}
+
+async function eklenenSil(id){
+  const secret = document.getElementById("eklenenSecret").value.trim() || prompt("Kurucu şifresi:");
+  if(!secret) return;
+  if(!confirm("Bu eklenen kayıt silinsin mi?")) return;
+  const res = await fetch("/added/" + id, {
+    method:"DELETE",
+    headers:{ "x-admin-secret":secret }
+  });
+  const data = await res.json();
+  if(!data.ok){ alert(data.reply || "Silinemedi."); return; }
+  await eklenenleriYukle();
+}
 
 
 /* === Yaklaşan Güncellemeler + Oylama Merkezi JS === */
