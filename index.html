@@ -1356,6 +1356,32 @@ const onizlemeResim = document.getElementById("onizlemeResim");
 const onizlemeYazi = document.getElementById("onizlemeYazi");
 const durumYazi = document.getElementById("durumYazi");
 const gonderBtn = document.getElementById("gonderBtn");
+
+function escapeHtml(text){
+  return String(text || "").replace(/[&<>]/g, c => ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;"
+  }[c]));
+}
+
+function neuraCacheOku(key){
+  try{
+    const v = JSON.parse(localStorage.getItem(key) || "[]");
+    return Array.isArray(v) ? v : [];
+  }catch(e){
+    return [];
+  }
+}
+
+function neuraCacheYaz(key, value){
+  try{
+    if(Array.isArray(value)){
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+  }catch(e){}
+}
+
 const favoriListesi =
 document.getElementById("favoriListesi");
 const gizliListesi =
@@ -3219,7 +3245,13 @@ async function guncellemeleriYukle(){
 
     guncellemeListe.innerHTML = "";
 
-    let liste = data.updates || [];
+    let liste = Array.isArray(data.updates) ? data.updates : [];
+    if(liste.length > 0){
+      neuraCacheYaz("neura_updates_cache", liste);
+    }else{
+      const cache = neuraCacheOku("neura_updates_cache");
+      if(cache.length > 0) liste = cache;
+    }
 
     if(arama){
       liste = liste.filter(u => {
@@ -3424,7 +3456,13 @@ async function eklenenleriYukle(){
   try{
     const res = await fetch("/added");
     const data = await res.json();
-    const arr = data.added || [];
+    let arr = Array.isArray(data.added) ? data.added : [];
+    if(arr.length > 0){
+      neuraCacheYaz("neura_added_cache", arr);
+    }else{
+      const cache = neuraCacheOku("neura_added_cache");
+      if(cache.length > 0) arr = cache;
+    }
     liste.innerHTML = "";
     if(!arr.length){
       liste.innerHTML = "Henüz eklenen kayıt yok.";
@@ -3445,7 +3483,22 @@ async function eklenenleriYukle(){
       liste.appendChild(div);
     });
   }catch(e){
-    liste.innerHTML = "Eklenenler alınamadı.";
+    const cache = neuraCacheOku("neura_added_cache");
+    if(cache.length > 0){
+      liste.innerHTML = "";
+      cache.forEach(item => {
+        const parsed = kazananEtiketAyikla(item.text || "");
+        const div = document.createElement("div");
+        div.className = "bildirimItem";
+        div.innerHTML = `
+          ${parsed.etiket ? `<div class="kazananRozeti">🏆 ${parsed.etiket}</div>` : ""}
+          <small>${new Date(item.time).toLocaleDateString("tr-TR", { day:"numeric", month:"long", year:"numeric" })}${item.editedTime ? " • düzenlendi" : ""}</small>
+          <p>${escapeHtml(parsed.kalan || item.text || "")}</p>`;
+        liste.appendChild(div);
+      });
+    }else{
+      liste.innerHTML = "Eklenenler alınamadı. Server.js içinde /added endpointini kontrol et.";
+    }
   }
 }
 
@@ -3526,7 +3579,13 @@ async function yaklasanlariYukle(){
     const data = await res.json();
     liste.innerHTML = "";
 
-    const items = data.upcoming || [];
+    let items = Array.isArray(data.upcoming) ? data.upcoming : [];
+    if(items.length > 0){
+      neuraCacheYaz("neura_upcoming_cache", items);
+    }else{
+      const cache = neuraCacheOku("neura_upcoming_cache");
+      if(cache.length > 0) items = cache;
+    }
 
     if(items.length === 0){
       liste.innerHTML = "<p style='color:#bbb'>Henüz yaklaşan güncelleme yok.</p>";
@@ -3656,7 +3715,13 @@ async function oylamalariYukle(){
   try{
     const res = await fetch("/polls");
     const data = await res.json();
-    const polls = data.polls || [];
+    let polls = Array.isArray(data.polls) ? data.polls : [];
+    if(polls.length > 0){
+      neuraCacheYaz("neura_polls_cache", polls);
+    }else{
+      const cache = neuraCacheOku("neura_polls_cache");
+      if(cache.length > 0) polls = cache;
+    }
     liste.innerHTML = "";
 
     if(polls.length === 0){
