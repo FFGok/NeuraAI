@@ -2816,8 +2816,8 @@ async function gorselUret(mesaj){
 
       profilIstatistikEkle("resim");
       mesajEkle(yazi, "ai", data.image, "", false);
-      mesajiSohbeteKaydet(yazi, "ai", data.image);
-      gorselGecmisi.unshift({ prompt, image:data.image, zaman:Date.now() });
+      mesajiSohbeteKaydet(yazi, "ai", null);
+      gorselGecmisi.unshift({ prompt, image:null, zaman:Date.now() });
       gorselGecmisiKaydet();
     }else{
       await cevap(data.reply || "Görsel üretilemedi. Sunucu yoğun olabilir, biraz sonra tekrar dene.", true);
