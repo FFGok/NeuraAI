@@ -936,9 +936,7 @@ body::before{
 
 <body>
 <button class="karakterBtn" onclick="ozelAiPanelAc()">🤖 AI Oluştur</button>
-<button class="oylamaBtn" onclick="oylamaPanelAc()">🗳️ Oylama</button>
-<button class="eklenenBtn" onclick="eklenenPanelAc()">🎉 Eklenenler</button>
-<button class="duyuruBtn" onclick="guncellemePanelAc()">📢 Güncellemeler</button>
+
 <button class="miniAracBtn" onclick="miniAracPanelAc()" title="Mini Araçlar">🧰</button>
 <div class="splashScreen">
   <img src="./splash.png" alt="NeuraAI Açılış">
@@ -1027,42 +1025,13 @@ body::before{
   <div class="codexUst"><div><div class="codexBaslik">💻 Codex</div><div class="codexAlt">Merhaba, ben Codex. Kodlarını düzeltebilir, açıklayabilir, optimize edebilir ve proje hafızası tutabilirim.</div></div><div class="ustButonlar"><button onclick="codexHafizaKaydet()">🧠 Kod hafızasına kaydet</button><button onclick="codexCevapKopyala()">📋 Cevabı kopyala</button><button onclick="naiDon()">🤖 NeuraAI’ye dön</button></div></div>
   <div class="codexGovde"><div class="codexPanel"><h3>📄 Kod Alanı</h3><input type="file" id="codexDosyaInput" accept=".txt,.html,.css,.js,.json,.md,.py,.java,.c,.cpp" onchange="codexDosyaOku(event)"><textarea id="codexKod" class="codexTextarea" placeholder="Kodunu buraya yapıştır veya dosya yükle..."></textarea><h3>📌 Codex İşlemleri</h3><div class="codexButonGrid"><button onclick="codexGonder('hata')">🔍 Hata Bul</button><button onclick="codexGonder('acikla')">📖 Kodu Açıkla</button><button onclick="codexGonder('optimize')">⚡ Optimize Et</button><button onclick="codexGonder('guvenlik')">🛡️ Güvenlik Açığı Ara</button><button onclick="codexGonder('ozellik')">💡 Özellik Öner</button><button onclick="codexGonder('dosya')">📁 Hangi Dosyaya Ekle?</button><button onclick="codexDilAnalizi('html')">🌐 HTML Analizi</button><button onclick="codexDilAnalizi('css')">🎨 CSS Analizi</button><button onclick="codexDilAnalizi('javascript')">🟨 JavaScript Analizi</button><button onclick="codexDilAnalizi('nodejs')">🟩 Node.js Analizi</button></div><h3>🔁 Dosya Karşılaştırma</h3><textarea id="codexEskiKod" class="codexTextarea codexKucukTextarea" placeholder="Eski kod..."></textarea><textarea id="codexYeniKod" class="codexTextarea codexKucukTextarea" placeholder="Yeni kod..."></textarea><button onclick="codexKarsilastir()">🔁 Dosyaları Karşılaştır</button><h3>📋 Yapılacaklar Listesi</h3><input id="todoInput" class="profilInput" placeholder="Yeni görev yaz..."><button onclick="todoEkle()">Görev ekle</button><div id="todoListe"></div><div id="todoYuzde" class="miniSonuc"></div></div><div class="codexPanel"><h3>🤖 Codex Cevabı</h3><div id="codexCevap" class="codexCevap">Codex hazır. Kodunu gönder, birlikte inceleyelim.</div><h3>🧠 Proje Hafızası</h3><input id="projeHafizaBaslik" class="profilInput" placeholder="Örn: index.html, server.js, sw.js"><button onclick="projeHafizaKaydet()">Projeye kaydet</button><div id="projeHafizaListe"></div></div></div>
 </div>
-<div class="popupArka" id="guncellemePopup"><div class="popup duyuruPanelPopup"><h2>📢 Güncelleme Merkezi</h2><div class="merkezButonSatir"><button onclick="yaklasanPanelAc()">🚀 Yaklaşan Güncellemeler</button></div><p style="color:#bbb;font-size:13px">Burada sadece kurucu duyuru paylaşır. Kullanıcılar okuyabilir ve emoji bırakabilir.</p><input id="guncellemeArama" class="guncellemeArama" placeholder="🔍 Duyuru ara..." oninput="guncellemeleriYukle()"><textarea id="guncellemeYazi" class="duyuruYazi" placeholder="Sadece kurucu: Eklenen özellikleri yaz... Örn: *v1.2*"></textarea><input id="guncellemeSecret" class="profilInput" type="password" placeholder="Kurucu şifresi"><button onclick="guncellemeEkle()">Duyuru ekle</button><div id="guncellemeListe"></div><button onclick="guncellemePanelKapat()">Kapat</button></div></div>
-<div class="popupArka" id="eklenenPopup">
-  <div class="popup duyuruPanelPopup">
-    <button class="merkezKapatX" onclick="eklenenPanelKapat()">✖</button>
-    <h2>🎉 Eklenenler</h2>
-    <p style="color:#bbb;font-size:13px">Buraya sadece kurucu yazar. Oylama kazananları ve gerçekten eklenen özellikler burada görünür.</p>
-    <textarea id="eklenenYazi" class="duyuruYazi" placeholder="Örn: *KAZANANLAR*&#10;🗳️ İlk oylama kazananı: Kendi AI Karakterini Oluştur"></textarea>
-    <input id="eklenenSecret" class="profilInput" type="password" placeholder="Kurucu şifresi">
-    <button onclick="eklenenEkle()">Eklenen kaydı paylaş</button>
-    <div id="eklenenListe"></div>
-  </div>
-</div>
-<div class="popupArka" id="yaklasanPopup">
-  <div class="popup duyuruPanelPopup">
-    <button class="merkezKapatX" onclick="yaklasanPanelKapat()">✖</button>
-    <h2>🚀 Yaklaşan Güncellemeler</h2>
-    <p style="color:#bbb;font-size:13px">Burada gelecek sürümler görünür. Kullanıcılar sadece okur.</p>
-    <input id="yaklasanVersiyon" class="profilInput" placeholder="Versiyon: v2.0">
-    <textarea id="yaklasanYazi" class="duyuruYazi" placeholder="Yaklaşan güncelleme açıklaması..."></textarea>
-    <input id="yaklasanSecret" class="profilInput" type="password" placeholder="Kurucu şifresi">
-    <button onclick="yaklasanEkle()">Yaklaşan güncelleme ekle</button>
-    <div id="yaklasanListe"></div>
-  </div>
+
+
 </div>
 
-<div class="popupArka" id="oylamaPopup">
-  <div class="popup duyuruPanelPopup">
-    <button class="merkezKapatX" onclick="oylamaPanelKapat()">✖</button>
-    <h2>🗳️ Oylama Merkezi</h2>
-    <p style="color:#bbb;font-size:13px">1 kullanıcı sadece 1 oy verebilir. Oylama 24 saat sürer. Son karar kurucudadır.</p>
-    <input id="oylamaBaslik" class="profilInput" placeholder="Oylama başlığı">
-    <textarea id="oylamaSecenekler" class="duyuruYazi" placeholder="Seçenekleri alt alta yaz. Örn:&#10;Plus Sistemi&#10;Seri Sistemi&#10;NeuraHub"></textarea>
-    <input id="oylamaSecret" class="profilInput" type="password" placeholder="Kurucu şifresi">
-    <button onclick="oylamaEkle()">Oylama başlat</button>
-    <div id="oylamaListe"></div>
-  </div>
+</div>
+
+
 </div>
 
 <div class="popupArka" id="ozelAiPopup">
