@@ -772,6 +772,7 @@ body::before{
   color:#a9ffe5;
   font-size:12px;
   font-weight:bold;
+  min-height:39px;
 }
 .duyuruTarih{
   color:#bbb;
@@ -949,8 +950,8 @@ body::before{
   display:inline-flex;
   align-items:center;
   gap:7px;
-  margin-top:7px;
-  padding:7px 11px;
+  margin-top:0;
+  padding:10px 12px;
   border-radius:999px;
   background:rgba(0,255,170,.10);
   border:1px solid rgba(0,255,170,.22);
@@ -1056,13 +1057,13 @@ body::before{
       <div class="baslikAlan">
         <div class="baslik">NeuraAI</div>
         <div class="altBaslik" id="durumYazi"></div>
-        <div class="canliKullaniciKutusu" title="Canlı kullanıcı sayacı">
-          <span class="canliNokta"></span>
-          <span>Şu anda çevrimiçi: <b id="canliKullaniciSayisi">--</b> kişi</span>
-        </div>
       </div>
 
       <div class="ustButonlar">
+        <div class="canliKullaniciKutusu" title="Canlı kullanıcı sayacı">
+          <span class="canliNokta"></span>
+          <span>Çevrimiçi: <b id="canliKullaniciSayisi">--</b></span>
+        </div>
         <select id="aiModelSec" class="aiModelSec" onchange="aiModelDegisti()">
           <option value="hizli">⚡ Hızlı</option>
           <option value="akilli">🧠 Akıllı</option>
