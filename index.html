@@ -1055,15 +1055,17 @@ body::before{
 
 <button class="menuBtn" onclick="sidebarAcKapat()">☰</button>
       <div class="baslikAlan">
-        <div class="baslik">NeuraAI</div>
-        <div class="altBaslik" id="durumYazi"></div>
-      </div>
+  <div class="baslik">NeuraAI</div>
 
-      <div class="ustButonlar">
-        <div class="canliKullaniciKutusu" title="Canlı kullanıcı sayacı">
-          <span class="canliNokta"></span>
-          <span>Çevrimiçi: <b id="canliKullaniciSayisi">--</b></span>
-        </div>
+  <div class="canliKullaniciKutusu" title="Canlı kullanıcı sayacı">
+    <span class="canliNokta"></span>
+    <span>Çevrimiçi: <b id="canliKullaniciSayisi">--</b></span>
+  </div>
+
+  <div class="altBaslik" id="durumYazi"></div>
+</div>
+
+<div class="ustButonlar">
         <select id="aiModelSec" class="aiModelSec" onchange="aiModelDegisti()">
           <option value="hizli">⚡ Hızlı</option>
           <option value="akilli">🧠 Akıllı</option>
