@@ -116,6 +116,28 @@ let neuraAdded = kayitliVeri.added || [];
 let neuraUpcoming = kayitliVeri.upcoming || varsayilanYaklasanlar();
 let neuraPolls = kayitliVeri.polls || [];
 
+/* === NeuraAI V2: Canlı Kullanıcı Sayacı === */
+let onlineUsers = {};
+
+function onlineTemizle(){
+  const simdi = Date.now();
+  const zamanAsimi = 45000; // 45 saniye ping gelmezse kullanıcı çevrimdışı sayılır
+
+  for(const key of Object.keys(onlineUsers)){
+    if(simdi - onlineUsers[key].lastSeen > zamanAsimi){
+      delete onlineUsers[key];
+    }
+  }
+}
+
+function onlineKullaniciSayisi(){
+  onlineTemizle();
+  return Object.keys(onlineUsers).length;
+}
+
+setInterval(onlineTemizle, 15000);
+
+
 function ipAl(req){
   const forwarded = req.headers["x-forwarded-for"];
   if(forwarded) return forwarded.split(",")[0].trim();
@@ -1097,6 +1119,38 @@ app.post("/neura-data-import", (req, res) => {
   veriKaydet();
 
   res.json({ ok:true });
+});
+
+
+/* === NeuraAI V2: Canlı Kullanıcı Sayacı Endpointleri === */
+app.post("/online-ping", (req, res) => {
+  try{
+    const ip = ipAl(req);
+    const userAgent = String(req.headers["user-agent"] || "bilinmiyor").slice(0, 120);
+    const key = ip + "|" + userAgent;
+
+    onlineUsers[key] = {
+      lastSeen: Date.now()
+    };
+
+    res.json({
+      ok:true,
+      online: onlineKullaniciSayisi()
+    });
+  }catch(err){
+    console.error("Online ping hatası:", err);
+    res.json({
+      ok:false,
+      online: onlineKullaniciSayisi()
+    });
+  }
+});
+
+app.get("/online-count", (req, res) => {
+  res.json({
+    ok:true,
+    online: onlineKullaniciSayisi()
+  });
 });
 
 app.use(express.static(__dirname));
