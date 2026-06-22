@@ -931,6 +931,57 @@ body::before{
 @keyframes kazananParla{0%{transform:translateY(0) scale(1);filter:brightness(1)}50%{transform:translateY(-1px) scale(1.04);filter:brightness(1.18)}100%{transform:translateY(0) scale(1);filter:brightness(1)}}
 @media(max-width:700px){.karakterBtn{right:10px;bottom:168px}.eklenenBtn{right:10px;bottom:64px}}
 
+
+
+/* === NeuraAI V2: Sosyal Medya + Canlı Kullanıcı Sayacı === */
+.sosyalLinkBtn{
+  text-decoration:none;
+  text-align:center;
+  display:block;
+}
+
+.sosyalYakindaBtn{
+  opacity:.65;
+  cursor:not-allowed;
+}
+
+.canliKullaniciKutusu{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  margin-top:7px;
+  padding:7px 11px;
+  border-radius:999px;
+  background:rgba(0,255,170,.10);
+  border:1px solid rgba(0,255,170,.22);
+  color:#b8ffe9;
+  font-size:12px;
+  font-weight:bold;
+  box-shadow:0 0 16px rgba(0,255,170,.08);
+}
+
+.canliNokta{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#00ffaa;
+  box-shadow:0 0 12px rgba(0,255,170,.95);
+  animation:canliNabiz 1.3s ease-in-out infinite;
+}
+
+@keyframes canliNabiz{
+  0%{ transform:scale(1); opacity:.75; }
+  50%{ transform:scale(1.35); opacity:1; }
+  100%{ transform:scale(1); opacity:.75; }
+}
+
+@media(max-width:700px){
+  .canliKullaniciKutusu{
+    font-size:11px;
+    padding:6px 9px;
+  }
+}
+
 </style>
 </head>
 
@@ -957,6 +1008,29 @@ body::before{
       <button class="sidebarMiniBtn" onclick="yeniGizliSohbet()">🔒 Gizli sohbet başlat</button>
       <button class="sidebarMiniBtn" onclick="aktifSohbetiYenidenAdlandir()">✏️ Sohbet adını değiştir</button>
       <button class="sidebarMiniBtn" onclick="sohbetiPdfIndir()">📄 PDF indir</button>
+
+      <div class="gecmisBaslik">📱 Sosyal Medya Hesaplarımız</div>
+
+      <a
+        href="https://www.youtube.com/@NeuraAIReal"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="sidebarMiniBtn sosyalLinkBtn"
+      >
+        ▶️ YouTube Kanalımız
+      </a>
+
+      <button class="sidebarMiniBtn sosyalYakindaBtn" disabled>
+        💬 Discord - Yakında
+      </button>
+
+      <button class="sidebarMiniBtn sosyalYakindaBtn" disabled>
+        📸 Instagram - Yakında
+      </button>
+
+      <button class="sidebarMiniBtn sosyalYakindaBtn" disabled>
+        🎵 TikTok - Yakında
+      </button>
     </div>
 
     <div class="ozelAiBaslikSatir">
@@ -982,6 +1056,10 @@ body::before{
       <div class="baslikAlan">
         <div class="baslik">NeuraAI</div>
         <div class="altBaslik" id="durumYazi"></div>
+        <div class="canliKullaniciKutusu" title="Canlı kullanıcı sayacı">
+          <span class="canliNokta"></span>
+          <span>Şu anda çevrimiçi: <b id="canliKullaniciSayisi">--</b> kişi</span>
+        </div>
       </div>
 
       <div class="ustButonlar">
@@ -3811,6 +3889,39 @@ if(typeof dogumGunuKontrolEt === "function") dogumGunuKontrolEt();
 function sidebarAcKapat(){
   document.querySelector(".solPanel").classList.toggle("acik");
 }
+
+
+/* === NeuraAI V2: Canlı Kullanıcı Sayacı HTML Tarafı ===
+   Not: Bunun çalışması için server.js tarafında /online-ping ve /online-count endpointleri eklenecek.
+*/
+async function canliKullaniciPing(){
+  try{
+    await fetch('/online-ping', { method:'POST' });
+  }catch(err){}
+}
+
+async function canliKullaniciSayisiniGuncelle(){
+  const sayiEl = document.getElementById('canliKullaniciSayisi');
+  if(!sayiEl) return;
+
+  try{
+    const res = await fetch('/online-count');
+    const data = await res.json();
+    sayiEl.innerText = Number(data.online || 0);
+  }catch(err){
+    sayiEl.innerText = '--';
+  }
+}
+
+function canliKullaniciSayaciBaslat(){
+  canliKullaniciPing();
+  canliKullaniciSayisiniGuncelle();
+  setInterval(canliKullaniciPing, 15000);
+  setInterval(canliKullaniciSayisiniGuncelle, 5000);
+}
+
+setTimeout(canliKullaniciSayaciBaslat, 800);
+
 </script>
 </body>
 </html>
