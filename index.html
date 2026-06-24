@@ -983,6 +983,64 @@ body::before{
   }
 }
 
+
+
+/* === NeuraAI V2: Codex Chat + Dünya Haritası + Kurucu Durumu === */
+.kurucuDurumKutusu{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  margin-left:6px;
+  padding:10px 12px;
+  border-radius:999px;
+  background:rgba(255,40,80,.12);
+  border:1px solid rgba(255,40,80,.28);
+  color:#ffd1dc;
+  font-size:12px;
+  font-weight:bold;
+  box-shadow:0 0 16px rgba(255,40,80,.10);
+}
+.kurucuDurumKutusu.aktif{
+  background:rgba(255,30,70,.22);
+  border-color:rgba(255,30,70,.55);
+  color:white;
+  box-shadow:0 0 18px rgba(255,30,70,.24);
+}
+.kurucuTac{filter:drop-shadow(0 0 6px rgba(255,200,0,.75))}
+.dunyaBtn{
+  position:fixed;
+  right:18px;
+  top:78px;
+  z-index:100000;
+  width:52px;
+  height:52px;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,0.15);
+  background:linear-gradient(135deg,#00c2ff,#00ffaa);
+  color:white;
+  font-size:24px;
+  cursor:pointer;
+  box-shadow:0 14px 35px rgba(0,0,0,0.35),0 0 24px rgba(0,194,255,0.22);
+}
+.dunyaPopup{max-width:820px}
+.dunyaOzet{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:10px 0 14px}
+.dunyaOzet div{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:10px;text-align:center;font-size:13px}
+.dunyaHarita{position:relative;height:330px;border-radius:20px;overflow:hidden;background:radial-gradient(circle at 30% 30%,rgba(0,194,255,.18),transparent 25%),linear-gradient(135deg,#06111f,#0c1830 45%,#07101c);border:1px solid rgba(255,255,255,.10);box-shadow:inset 0 0 40px rgba(0,0,0,.35)}
+.dunyaHarita svg{position:absolute;inset:0;width:100%;height:100%;opacity:.62}
+.ulkeBalon{position:absolute;transform:translate(-50%,-50%);display:flex;align-items:center;gap:5px;padding:7px 9px;border-radius:999px;background:rgba(0,0,0,.62);border:1px solid rgba(255,255,255,.22);color:white;font-size:12px;font-weight:bold;white-space:nowrap;box-shadow:0 0 16px rgba(0,194,255,.18)}
+.ulkeBalon.lider{background:rgba(255,179,0,.22);border-color:rgba(255,179,0,.65);box-shadow:0 0 18px rgba(255,179,0,.30)}
+.dunyaListe{margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:170px;overflow:auto}
+.dunyaListeItem{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:9px 11px;font-size:13px;display:flex;justify-content:space-between;gap:8px}
+.codexButonGrid{display:none!important}
+.codexChatLog{background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:10px;min-height:150px;max-height:270px;overflow:auto;margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.codexMsg{padding:9px 11px;border-radius:13px;white-space:pre-wrap;line-height:1.45;font-size:13px}
+.codexMsg.user{align-self:flex-end;background:linear-gradient(135deg,#7b2cff,#3d7cff);max-width:88%}
+.codexMsg.ai{align-self:flex-start;background:rgba(255,255,255,.08);max-width:92%}
+.codexChatInputSatir{display:flex;gap:8px;margin-top:8px}
+.codexChatInputSatir textarea{flex:1;min-height:64px;border-radius:14px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.30);color:white;padding:10px;outline:none;resize:vertical}
+.codexChatInputSatir button{width:110px;margin-top:0;border-radius:14px;border:none;background:white;color:black;font-weight:bold;cursor:pointer}
+@media(max-width:700px){.dunyaBtn{right:12px;top:64px;width:46px;height:46px;font-size:21px}.kurucuDurumKutusu{font-size:11px;padding:6px 9px;margin-left:0}.dunyaOzet{grid-template-columns:1fr}.dunyaListe{grid-template-columns:1fr}.dunyaHarita{height:260px}.codexChatInputSatir{flex-direction:column}.codexChatInputSatir button{width:100%}}
+
 </style>
 </head>
 
@@ -990,6 +1048,7 @@ body::before{
 <button class="karakterBtn" onclick="ozelAiPanelAc()">🤖 AI Oluştur</button>
 
 <button class="miniAracBtn" onclick="miniAracPanelAc()" title="Mini Araçlar">🧰</button>
+<button class="dunyaBtn" onclick="dunyaPanelAc()" title="NeuraAI Dünya Haritası">🌍</button>
 <div class="splashScreen">
   <img src="./splash.png" alt="NeuraAI Açılış">
 </div>
@@ -1062,6 +1121,11 @@ body::before{
     <span>Çevrimiçi: <b id="canliKullaniciSayisi">--</b></span>
   </div>
 
+  <div class="kurucuDurumKutusu" id="kurucuDurumKutusu" title="Kurucu durumu">
+    <span class="kurucuTac">👑</span>
+    <span id="kurucuDurumYazi">Kurucu çevrimdışı</span>
+  </div>
+
   <div class="altBaslik" id="durumYazi"></div>
 </div>
 
@@ -1104,7 +1168,7 @@ body::before{
 
 <div class="codexSayfa" id="codexSayfa">
   <div class="codexUst"><div><div class="codexBaslik">💻 Codex</div><div class="codexAlt">Merhaba, ben Codex. Kodlarını düzeltebilir, açıklayabilir, optimize edebilir ve proje hafızası tutabilirim.</div></div><div class="ustButonlar"><button onclick="codexHafizaKaydet()">🧠 Kod hafızasına kaydet</button><button onclick="codexCevapKopyala()">📋 Cevabı kopyala</button><button onclick="naiDon()">🤖 NeuraAI’ye dön</button></div></div>
-  <div class="codexGovde"><div class="codexPanel"><h3>📄 Kod Alanı</h3><input type="file" id="codexDosyaInput" accept=".txt,.html,.css,.js,.json,.md,.py,.java,.c,.cpp" onchange="codexDosyaOku(event)"><textarea id="codexKod" class="codexTextarea" placeholder="Kodunu buraya yapıştır veya dosya yükle..."></textarea><h3>📌 Codex İşlemleri</h3><div class="codexButonGrid"><button onclick="codexGonder('hata')">🔍 Hata Bul</button><button onclick="codexGonder('acikla')">📖 Kodu Açıkla</button><button onclick="codexGonder('optimize')">⚡ Optimize Et</button><button onclick="codexGonder('guvenlik')">🛡️ Güvenlik Açığı Ara</button><button onclick="codexGonder('ozellik')">💡 Özellik Öner</button><button onclick="codexGonder('dosya')">📁 Hangi Dosyaya Ekle?</button><button onclick="codexDilAnalizi('html')">🌐 HTML Analizi</button><button onclick="codexDilAnalizi('css')">🎨 CSS Analizi</button><button onclick="codexDilAnalizi('javascript')">🟨 JavaScript Analizi</button><button onclick="codexDilAnalizi('nodejs')">🟩 Node.js Analizi</button></div><h3>🔁 Dosya Karşılaştırma</h3><textarea id="codexEskiKod" class="codexTextarea codexKucukTextarea" placeholder="Eski kod..."></textarea><textarea id="codexYeniKod" class="codexTextarea codexKucukTextarea" placeholder="Yeni kod..."></textarea><button onclick="codexKarsilastir()">🔁 Dosyaları Karşılaştır</button><h3>📋 Yapılacaklar Listesi</h3><input id="todoInput" class="profilInput" placeholder="Yeni görev yaz..."><button onclick="todoEkle()">Görev ekle</button><div id="todoListe"></div><div id="todoYuzde" class="miniSonuc"></div></div><div class="codexPanel"><h3>🤖 Codex Cevabı</h3><div id="codexCevap" class="codexCevap">Codex hazır. Kodunu gönder, birlikte inceleyelim.</div><h3>🧠 Proje Hafızası</h3><input id="projeHafizaBaslik" class="profilInput" placeholder="Örn: index.html, server.js, sw.js"><button onclick="projeHafizaKaydet()">Projeye kaydet</button><div id="projeHafizaListe"></div></div></div>
+  <div class="codexGovde"><div class="codexPanel"><h3>📄 Kod Alanı</h3><input type="file" id="codexDosyaInput" accept=".txt,.html,.css,.js,.json,.md,.py,.java,.c,.cpp" onchange="codexDosyaOku(event)"><textarea id="codexKod" class="codexTextarea" placeholder="Kodunu buraya yapıştır veya dosya yükle..."></textarea><h3>📌 Codex İşlemleri</h3><div class="codexButonGrid"><button onclick="codexGonder('hata')">🔍 Hata Bul</button><button onclick="codexGonder('acikla')">📖 Kodu Açıkla</button><button onclick="codexGonder('optimize')">⚡ Optimize Et</button><button onclick="codexGonder('guvenlik')">🛡️ Güvenlik Açığı Ara</button><button onclick="codexGonder('ozellik')">💡 Özellik Öner</button><button onclick="codexGonder('dosya')">📁 Hangi Dosyaya Ekle?</button><button onclick="codexDilAnalizi('html')">🌐 HTML Analizi</button><button onclick="codexDilAnalizi('css')">🎨 CSS Analizi</button><button onclick="codexDilAnalizi('javascript')">🟨 JavaScript Analizi</button><button onclick="codexDilAnalizi('nodejs')">🟩 Node.js Analizi</button></div><h3>🔁 Dosya Karşılaştırma</h3><textarea id="codexEskiKod" class="codexTextarea codexKucukTextarea" placeholder="Eski kod..."></textarea><textarea id="codexYeniKod" class="codexTextarea codexKucukTextarea" placeholder="Yeni kod..."></textarea><button onclick="codexKarsilastir()">🔁 Dosyaları Karşılaştır</button><h3>📋 Yapılacaklar Listesi</h3><input id="todoInput" class="profilInput" placeholder="Yeni görev yaz..."><button onclick="todoEkle()">Görev ekle</button><div id="todoListe"></div><div id="todoYuzde" class="miniSonuc"></div></div><div class="codexPanel"><h3>🤖 Codex Cevabı</h3><div id="codexCevap" class="codexCevap">Codex hazır. Kodunu gönder, birlikte inceleyelim.</div><h3>💬 Codex Chat</h3><div id="codexChatLog" class="codexChatLog"><div class="codexMsg ai">Merhaba, ben Codex. Kodunu gönder, ne yapmak istediğini yaz; güçlü şekilde inceleyeyim.</div></div><div class="codexChatInputSatir"><textarea id="codexChatInput" placeholder="Örn: Bu kod neden hata veriyor? Login sistemi ekle. Bu dosyayı optimize et..."></textarea><button onclick="codexChatGonder()">Gönder</button></div><h3>🧠 Proje Hafızası</h3><input id="projeHafizaBaslik" class="profilInput" placeholder="Örn: index.html, server.js, sw.js"><button onclick="projeHafizaKaydet()">Projeye kaydet</button><div id="projeHafizaListe"></div></div></div>
 </div>
 
 
@@ -1140,6 +1204,30 @@ body::before{
     <button onclick="ozelAiKaydet()">AI Karakterini Kaydet</button>
     <button onclick="ozelAiSec(null)">🤖 Normal NeuraAI'ye dön</button>
     <div id="ozelAiPanelListe"></div>
+  </div>
+</div>
+
+
+
+<div class="popupArka" id="dunyaPopup">
+  <div class="popup dunyaPopup">
+    <button class="merkezKapatX" onclick="dunyaPanelKapat()">✖</button>
+    <h2>🌍 NeuraAI Dünya Haritası</h2>
+    <div class="dunyaOzet">
+      <div>👥 Toplam Kullanıcı<br><b id="dunyaToplamKullanici">0</b></div>
+      <div>🌎 Ülke Sayısı<br><b id="dunyaUlkeSayisi">0</b></div>
+      <div>👑 Lider Ülke<br><b id="dunyaLiderUlke">-</b></div>
+    </div>
+    <div class="dunyaHarita" id="dunyaHarita">
+      <svg viewBox="0 0 100 60" preserveAspectRatio="none">
+        <path d="M8 18 C15 8,28 10,34 17 C42 8,57 9,64 18 C72 11,86 14,92 24 C84 31,75 28,68 34 C62 44,48 43,41 35 C32 42,18 39,12 30 C7 27,5 22,8 18Z" fill="rgba(255,255,255,.10)"/>
+        <path d="M17 23 C23 18,31 20,34 26 C29 29,25 34,18 32 C13 30,12 26,17 23Z" fill="rgba(0,255,170,.10)"/>
+        <path d="M45 20 C54 15,64 19,67 27 C62 32,52 31,46 28 C42 25,42 22,45 20Z" fill="rgba(0,194,255,.12)"/>
+        <path d="M68 32 C75 30,84 34,86 41 C80 46,70 43,66 38 C64 35,65 33,68 32Z" fill="rgba(255,179,0,.10)"/>
+        <path d="M35 39 C42 36,50 40,51 48 C44 52,35 49,31 44 C30 41,32 40,35 39Z" fill="rgba(255,44,168,.10)"/>
+      </svg>
+    </div>
+    <div class="dunyaListe" id="dunyaListe"></div>
   </div>
 </div>
 
@@ -1207,6 +1295,11 @@ body::before{
       <div class="profilSatir">
         💬 Toplam Sohbet:
         <b id="profilToplamSohbet">0</b>
+      </div>
+
+      <div class="profilSatir">
+        💻 Codex Kullanımı:
+        <b id="profilToplamCodex">0</b>
       </div>
 
       <div class="profilSatir">
@@ -3933,6 +4026,200 @@ function canliKullaniciSayaciBaslat(){
 }
 
 setTimeout(canliKullaniciSayaciBaslat, 800);
+
+
+
+/* === NeuraAI V2: 4 Yeni Fikir === */
+(function(){
+  try{
+    if(typeof profilVerisi === "object"){
+      profilVerisi.toplamCodex = Number(profilVerisi.toplamCodex || 0);
+      if(typeof profilKaydetLocal === "function") profilKaydetLocal();
+    }
+  }catch(err){}
+
+  const eskiProfilGuncelle = window.profilGuncelle;
+  window.profilGuncelle = function(){
+    if(typeof eskiProfilGuncelle === "function") eskiProfilGuncelle();
+    const el = document.getElementById("profilToplamCodex");
+    if(el && typeof profilVerisi === "object"){
+      profilVerisi.toplamCodex = Number(profilVerisi.toplamCodex || 0);
+      el.innerText = profilVerisi.toplamCodex;
+      if(typeof profilKaydetLocal === "function") profilKaydetLocal();
+    }
+  };
+
+  window.codexKullanimArttir = function(){
+    try{
+      if(typeof profilVerisi !== "object") return;
+      profilVerisi.toplamCodex = Number(profilVerisi.toplamCodex || 0) + 1;
+      if(typeof profilGuncelle === "function") profilGuncelle();
+      if(typeof profilKaydetLocal === "function") profilKaydetLocal();
+    }catch(err){}
+  };
+})();
+
+function codexChatMesajEkle(text, kim){
+  const log = document.getElementById("codexChatLog");
+  if(!log) return;
+  const div = document.createElement("div");
+  div.className = "codexMsg " + (kim === "user" ? "user" : "ai");
+  div.innerText = text;
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+}
+
+async function codexChatGonder(){
+  const input = document.getElementById("codexChatInput");
+  const kodEl = document.getElementById("codexKod");
+  const cevapEl = document.getElementById("codexCevap");
+  if(!input) return;
+
+  const message = input.value.trim();
+  const code = kodEl ? kodEl.value.trim() : "";
+
+  if(!message && !code){
+    codexChatMesajEkle("Merhaba, ben Codex. Kodunu gönder, istediğin şeyi yaz; birlikte inceleyelim.", "ai");
+    return;
+  }
+
+  input.value = "";
+  codexChatMesajEkle(message || "Kod alanındaki kodu incele.", "user");
+  codexChatMesajEkle("Codex düşünüyor...", "ai");
+
+  try{
+    const res = await fetch("/codex-chat", {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify({
+        message,
+        code,
+        projectMemory: Array.isArray(window.projeHafizasi) ? window.projeHafizasi : (typeof projeHafizasi !== "undefined" ? projeHafizasi : [])
+      })
+    });
+
+    const data = await res.json();
+    const log = document.getElementById("codexChatLog");
+    if(log && log.lastElementChild && log.lastElementChild.innerText === "Codex düşünüyor...") log.lastElementChild.remove();
+
+    const reply = data.reply || "Codex cevap veremedi.";
+    codexChatMesajEkle(reply, "ai");
+    if(cevapEl) cevapEl.innerText = reply;
+    if(typeof codexKullanimArttir === "function") codexKullanimArttir();
+  }catch(err){
+    const log = document.getElementById("codexChatLog");
+    if(log && log.lastElementChild && log.lastElementChild.innerText === "Codex düşünüyor...") log.lastElementChild.remove();
+    codexChatMesajEkle("Codex bağlantı hatası aldı. Biraz sonra tekrar dene.", "ai");
+    console.error(err);
+  }
+}
+
+try{
+  const eskiCodexGonder = window.codexGonder;
+  window.codexGonder = async function(t){
+    if(typeof codexKullanimArttir === "function") codexKullanimArttir();
+    if(typeof eskiCodexGonder === "function") return eskiCodexGonder(t);
+  };
+}catch(err){}
+
+function dunyaPanelAc(){
+  const p = document.getElementById("dunyaPopup");
+  if(p) p.style.display = "flex";
+  dunyaHaritasiYukle();
+}
+
+function dunyaPanelKapat(){
+  const p = document.getElementById("dunyaPopup");
+  if(p) p.style.display = "none";
+}
+
+async function dunyaHaritasiYukle(){
+  const harita = document.getElementById("dunyaHarita");
+  const liste = document.getElementById("dunyaListe");
+  if(!harita || !liste) return;
+
+  try{
+    const res = await fetch("/world-stats");
+    const data = await res.json();
+
+    document.getElementById("dunyaToplamKullanici").innerText = Number(data.total || 0);
+    document.getElementById("dunyaUlkeSayisi").innerText = Number(data.countryCount || 0);
+    document.getElementById("dunyaLiderUlke").innerText = data.leader ? data.leader.name + " 👑" : "-";
+
+    harita.querySelectorAll(".ulkeBalon").forEach(e => e.remove());
+    liste.innerHTML = "";
+
+    const countries = Array.isArray(data.countries) ? data.countries : [];
+    countries.forEach((c, index) => {
+      const balon = document.createElement("div");
+      balon.className = "ulkeBalon" + (index === 0 ? " lider" : "");
+      balon.style.left = Number(c.x || 50) + "%";
+      balon.style.top = Number(c.y || 50) + "%";
+      balon.innerText = (index === 0 ? "👑 " : "") + c.name + " • " + Number(c.users || 0);
+      harita.appendChild(balon);
+
+      const item = document.createElement("div");
+      item.className = "dunyaListeItem";
+      item.innerHTML = `<span>${index === 0 ? "👑 " : "🌍 "}${c.name}</span><b>${Number(c.users || 0)} kişi</b>`;
+      liste.appendChild(item);
+    });
+  }catch(err){
+    liste.innerHTML = '<div class="dunyaListeItem"><span>Harita verisi alınamadı.</span><b>--</b></div>';
+  }
+}
+
+/* Kurucu modu için: kendi tarayıcında bir kere konsola şunu yazabilirsin:
+   localStorage.setItem("neura_founder_key", "ffgok-kurucu")
+*/
+async function kurucuDurumGuncelle(data){
+  const box = document.getElementById("kurucuDurumKutusu");
+  const yazi = document.getElementById("kurucuDurumYazi");
+  if(!box || !yazi) return;
+
+  const aktif = !!(data && data.founderOnline);
+  box.classList.toggle("aktif", aktif);
+  yazi.innerText = aktif ? "Kurucu çevrimiçi" : "Kurucu çevrimdışı";
+}
+
+const eskiCanliPing = window.canliKullaniciPing;
+window.canliKullaniciPing = async function(){
+  try{
+    const founderKey = localStorage.getItem("neura_founder_key") || "";
+    const res = await fetch('/online-ping', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body:JSON.stringify({ founderKey })
+    });
+    const data = await res.json().catch(() => ({}));
+    kurucuDurumGuncelle(data);
+  }catch(err){
+    if(typeof eskiCanliPing === "function") eskiCanliPing();
+  }
+};
+
+const eskiCanliSayac = window.canliKullaniciSayisiniGuncelle;
+window.canliKullaniciSayisiniGuncelle = async function(){
+  const sayiEl = document.getElementById('canliKullaniciSayisi');
+  if(!sayiEl) return;
+  try{
+    const res = await fetch('/online-count');
+    const data = await res.json();
+    sayiEl.innerText = Number(data.online || 0);
+    kurucuDurumGuncelle(data);
+  }catch(err){
+    if(typeof eskiCanliSayac === "function") return eskiCanliSayac();
+    sayiEl.innerText = '--';
+  }
+};
+
+if(document.getElementById("codexChatInput")){
+  document.getElementById("codexChatInput").addEventListener("keydown", function(e){
+    if(e.key === "Enter" && !e.shiftKey){
+      e.preventDefault();
+      codexChatGonder();
+    }
+  });
+}
 
 </script>
 </body>
