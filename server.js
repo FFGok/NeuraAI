@@ -51,7 +51,9 @@ function veriOku(){
         added: [],
         upcoming: varsayilanYaklasanlar(),
         polls: [],
-        memories: {}
+        memories: {},
+        countryStats: {},
+        founderStatus: { online:false, lastSeen:0 }
       };
     }
 
@@ -64,7 +66,9 @@ function veriOku(){
       added: Array.isArray(data.added) ? data.added : [],
       upcoming: Array.isArray(data.upcoming) && data.upcoming.length > 0 ? data.upcoming : varsayilanYaklasanlar(),
       polls: Array.isArray(data.polls) ? data.polls : [],
-      memories: data.memories && typeof data.memories === "object" ? data.memories : {}
+      memories: data.memories && typeof data.memories === "object" ? data.memories : {},
+      countryStats: data.countryStats && typeof data.countryStats === "object" ? data.countryStats : {},
+      founderStatus: data.founderStatus && typeof data.founderStatus === "object" ? data.founderStatus : { online:false, lastSeen:0 }
     };
   }catch(err){
     console.error("Veri okuma hatası:", err);
@@ -91,7 +95,9 @@ function veriKaydet(){
       added: neuraAdded,
       upcoming: neuraUpcoming,
       polls: neuraPolls,
-      memories: neuraMemories
+      memories: neuraMemories,
+      countryStats: neuraCountryStats,
+      founderStatus: neuraFounderStatus
     };
 
     const tmpFile = DATA_FILE + ".tmp";
@@ -120,6 +126,10 @@ let neuraAdded = kayitliVeri.added || [];
 let neuraUpcoming = kayitliVeri.upcoming || varsayilanYaklasanlar();
 let neuraPolls = kayitliVeri.polls || [];
 
+/* === NeuraAI V2: Dünya Haritası + Kurucu Durumu === */
+let neuraCountryStats = kayitliVeri.countryStats && typeof kayitliVeri.countryStats === "object" ? kayitliVeri.countryStats : {};
+let neuraFounderStatus = kayitliVeri.founderStatus && typeof kayitliVeri.founderStatus === "object" ? kayitliVeri.founderStatus : { online:false, lastSeen:0 };
+
 /* === NeuraAI V2: Akıllı Hafıza === */
 let neuraMemories = kayitliVeri.memories && typeof kayitliVeri.memories === "object"
   ? kayitliVeri.memories
@@ -142,6 +152,61 @@ function onlineTemizle(){
 function onlineKullaniciSayisi(){
   onlineTemizle();
   return Object.keys(onlineUsers).length;
+}
+
+
+function kurucuCevrimiciMi(){
+  const simdi = Date.now();
+  const zamanAsimi = 60000;
+  return !!(neuraFounderStatus && neuraFounderStatus.lastSeen && simdi - neuraFounderStatus.lastSeen < zamanAsimi);
+}
+
+function ulkeKoduAl(req){
+  const cf = String(req.headers["cf-ipcountry"] || "").trim().toUpperCase();
+  if(cf && cf !== "XX" && cf.length === 2) return cf;
+
+  const custom = String(req.headers["x-neura-country"] || req.body?.country || "").trim().toUpperCase();
+  if(custom && custom.length === 2) return custom;
+
+  return "TR";
+}
+
+function ulkeAdi(kod){
+  const map = {
+    TR:"Türkiye", US:"Amerika", DE:"Almanya", GB:"İngiltere", NL:"Hollanda", FR:"Fransa",
+    AZ:"Azerbaycan", RU:"Rusya", JP:"Japonya", BR:"Brezilya", ES:"İspanya", IT:"İtalya",
+    CA:"Kanada", AU:"Avustralya", IN:"Hindistan", SA:"Suudi Arabistan", AE:"Birleşik Arap Emirlikleri"
+  };
+  return map[kod] || kod;
+}
+
+function ulkeKonumu(kod){
+  const map = {
+    TR:{ x:58, y:41 }, US:{ x:20, y:36 }, DE:{ x:50, y:31 }, GB:{ x:46, y:29 }, NL:{ x:48, y:30 },
+    FR:{ x:47, y:34 }, AZ:{ x:61, y:40 }, RU:{ x:65, y:24 }, JP:{ x:84, y:39 }, BR:{ x:34, y:66 },
+    ES:{ x:45, y:38 }, IT:{ x:51, y:38 }, CA:{ x:20, y:23 }, AU:{ x:80, y:73 }, IN:{ x:69, y:49 },
+    SA:{ x:58, y:51 }, AE:{ x:63, y:51 }
+  };
+  return map[kod] || { x:50, y:50 };
+}
+
+function ulkeKaydet(req){
+  const kod = ulkeKoduAl(req);
+  if(!neuraCountryStats[kod]){
+    neuraCountryStats[kod] = { code:kod, name:ulkeAdi(kod), users:0, x:ulkeKonumu(kod).x, y:ulkeKonumu(kod).y, lastSeen:0 };
+  }
+
+  const simdi = Date.now();
+  if(!neuraCountryStats[kod].lastSeen || simdi - neuraCountryStats[kod].lastSeen > 10 * 60 * 1000){
+    neuraCountryStats[kod].users = Number(neuraCountryStats[kod].users || 0) + 1;
+  }
+
+  neuraCountryStats[kod].lastSeen = simdi;
+  neuraCountryStats[kod].name = ulkeAdi(kod);
+  neuraCountryStats[kod].x = ulkeKonumu(kod).x;
+  neuraCountryStats[kod].y = ulkeKonumu(kod).y;
+
+  return kod;
 }
 
 setInterval(onlineTemizle, 15000);
@@ -1270,6 +1335,9 @@ app.post("/neura-data-import", (req, res) => {
   if(Array.isArray(data.added)) neuraAdded = data.added;
   if(Array.isArray(data.upcoming)) neuraUpcoming = data.upcoming;
   if(Array.isArray(data.polls)) neuraPolls = data.polls;
+  if(data.memories && typeof data.memories === "object") neuraMemories = data.memories;
+  if(data.countryStats && typeof data.countryStats === "object") neuraCountryStats = data.countryStats;
+  if(data.founderStatus && typeof data.founderStatus === "object") neuraFounderStatus = data.founderStatus;
 
   veriKaydet();
 
@@ -1283,20 +1351,34 @@ app.post("/online-ping", (req, res) => {
     const ip = ipAl(req);
     const userAgent = String(req.headers["user-agent"] || "bilinmiyor").slice(0, 120);
     const key = ip + "|" + userAgent;
+    const country = ulkeKaydet(req);
 
     onlineUsers[key] = {
-      lastSeen: Date.now()
+      lastSeen: Date.now(),
+      country
     };
+
+    const gelenFounderKey = String(req.body?.founderKey || req.headers["x-founder-key"] || "").trim();
+    const dogruFounderKey = String(process.env.FOUNDER_KEY || "ffgok-kurucu").trim();
+
+    if(gelenFounderKey && gelenFounderKey === dogruFounderKey){
+      neuraFounderStatus = {
+        online:true,
+        lastSeen: Date.now()
+      };
+    }
 
     res.json({
       ok:true,
-      online: onlineKullaniciSayisi()
+      online: onlineKullaniciSayisi(),
+      founderOnline: kurucuCevrimiciMi()
     });
   }catch(err){
     console.error("Online ping hatası:", err);
     res.json({
       ok:false,
-      online: onlineKullaniciSayisi()
+      online: onlineKullaniciSayisi(),
+      founderOnline: kurucuCevrimiciMi()
     });
   }
 });
@@ -1304,7 +1386,120 @@ app.post("/online-ping", (req, res) => {
 app.get("/online-count", (req, res) => {
   res.json({
     ok:true,
-    online: onlineKullaniciSayisi()
+    online: onlineKullaniciSayisi(),
+    founderOnline: kurucuCevrimiciMi()
+  });
+});
+
+
+
+/* === NeuraAI V2: Codex Chat + Dünya Haritası === */
+app.post("/codex-chat", async (req, res) => {
+  try{
+    const message = temizMesaj(req.body?.message || "").trim();
+    const code = temizMesaj(req.body?.code || "").trim();
+    const projectMemory = Array.isArray(req.body?.projectMemory) ? req.body.projectMemory.slice(-8) : [];
+
+    if(!message && !code){
+      return res.json({ ok:false, reply:"Merhaba, ben Codex. Kodunu gönder, istediğin şeyi yaz; birlikte güçlüce inceleyelim." });
+    }
+
+    if(!process.env.OPENROUTER_API_KEY){
+      return res.json({ ok:false, reply:"Codex API key ayarlanmamış." });
+    }
+
+    const kodIsareti = /```|function |const |let |var |class |app\.|document\.|<html|<div|<script|require\(|import |async |await |=>|SELECT |INSERT |router\.|module\.exports/i.test(message + "\n" + code);
+    const kodNiyeti = /(kod|hata|bug|html|css|javascript|js|node|server|api|endpoint|optimize|güvenlik|guvenlik|dosya|fonksiyon|deploy|render|login|buton|site|proje|analiz|açıkla|acikla|ekle|düzelt|duzelt)/i.test(message);
+
+    if(!kodIsareti && !kodNiyeti && !code){
+      return res.json({
+        ok:true,
+        reply:"Merhaba, ben Codex. Kodlarını analiz etmek, hata bulmak, açıklamak, optimize etmek ve projeni geliştirmek için buradayım. Bana kodunu gönder veya kodla ilgili ne yapmak istediğini yaz."
+      });
+    }
+
+    const hafizaMetni = projectMemory.map((item, i) => {
+      if(typeof item === "string") return `${i + 1}) ${temizMesaj(item).slice(0, 700)}`;
+      const title = temizMesaj(item?.baslik || item?.title || item?.name || `Dosya ${i + 1}`).slice(0, 80);
+      const content = temizMesaj(item?.kod || item?.content || item?.text || "").slice(0, 900);
+      return `${i + 1}) ${title}: ${content}`;
+    }).join("\n");
+
+    const aiRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method:"POST",
+      headers:{
+        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify({
+        model: process.env.OPENROUTER_CODE_MODEL || process.env.OPENROUTER_SMART_MODEL || "openai/gpt-4o-mini",
+        max_tokens: 2600,
+        messages:[
+          {
+            role:"system",
+            content:
+              "Sen NeuraAI içindeki Codex Chat'sin. Sadece kod, yazılım, proje, hata, güvenlik, performans, dosya yapısı ve teknik geliştirme konularında yardımcı ol. " +
+              "Kullanıcı kod dışı günlük konuşma yaparsa kısa şekilde 'Merhaba, ben Codex. Kodunu gönder, istediğini yapalım.' anlamında cevap ver ve kod iste. " +
+              "Kod geldiğinde çok güçlü analiz yap: önce kısa teşhis, sonra hatalar, sonra çözüm adımları, sonra gerekiyorsa kod parçası ver. " +
+              "Yanlış dosyaya yönlendirme yapma. Emin değilsen belirt. Uzun dosyayı gereksiz yere komple tekrar yazma. " +
+              "Cevap Türkçe, net, güçlü, uygulanabilir ve düzenli olsun."
+          },
+          {
+            role:"user",
+            content:
+              "Kullanıcının isteği:\n" + message +
+              "\n\nKod alanı:\n" + (code || "Kod alanı boş.") +
+              "\n\nProje hafızası:\n" + (hafizaMetni || "Proje hafızası boş.")
+          }
+        ]
+      })
+    });
+
+    const data = await aiRes.json().catch(() => ({}));
+
+    if(!aiRes.ok){
+      console.error("Codex Chat hata:", data);
+      return res.json({ ok:false, reply:"Codex tarafında sorun oldu. Biraz sonra tekrar dene." });
+    }
+
+    const reply = data.choices?.[0]?.message?.content || "Codex cevap alamadı.";
+    return res.json({ ok:true, reply });
+  }catch(err){
+    console.error("Codex Chat sistem hatası:", err);
+    res.json({ ok:false, reply:"Codex Chat hata verdi." });
+  }
+});
+
+app.get("/world-stats", (req, res) => {
+  const varsayilan = {
+    TR:{ code:"TR", name:"Türkiye", users:20, x:58, y:41, lastSeen:Date.now() },
+    US:{ code:"US", name:"Amerika", users:1, x:20, y:36, lastSeen:Date.now() },
+    DE:{ code:"DE", name:"Almanya", users:1, x:50, y:31, lastSeen:Date.now() }
+  };
+
+  if(!neuraCountryStats || Object.keys(neuraCountryStats).length === 0){
+    neuraCountryStats = varsayilan;
+  }
+
+  const countries = Object.values(neuraCountryStats)
+    .map(c => ({
+      code:c.code,
+      name:c.name || ulkeAdi(c.code),
+      users:Number(c.users || 0),
+      x:Number(c.x || ulkeKonumu(c.code).x),
+      y:Number(c.y || ulkeKonumu(c.code).y)
+    }))
+    .sort((a,b) => b.users - a.users);
+
+  const total = countries.reduce((sum,c) => sum + c.users, 0);
+  const leader = countries[0] || null;
+
+  res.json({
+    ok:true,
+    total,
+    countryCount:countries.length,
+    leader,
+    countries
   });
 });
 
