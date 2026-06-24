@@ -1197,7 +1197,7 @@ body::before{
 
   <div class="kurucuDurumKutusu" id="kurucuDurumKutusu" title="Kurucu durumu">
     <span class="kurucuTac">👑</span>
-    <span id="kurucuDurumYazi">NeuraAI çevrimdışı</span>
+    <span id="kurucuDurumYazi">Kurucu çevrimdışı</span>
   </div>
 
   <div class="altBaslik" id="durumYazi"></div>
@@ -4292,7 +4292,7 @@ async function kurucuDurumGuncelle(data){
 
   const aktif = !!(data && data.founderOnline);
   box.classList.toggle("aktif", aktif);
-  yazi.innerText = aktif ? "NeuraAI çevrimiçi" : "NeuraAI çevrimdışı";
+  yazi.innerText = aktif ? "Kurucu çevrimiçi" : "KurucuI çevrimdışı";
 }
 
 const eskiCanliPing = window.canliKullaniciPing;
