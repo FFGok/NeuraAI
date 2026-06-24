@@ -50,7 +50,8 @@ function veriOku(){
         notifications: [],
         added: [],
         upcoming: varsayilanYaklasanlar(),
-        polls: []
+        polls: [],
+        memories: {}
       };
     }
 
@@ -62,7 +63,8 @@ function veriOku(){
       notifications: Array.isArray(data.notifications) ? data.notifications : [],
       added: Array.isArray(data.added) ? data.added : [],
       upcoming: Array.isArray(data.upcoming) && data.upcoming.length > 0 ? data.upcoming : varsayilanYaklasanlar(),
-      polls: Array.isArray(data.polls) ? data.polls : []
+      polls: Array.isArray(data.polls) ? data.polls : [],
+      memories: data.memories && typeof data.memories === "object" ? data.memories : {}
     };
   }catch(err){
     console.error("Veri okuma hatası:", err);
@@ -71,7 +73,8 @@ function veriOku(){
       notifications: [],
       added: [],
       upcoming: varsayilanYaklasanlar(),
-      polls: []
+      polls: [],
+      memories: {}
     };
   }
 }
@@ -87,7 +90,8 @@ function veriKaydet(){
       notifications: neuraNotifications,
       added: neuraAdded,
       upcoming: neuraUpcoming,
-      polls: neuraPolls
+      polls: neuraPolls,
+      memories: neuraMemories
     };
 
     const tmpFile = DATA_FILE + ".tmp";
@@ -115,6 +119,11 @@ let neuraNotifications = kayitliVeri.notifications || [];
 let neuraAdded = kayitliVeri.added || [];
 let neuraUpcoming = kayitliVeri.upcoming || varsayilanYaklasanlar();
 let neuraPolls = kayitliVeri.polls || [];
+
+/* === NeuraAI V2: Akıllı Hafıza === */
+let neuraMemories = kayitliVeri.memories && typeof kayitliVeri.memories === "object"
+  ? kayitliVeri.memories
+  : {};
 
 /* === NeuraAI V2: Canlı Kullanıcı Sayacı === */
 let onlineUsers = {};
@@ -147,6 +156,139 @@ function ipAl(req){
 function temizMesaj(m){
   return String(m || "").slice(0, 4000);
 }
+
+/* === NeuraAI V2: Akıllı Hafıza + Kendini Kontrol + Çok Dilli Zeka === */
+function hafizaAnahtari(ip){
+  return String(ip || "bilinmiyor").replace(/[^a-zA-Z0-9_.:-]/g, "_").slice(0, 120);
+}
+
+function akilliHafizaAl(ip){
+  const key = hafizaAnahtari(ip);
+  if(!Array.isArray(neuraMemories[key])){
+    neuraMemories[key] = [];
+  }
+  return neuraMemories[key];
+}
+
+function akilliHafizaMetni(ip){
+  const memories = akilliHafizaAl(ip)
+    .filter(m => m && m.text)
+    .slice(-12);
+
+  if(memories.length === 0) return "";
+
+  return (
+    " Kullanıcı hakkında kalıcı ama güvenli akıllı hafıza notları: " +
+    memories.map((m, i) => `${i + 1}) ${m.text}`).join(" | ") +
+    ". Bu notları sadece cevap kalitesini artırmak için kullan. Kullanıcı isterse unutabileceğini söyle. "
+  );
+}
+
+function hafizaAdayiMi(mesaj){
+  const m = temizMesaj(mesaj).toLowerCase();
+
+  const anahtarlar = [
+    "seviyorum", "sevmiyorum", "hoşuma gidiyor", "hosuma gidiyor",
+    "tercihim", "tercih ederim", "benim projem", "projem",
+    "neurai", "codex", "adım", "adim", "yaşım", "yasim",
+    "ben ", "bana ", "bundan sonra", "hep ", "genelde "
+  ];
+
+  return anahtarlar.some(k => m.includes(k));
+}
+
+function akilliHafizaKaydet(ip, mesaj){
+  const temiz = temizMesaj(mesaj).trim();
+  if(!temiz || temiz.length < 8) return;
+  if(!hafizaAdayiMi(temiz)) return;
+
+  const key = hafizaAnahtari(ip);
+  const memories = akilliHafizaAl(ip);
+
+  const yeniNot = temiz
+    .replace(/\s+/g, " ")
+    .slice(0, 220);
+
+  const zatenVar = memories.some(m =>
+    String(m.text || "").toLowerCase() === yeniNot.toLowerCase()
+  );
+
+  if(zatenVar) return;
+
+  memories.push({
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
+    text: yeniNot,
+    time: Date.now()
+  });
+
+  neuraMemories[key] = memories.slice(-25);
+  veriKaydet();
+}
+
+function cokDilliZekaKurallari(){
+  return (
+    " Çok dilli zeka aktif. Kullanıcı hangi dilde yazarsa o dilde cevap ver. " +
+    "Kullanıcı Türkçe yazarsa Türkçe cevap ver ama gerekirse İngilizce/diğer dillerdeki genel bilgileri zihinsel olarak karşılaştırıp daha kaliteli cevap üret. " +
+    "Kullanıcı farklı diller karıştırırsa anlamı koru, doğal ve anlaşılır cevap ver. " +
+    "Çeviri istenirse anlamı bozmadan, sade ve doğru çevir. "
+  );
+}
+
+async function neuraKendiniKontrolEt({ mesaj, cevap, secilenAiModel, mode }){
+  try{
+    const ilkCevap = temizMesaj(cevap).trim();
+
+    if(!process.env.OPENROUTER_API_KEY) return ilkCevap;
+    if(!ilkCevap || ilkCevap.length < 30) return ilkCevap;
+
+    const kontrolRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method:"POST",
+      headers:{
+        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify({
+        model: process.env.OPENROUTER_FAST_MODEL || secilenAiModel.model || "openai/gpt-4o-mini",
+        max_tokens: mode === "uzun" ? 1800 : 850,
+        messages:[
+          {
+            role:"system",
+            content:
+              "Sen NeuraAI cevap kalite kontrol sistemisin. " +
+              "Görevin ilk cevabı gizlice kontrol etmek ve gerekiyorsa düzeltmektir. " +
+              "Sadece son kullanıcıya gönderilecek nihai cevabı yaz. " +
+              "Açıklama, puan, kontrol raporu, 'kontrol ettim' gibi meta cümleler yazma. " +
+              "Cevap zaten iyiyse anlamını bozmadan aynı cevabı daha temiz ver. " +
+              "Kullanıcının dili neyse o dilde cevap ver. " +
+              "Yanlış kesinlik, eksik cevap, konu dışına çıkma, gereksiz uzatma ve çelişki varsa düzelt."
+          },
+          {
+            role:"user",
+            content:
+              "Kullanıcı mesajı:\n" + temizMesaj(mesaj) +
+              "\n\nİlk NeuraAI cevabı:\n" + ilkCevap
+          }
+        ]
+      })
+    });
+
+    const data = await kontrolRes.json().catch(() => ({}));
+
+    if(!kontrolRes.ok){
+      console.error("Kendini kontrol hata:", data);
+      return ilkCevap;
+    }
+
+    const finalCevap = temizMesaj(data.choices?.[0]?.message?.content || "").trim();
+
+    if(!finalCevap) return ilkCevap;
+    return finalCevap;
+  }catch(err){
+    console.error("Kendini kontrol sistemi hata:", err);
+    return cevap;
+  }
+}
+
 
 function kullaniciVerisiHazirla(ip){
   if(!kullaniciVerisi[ip]){
@@ -300,12 +442,14 @@ function ozelAiPromptOlustur(customAi){
   );
 }
 
-function sistemPromptOlustur(konusmaModu, aiModelTipi, customAi){
+function sistemPromptOlustur(konusmaModu, aiModelTipi, customAi, ip){
   const profil = aiModelProfili(aiModelTipi);
 
   const temel =
     "Sen NeuraAI adında net, yardımcı ve güvenli bir yapay zekasın. " +
     "Kullanıcı Türkçe yazarsa Türkçe cevap ver. Kullanıcı İngilizce, Arapça veya başka bir dilde yazarsa o dile uygun cevap ver. " +
+    cokDilliZekaKurallari() +
+    akilliHafizaMetni(ip) +
     "Önceki konuşmaları güçlü şekilde dikkate al. Kullanıcı 'onu', 'az önceki', 'bununla', 'sonucu' gibi şeyler derse önceki mesajlardan anlam çıkar. Uzun konuşmalarda konu, kararlar, kodlar, hatalar ve kullanıcı tercihlerini takip et. " +
     "Kullanıcıya teknik sistem açıklaması yapma. " +
     "Seni 13 yaşındaki Göktürk Arslan geliştirdi. Kullanıcı seni kimin yaptığını, kurduğunu, geliştirdiğini veya oluşturduğunu sorarsa Göktürk Arslan tarafından geliştirildiğini söyle. " +
@@ -440,7 +584,7 @@ app.post("/chat", async (req, res) => {
         messages: [
           {
             role: "system",
-            content: sistemPromptOlustur(secilenMod, aiModelTipi, customAi)
+            content: sistemPromptOlustur(secilenMod, aiModelTipi, customAi, ip)
           },
           ...hafiza
         ]
@@ -454,11 +598,22 @@ app.post("/chat", async (req, res) => {
       return res.json({ reply: "AI tarafında bir sorun oldu. Biraz sonra tekrar dene." });
     }
 
-    const reply = aiData.choices?.[0]?.message?.content || "Cevap alınamadı.";
+    const ilkReply = aiData.choices?.[0]?.message?.content || "Cevap alınamadı.";
+    const reply = await neuraKendiniKontrolEt({
+      mesaj: message,
+      cevap: ilkReply,
+      secilenAiModel,
+      mode
+    });
+
+    akilliHafizaKaydet(ip, message);
 
     return res.json({
       reply,
-      kalanMesaj: mesajLimiti - kullaniciVerisi[ip].mesajSayisi
+      kalanMesaj: mesajLimiti - kullaniciVerisi[ip].mesajSayisi,
+      akilliHafiza: true,
+      kendiniKontrol: true,
+      cokDilliZeka: true
     });
 
   }catch(err){
