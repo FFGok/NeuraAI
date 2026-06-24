@@ -1398,6 +1398,9 @@ body::before{
 
 
 <script>
+const NEURAAI_V2_AKILLI_HAFIZA = true;
+const NEURAAI_V2_KENDINI_KONTROL = true;
+const NEURAAI_V2_COK_DILLI_ZEKA = true;
 const chat = document.getElementById("chat");
 const input = document.getElementById("input");
 const fotoInput = document.getElementById("fotoInput");
@@ -2154,6 +2157,9 @@ async function mesajdanSonraTekrarCevapla(msgId){
         konusmaModu:konusmaModu,
         aiModelTipi:aiModelTipi,
         customAi:aktifOzelAiBul(),
+        v2AkilliHafiza:NEURAAI_V2_AKILLI_HAFIZA,
+        v2KendiniKontrol:NEURAAI_V2_KENDINI_KONTROL,
+        v2CokDilliZeka:NEURAAI_V2_COK_DILLI_ZEKA,
         messages:sohbetGecmisi
       })
     });
@@ -2972,6 +2978,9 @@ async function gonder(){
         konusmaModu:konusmaModu,
         aiModelTipi:aiModelTipi,
         customAi:aktifOzelAiBul(),
+        v2AkilliHafiza:NEURAAI_V2_AKILLI_HAFIZA,
+        v2KendiniKontrol:NEURAAI_V2_KENDINI_KONTROL,
+        v2CokDilliZeka:NEURAAI_V2_COK_DILLI_ZEKA,
         messages:sohbetGecmisi
       })
     });
