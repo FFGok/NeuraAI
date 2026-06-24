@@ -10,7 +10,7 @@ const DATA_DIR =
   process.env.RENDER_DISK_PATH ||
   __dirname;
 
-const DATA_FILE = path.join(DATA_DIR, "neura-data.json");
+const DATA_FILE = pathjoin(DATA_DIR, "neura-data.json");
 
 function varsayilanYaklasanlar(){
   return [
@@ -220,6 +220,10 @@ function ipAl(req){
 
 function temizMesaj(m){
   return String(m || "").slice(0, 4000);
+}
+
+function temizKod(m){
+  return String(m || "").slice(0, 18000);
 }
 
 /* === NeuraAI V2: Akıllı Hafıza + Kendini Kontrol + Çok Dilli Zeka === */
@@ -1401,36 +1405,40 @@ app.get("/online-count", (req, res) => {
 
 
 /* === NeuraAI V2: Codex Chat + Dünya Haritası === */
+
 app.post("/codex-chat", async (req, res) => {
   try{
     const message = temizMesaj(req.body?.message || "").trim();
-    const code = temizMesaj(req.body?.code || "").trim();
-    const projectMemory = Array.isArray(req.body?.projectMemory) ? req.body.projectMemory.slice(-8) : [];
+    const code = temizKod(req.body?.code || "").trim();
+    const projectMemory = Array.isArray(req.body?.projectMemory) ? req.body.projectMemory.slice(-10) : [];
 
     if(!message && !code){
-      return res.json({ ok:false, reply:"Merhaba, ben Codex. Kodunu gönder, istediğin şeyi yaz; birlikte güçlüce inceleyelim." });
+      return res.json({ ok:false, reply:"Merhaba, ben Codex. Kodunu gönder, istediğini yaz; birlikte güçlü şekilde inceleyelim." });
     }
 
     if(!process.env.OPENROUTER_API_KEY){
       return res.json({ ok:false, reply:"Codex API key ayarlanmamış." });
     }
 
-    const kodIsareti = /```|function |const |let |var |class |app\.|document\.|<html|<div|<script|require\(|import |async |await |=>|SELECT |INSERT |router\.|module\.exports/i.test(message + "\n" + code);
-    const kodNiyeti = /(kod|hata|bug|html|css|javascript|js|node|server|api|endpoint|optimize|güvenlik|guvenlik|dosya|fonksiyon|deploy|render|login|buton|site|proje|analiz|açıkla|acikla|ekle|düzelt|duzelt)/i.test(message);
+    const birlesik = (message + "\n" + code).trim();
+    const kodIsareti = code.length > 0 || /```|function\s+|const\s+|let\s+|var\s+|class\s+|app\.|document\.|<html|<div|<script|require\(|import\s+|async\s+|await\s+|=>|SELECT\s+|INSERT\s+|router\.|module\.exports|\.then\(|try\{|catch\(|res\.json|fetch\(/i.test(birlesik);
+    const kodNiyeti = /(kod|hata|bug|html|css|javascript|js|node|server|api|endpoint|optimize|güvenlik|guvenlik|dosya|fonksiyon|deploy|render|login|buton|site|proje|analiz|açıkla|acikla|ekle|düzelt|duzelt|çalışmıyor|calismiyor|çalışmıyor|neden|fix|refactor|performans|veritabanı|database)/i.test(message);
 
-    if(!kodIsareti && !kodNiyeti && !code){
+    if(!kodIsareti && !kodNiyeti){
       return res.json({
         ok:true,
-        reply:"Merhaba, ben Codex. Kodlarını analiz etmek, hata bulmak, açıklamak, optimize etmek ve projeni geliştirmek için buradayım. Bana kodunu gönder veya kodla ilgili ne yapmak istediğini yaz."
+        reply:"Merhaba, ben Codex. Ben kod ve proje tarafı için buradayım. Kodunu gönder; hata bulayım, açıklayayım, optimize edeyim veya hangi dosyada ne değişeceğini söyleyeyim."
       });
     }
 
     const hafizaMetni = projectMemory.map((item, i) => {
-      if(typeof item === "string") return `${i + 1}) ${temizMesaj(item).slice(0, 700)}`;
+      if(typeof item === "string") return `${i + 1}) ${temizKod(item).slice(0, 1200)}`;
       const title = temizMesaj(item?.baslik || item?.title || item?.name || `Dosya ${i + 1}`).slice(0, 80);
-      const content = temizMesaj(item?.kod || item?.content || item?.text || "").slice(0, 900);
-      return `${i + 1}) ${title}: ${content}`;
-    }).join("\n");
+      const content = temizKod(item?.kod || item?.content || item?.text || "").slice(0, 1500);
+      return `${i + 1}) ${title}:\n${content}`;
+    }).join("\n\n");
+
+    const gorev = message || "Bu kodu güçlü şekilde analiz et. Hataları, güvenlik risklerini, performansı, dosya yerleşimini ve iyileştirmeleri net söyle.";
 
     const aiRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method:"POST",
@@ -1440,22 +1448,23 @@ app.post("/codex-chat", async (req, res) => {
       },
       body:JSON.stringify({
         model: process.env.OPENROUTER_CODE_MODEL || process.env.OPENROUTER_SMART_MODEL || "openai/gpt-4o-mini",
-        max_tokens: 2600,
+        max_tokens: 3400,
         messages:[
           {
             role:"system",
             content:
-              "Sen NeuraAI içindeki Codex Chat'sin. Sadece kod, yazılım, proje, hata, güvenlik, performans, dosya yapısı ve teknik geliştirme konularında yardımcı ol. " +
-              "Kullanıcı kod dışı günlük konuşma yaparsa kısa şekilde 'Merhaba, ben Codex. Kodunu gönder, istediğini yapalım.' anlamında cevap ver ve kod iste. " +
-              "Kod geldiğinde çok güçlü analiz yap: 1) kısa teşhis, 2) muhtemel sebep, 3) net çözüm, 4) hangi dosyada ne değişecek, 5) gerekiyorsa küçük kod parçası. " +
-              "Kullanıcı 'tamamını ver' demedikçe dev dosyayı komple tekrar yazma. Yanlış dosyaya yönlendirme yapma. Emin değilsen belirt. " +
-              "Kod güvenliği, performans, hata ihtimali ve kullanıcı deneyimini aynı anda düşün. " +
-              "Cevap Türkçe, net, güçlü, uygulanabilir ve düzenli olsun."
+              "Sen NeuraAI içindeki Codex Chat'sin. Normal sohbet asistanı değilsin; kod, yazılım, proje, hata, güvenlik, performans, dosya yapısı ve teknik geliştirme konularında uzman bir yardımcı gibi davran. " +
+              "Kod yoksa ve kullanıcı günlük konu açarsa kısa cevap ver: 'Merhaba, ben Codex. Kodunu gönder, istediğini yapalım.' Kod iste. " +
+              "Kod veya teknik istek varsa ASLA sadece tanıtım mesajı verme; mutlaka analiz yap. " +
+              "Cevap düzenin: 1) Kısa teşhis, 2) Sorunun nedeni, 3) Net çözüm adımları, 4) Gerekirse kod parçası, 5) Hangi dosyada ne değişecek. " +
+              "Kod büyükse tamamını tekrar yazma; değişecek kritik parçaları ver. Kullanıcı 'tam dosya ver' derse tam dosya ver. " +
+              "Emin değilsen açıkça belirt. Güvenlik, performans, okunabilirlik ve kullanıcı deneyimini birlikte düşün. " +
+              "Türkçe, net, güçlü, uygulanabilir ve geliştirici dostu cevap ver."
           },
           {
             role:"user",
             content:
-              "Kullanıcının isteği:\n" + message +
+              "Görev:\n" + gorev +
               "\n\nKod alanı:\n" + (code || "Kod alanı boş.") +
               "\n\nProje hafızası:\n" + (hafizaMetni || "Proje hafızası boş.")
           }
