@@ -1364,21 +1364,27 @@ app.post("/online-ping", (req, res) => {
     if(gelenFounderKey && gelenFounderKey === dogruFounderKey){
       neuraFounderStatus = {
         online:true,
-        lastSeen: Date.now()
+        lastSeen: Date.now(),
+        ip,
+        country
       };
     }
 
     res.json({
       ok:true,
       online: onlineKullaniciSayisi(),
-      founderOnline: kurucuCevrimiciMi()
+      founderOnline: kurucuCevrimiciMi(),
+      founderName: "NeuraAI",
+      founderLastSeen: Number(neuraFounderStatus.lastSeen || 0),
+      country
     });
   }catch(err){
     console.error("Online ping hatası:", err);
     res.json({
       ok:false,
       online: onlineKullaniciSayisi(),
-      founderOnline: kurucuCevrimiciMi()
+      founderOnline: kurucuCevrimiciMi(),
+      founderName: "NeuraAI"
     });
   }
 });
@@ -1387,7 +1393,8 @@ app.get("/online-count", (req, res) => {
   res.json({
     ok:true,
     online: onlineKullaniciSayisi(),
-    founderOnline: kurucuCevrimiciMi()
+    founderOnline: kurucuCevrimiciMi(),
+    founderName: "NeuraAI"
   });
 });
 
@@ -1440,8 +1447,9 @@ app.post("/codex-chat", async (req, res) => {
             content:
               "Sen NeuraAI içindeki Codex Chat'sin. Sadece kod, yazılım, proje, hata, güvenlik, performans, dosya yapısı ve teknik geliştirme konularında yardımcı ol. " +
               "Kullanıcı kod dışı günlük konuşma yaparsa kısa şekilde 'Merhaba, ben Codex. Kodunu gönder, istediğini yapalım.' anlamında cevap ver ve kod iste. " +
-              "Kod geldiğinde çok güçlü analiz yap: önce kısa teşhis, sonra hatalar, sonra çözüm adımları, sonra gerekiyorsa kod parçası ver. " +
-              "Yanlış dosyaya yönlendirme yapma. Emin değilsen belirt. Uzun dosyayı gereksiz yere komple tekrar yazma. " +
+              "Kod geldiğinde çok güçlü analiz yap: 1) kısa teşhis, 2) muhtemel sebep, 3) net çözüm, 4) hangi dosyada ne değişecek, 5) gerekiyorsa küçük kod parçası. " +
+              "Kullanıcı 'tamamını ver' demedikçe dev dosyayı komple tekrar yazma. Yanlış dosyaya yönlendirme yapma. Emin değilsen belirt. " +
+              "Kod güvenliği, performans, hata ihtimali ve kullanıcı deneyimini aynı anda düşün. " +
               "Cevap Türkçe, net, güçlü, uygulanabilir ve düzenli olsun."
           },
           {
@@ -1472,9 +1480,7 @@ app.post("/codex-chat", async (req, res) => {
 
 app.get("/world-stats", (req, res) => {
   const varsayilan = {
-    TR:{ code:"TR", name:"Türkiye", users:20, x:58, y:41, lastSeen:Date.now() },
-    US:{ code:"US", name:"Amerika", users:1, x:20, y:36, lastSeen:Date.now() },
-    DE:{ code:"DE", name:"Almanya", users:1, x:50, y:31, lastSeen:Date.now() }
+    TR:{ code:"TR", name:"Türkiye", users:1, x:56, y:36, lastSeen:Date.now() }
   };
 
   if(!neuraCountryStats || Object.keys(neuraCountryStats).length === 0){
