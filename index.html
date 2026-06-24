@@ -1115,6 +1115,177 @@ body::before{
   }
 }
 
+
+
+/* === FIX4: Telefon simgesi + sosyal medya popup === */
+.sosyalTelefonBtn{
+  background:rgba(255,255,255,0.06);
+  color:white;
+  border:1px solid rgba(255,255,255,0.10);
+  border-radius:12px;
+  padding:10px 12px;
+  cursor:pointer;
+  font-weight:bold;
+  min-width:44px;
+}
+.sosyalTelefonBtn:hover{
+  background:rgba(255,255,255,0.12);
+}
+.sosyalPopupGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:14px;
+}
+.sosyalPopupKart{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  min-height:52px;
+  text-decoration:none;
+  text-align:center;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,0.10);
+  background:rgba(255,255,255,0.07);
+  color:white;
+  font-weight:bold;
+}
+.sosyalPopupKart:hover{
+  background:rgba(123,44,255,0.24);
+  border-color:rgba(123,44,255,0.42);
+}
+.sosyalPopupKart.pasif{
+  opacity:.55;
+  cursor:not-allowed;
+}
+.sosyalPopupMini{
+  color:#bbb;
+  font-size:13px;
+  margin-top:6px;
+  line-height:1.45;
+}
+@media(max-width:700px){
+  .sosyalPopupGrid{grid-template-columns:1fr;}
+  .sosyalTelefonBtn{padding:9px 11px;}
+}
+
+
+
+/* === FIX5: Codex tek ekran güçlü sohbet tasarımı === */
+.codexSayfa.codexYeniEkran{
+  width:92%;
+  max-width:1120px;
+  height:88vh;
+}
+.codexYeniEkran .codexUst{
+  align-items:flex-start;
+}
+.codexYeniEkran .codexGovde{
+  display:block;
+  overflow:auto;
+  padding:16px;
+}
+.codexTekPanel{
+  height:100%;
+  min-height:0;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  background:rgba(255,255,255,0.045);
+  border:1px solid rgba(255,255,255,0.09);
+  border-radius:20px;
+  padding:14px;
+}
+.codexAnaSohbet{
+  flex:1;
+  min-height:280px;
+  max-height:44vh;
+  overflow:auto;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  background:rgba(0,0,0,.25);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:18px;
+  padding:14px;
+}
+.codexAnaSohbet .codexMsg{
+  font-size:14px;
+  line-height:1.55;
+}
+.codexKodKutusu{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+.codexKodKart{
+  background:rgba(0,0,0,.20);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:18px;
+  padding:12px;
+}
+.codexKodKart h3{
+  margin:0 0 8px;
+  font-size:15px;
+}
+.codexYeniEkran .codexTextarea{
+  min-height:145px;
+  max-height:240px;
+}
+.codexKomutSatiri{
+  display:flex;
+  gap:10px;
+  align-items:stretch;
+}
+.codexKomutSatiri textarea{
+  flex:1;
+  min-height:72px;
+  max-height:150px;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(0,0,0,.32);
+  color:white;
+  padding:12px;
+  outline:none;
+  resize:vertical;
+}
+.codexKomutSatiri button{
+  width:130px;
+  border:none;
+  border-radius:16px;
+  background:linear-gradient(135deg,#7b2cff,#00c2ff);
+  color:white;
+  font-weight:900;
+  cursor:pointer;
+}
+.codexCevap{display:none;}
+.codexMiniIpucu{font-size:12px;color:#aaa;line-height:1.45;margin:0;}
+.codexAksiyonMini{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.codexAksiyonMini button,
+.codexAksiyonMini label{
+  margin-top:0;
+  padding:9px 11px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(255,255,255,.08);
+  color:white;
+  cursor:pointer;
+  font-weight:bold;
+  font-size:12px;
+}
+@media(max-width:700px){
+  .codexYeniEkran .codexGovde{padding:10px;}
+  .codexKodKutusu{grid-template-columns:1fr;}
+  .codexAnaSohbet{max-height:38vh;min-height:220px;}
+  .codexKomutSatiri{flex-direction:column;}
+  .codexKomutSatiri button{width:100%;padding:14px;}
+}
+
 </style>
 </head>
 
@@ -1143,28 +1314,6 @@ body::before{
       <button class="sidebarMiniBtn" onclick="aktifSohbetiYenidenAdlandir()">✏️ Sohbet adını değiştir</button>
       <button class="sidebarMiniBtn" onclick="sohbetiPdfIndir()">📄 PDF indir</button>
 
-      <div class="gecmisBaslik">📱 Sosyal Medya Hesaplarımız</div>
-
-      <a
-        href="https://www.youtube.com/@NeuraAIReal"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="sidebarMiniBtn sosyalLinkBtn"
-      >
-        ▶️ YouTube Kanalımız
-      </a>
-
-      <button class="sidebarMiniBtn sosyalYakindaBtn" disabled>
-        💬 Discord - Yakında
-      </button>
-
-      <button class="sidebarMiniBtn sosyalYakindaBtn" disabled>
-        📸 Instagram - Yakında
-      </button>
-
-      <button class="sidebarMiniBtn sosyalYakindaBtn" disabled>
-        🎵 TikTok - Yakında
-      </button>
     </div>
 
     <div class="ozelAiBaslikSatir">
@@ -1197,13 +1346,14 @@ body::before{
 
   <div class="kurucuDurumKutusu" id="kurucuDurumKutusu" title="Kurucu durumu">
     <span class="kurucuTac">👑</span>
-    <span id="kurucuDurumYazi">Kurucu çevrimdışı</span>
+    <span id="kurucuDurumYazi">NeuraAI çevrimdışı</span>
   </div>
 
   <div class="altBaslik" id="durumYazi"></div>
 </div>
 
 <div class="ustButonlar">
+        <button class="sosyalTelefonBtn" onclick="sosyalPanelAc()" title="Sosyal Medya Hesaplarımız">📱</button>
         <select id="aiModelSec" class="aiModelSec" onchange="aiModelDegisti()">
           <option value="hizli">⚡ Hızlı</option>
           <option value="akilli">🧠 Akıllı</option>
@@ -1240,69 +1390,79 @@ body::before{
 
 
 
-<div class="codexSayfa" id="codexSayfa">
-  <div class="codexUst"><div><div class="codexBaslik">💻 Codex</div><div class="codexAlt">Merhaba, ben Codex. Kodlarını düzeltebilir, açıklayabilir, optimize edebilir ve proje hafızası tutabilirim.</div></div><div class="ustButonlar"><button onclick="codexHafizaKaydet()">🧠 Kod hafızasına kaydet</button><button onclick="codexCevapKopyala()">📋 Cevabı kopyala</button><button onclick="naiDon()">🤖 NeuraAI’ye dön</button></div></div>
-  <div class="codexGovde"><div class="codexPanel"><h3>📄 Kod Alanı</h3><input type="file" id="codexDosyaInput" accept=".txt,.html,.css,.js,.json,.md,.py,.java,.c,.cpp" onchange="codexDosyaOku(event)"><textarea id="codexKod" class="codexTextarea" placeholder="Kodunu buraya yapıştır veya dosya yükle..."></textarea><h3>📌 Codex İşlemleri</h3><div class="codexButonGrid"><button onclick="codexGonder('hata')">🔍 Hata Bul</button><button onclick="codexGonder('acikla')">📖 Kodu Açıkla</button><button onclick="codexGonder('optimize')">⚡ Optimize Et</button><button onclick="codexGonder('guvenlik')">🛡️ Güvenlik Açığı Ara</button><button onclick="codexGonder('ozellik')">💡 Özellik Öner</button><button onclick="codexGonder('dosya')">📁 Hangi Dosyaya Ekle?</button><button onclick="codexDilAnalizi('html')">🌐 HTML Analizi</button><button onclick="codexDilAnalizi('css')">🎨 CSS Analizi</button><button onclick="codexDilAnalizi('javascript')">🟨 JavaScript Analizi</button><button onclick="codexDilAnalizi('nodejs')">🟩 Node.js Analizi</button></div><h3>🔁 Dosya Karşılaştırma</h3><textarea id="codexEskiKod" class="codexTextarea codexKucukTextarea" placeholder="Eski kod..."></textarea><textarea id="codexYeniKod" class="codexTextarea codexKucukTextarea" placeholder="Yeni kod..."></textarea><button onclick="codexKarsilastir()">🔁 Dosyaları Karşılaştır</button><h3>📋 Yapılacaklar Listesi</h3><input id="todoInput" class="profilInput" placeholder="Yeni görev yaz..."><button onclick="todoEkle()">Görev ekle</button><div id="todoListe"></div><div id="todoYuzde" class="miniSonuc"></div></div><div class="codexPanel"><h3>🤖 Codex Cevabı</h3><div id="codexCevap" class="codexCevap">Codex hazır. Kodunu gönder, birlikte inceleyelim.</div><h3>💬 Codex Chat</h3><div id="codexChatLog" class="codexChatLog"><div class="codexMsg ai">Merhaba, ben Codex. Kodunu gönder, ne yapmak istediğini yaz; güçlü şekilde inceleyeyim.</div></div><div class="codexMiniIpucu">Buton seçmene gerek yok. “Bu hatayı çöz”, “optimize et”, “login ekle” gibi direkt yaz.</div><div class="codexChatInputSatir"><textarea id="codexChatInput" placeholder="Örn: Bu kod neden hata veriyor? Login sistemi ekle. Bu dosyayı optimize et..."></textarea><button onclick="codexChatGonder()">Gönder</button></div><h3>🧠 Proje Hafızası</h3><input id="projeHafizaBaslik" class="profilInput" placeholder="Örn: index.html, server.js, sw.js"><button onclick="projeHafizaKaydet()">Projeye kaydet</button><div id="projeHafizaListe"></div></div></div>
-</div>
 
+<div class="codexSayfa codexYeniEkran" id="codexSayfa">
+  <div class="codexUst">
+    <div>
+      <div class="codexBaslik">💻 Codex Chat</div>
+      <div class="codexAlt">Kodunu gönder, ne istediğini normal cümleyle yaz. Codex hata bulur, açıklar, optimize eder ve hangi dosyada ne değişeceğini söyler.</div>
+    </div>
+    <div class="ustButonlar">
+      <button onclick="codexHafizaKaydet()">🧠 Kod hafızasına kaydet</button>
+      <button onclick="codexCevapKopyala()">📋 Son cevabı kopyala</button>
+      <button onclick="naiDon()">🤖 NeuraAI’ye dön</button>
+    </div>
+  </div>
 
-</div>
+  <div class="codexGovde">
+    <div class="codexTekPanel">
+      <div id="codexChatLog" class="codexAnaSohbet codexChatLog">
+        <div class="codexMsg ai">Merhaba, ben Codex. Kodunu gönder; hata mı bulayım, optimize mi edeyim, açıklayayım mı, özellik mi ekleyeyim? Ne istediğini yaz, güçlü şekilde inceleyeyim.</div>
+      </div>
 
-</div>
+      <div class="codexKodKutusu">
+        <div class="codexKodKart">
+          <h3>📄 Kod / Dosya Alanı</h3>
+          <div class="codexAksiyonMini">
+            <label for="codexDosyaInput">📁 Dosya seç</label>
+            <input type="file" id="codexDosyaInput" accept=".txt,.html,.css,.js,.json,.md,.py,.java,.c,.cpp" onchange="codexDosyaOku(event)" style="display:none">
+            <button onclick="codexKod.value=''; codexChatMesajEkle('Kod alanı temizlendi.', 'ai')">🧹 Kodu temizle</button>
+          </div>
+          <textarea id="codexKod" class="codexTextarea" placeholder="Kodunu buraya yapıştır veya dosya seç..."></textarea>
+        </div>
 
+        <div class="codexKodKart">
+          <h3>🧠 Proje Hafızası</h3>
+          <input id="projeHafizaBaslik" class="profilInput" placeholder="Örn: index.html, server.js, sw.js">
+          <div class="codexAksiyonMini">
+            <button onclick="projeHafizaKaydet()">Projeye kaydet</button>
+            <button onclick="projeHafizaListele && projeHafizaListele()">Listeyi yenile</button>
+          </div>
+          <div id="projeHafizaListe"></div>
+        </div>
+      </div>
 
-</div>
+      <div class="codexMiniIpucu">Buton seçmene gerek yok. “Bu kodu analiz et”, “bu hatayı çöz”, “login ekle”, “server.js güvenli mi?”, “hangi dosyaya koyayım?” gibi yazman yeterli.</div>
 
-<div class="popupArka" id="ozelAiPopup">
-  <div class="popup duyuruPanelPopup">
-    <button class="merkezKapatX" onclick="ozelAiPanelKapat()">✖</button>
-    <h2>🤖 Kendi AI Karakterini Oluştur</h2>
-    <p style="color:#bbb;font-size:13px">Ücretsiz 1, Plus 3, Pro 5 özel AI oluşturabilir.</p>
-    <input id="ozelAiAd" class="profilInput" placeholder="AI adı: Mehmet">
-    <input id="ozelAiTur" class="profilInput" placeholder="Karakter türü: Yazar, oyuncu, kod uzmanı...">
-    <select id="ozelAiTarz" class="profilInput">
-      <option value="Samimi">Samimi</option>
-      <option value="Resmi">Resmi</option>
-      <option value="Profesör gibi">Profesör gibi</option>
-      <option value="Yaratıcı">Yaratıcı</option>
-      <option value="Eleştirel ama nazik">Eleştirel ama nazik</option>
-    </select>
-    <select id="ozelAiEmoji" class="profilInput">
-      <option value="Az">Emoji az</option>
-      <option value="Orta" selected>Emoji orta</option>
-      <option value="Çok">Emoji çok</option>
-      <option value="Yok">Emoji yok</option>
-    </select>
-    <input id="ozelAiUzmanlik" class="profilInput" placeholder="Uzmanlık: Oyun teorisi, JavaScript, hikaye yazma...">
-    <textarea id="ozelAiAciklama" class="duyuruYazi" placeholder="Karakter açıklaması: Nasıl davransın, neye odaklansın?"></textarea>
-    <button onclick="ozelAiKaydet()">AI Karakterini Kaydet</button>
-    <button onclick="ozelAiSec(null)">🤖 Normal NeuraAI'ye dön</button>
-    <div id="ozelAiPanelListe"></div>
+      <div class="codexKomutSatiri">
+        <textarea id="codexChatInput" placeholder="Codex'e ne yapmasını istiyorsun? Örn: Bu kodu analiz et ve hataları düzelt."></textarea>
+        <button onclick="codexChatGonder()">Gönder</button>
+      </div>
+
+      <div id="codexCevap" class="codexCevap">Codex hazır.</div>
+      <textarea id="codexEskiKod" class="codexTextarea codexKucukTextarea" style="display:none"></textarea>
+      <textarea id="codexYeniKod" class="codexTextarea codexKucukTextarea" style="display:none"></textarea>
+      <input id="todoInput" class="profilInput" style="display:none">
+      <div id="todoListe" style="display:none"></div>
+      <div id="todoYuzde" style="display:none"></div>
+    </div>
   </div>
 </div>
 
+<div class="popupArka" id="sosyalPopup">
+  <div class="popup">
+    <button class="merkezKapatX" onclick="sosyalPanelKapat()">✖</button>
+    <h2>📱 Sosyal Medya Hesaplarımız</h2>
+    <div class="sosyalPopupMini">NeuraAI topluluğu ve yeni duyurular için resmi hesaplar.</div>
 
-
-<div class="popupArka" id="dunyaPopup">
-  <div class="popup dunyaPopup">
-    <button class="merkezKapatX" onclick="dunyaPanelKapat()">✖</button>
-    <h2>🌍 NeuraAI Dünya Haritası</h2>
-    <div class="dunyaOzet">
-      <div>👥 Toplam Kullanıcı<br><b id="dunyaToplamKullanici">0</b></div>
-      <div>🌎 Ülke Sayısı<br><b id="dunyaUlkeSayisi">0</b></div>
-      <div>👑 Lider Ülke<br><b id="dunyaLiderUlke">-</b></div>
+    <div class="sosyalPopupGrid">
+      <a class="sosyalPopupKart" href="https://www.youtube.com/@NeuraAIReal" target="_blank" rel="noopener noreferrer">
+        ▶️ YouTube
+      </a>
+      <div class="sosyalPopupKart pasif">💬 Discord · Yakında</div>
+      <div class="sosyalPopupKart pasif">📸 Instagram · Yakında</div>
+      <div class="sosyalPopupKart pasif">🎵 TikTok · Yakında</div>
     </div>
-    <div class="dunyaHarita" id="dunyaHarita">
-      <svg viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid meet" aria-label="Dünya haritası">
-        <path class="haritaKita" d="M72 155 L115 118 L182 105 L248 125 L292 162 L258 207 L199 218 L148 198 L102 198 Z"/>
-        <path class="haritaKita" d="M210 226 L250 250 L265 310 L245 365 L213 430 L184 392 L190 326 L170 280 Z"/>
-        <path class="haritaKita" d="M410 132 L454 104 L512 112 L548 150 L516 182 L448 175 L392 165 Z"/>
-        <path class="haritaKita asya" d="M515 118 L610 92 L735 108 L858 148 L922 215 L846 258 L724 248 L635 215 L550 195 L504 160 Z"/>
-        <path class="haritaKita afrika" d="M494 194 L555 210 L602 285 L585 382 L530 408 L478 350 L456 268 Z"/>
-        <path class="haritaKita avustralya" d="M748 338 L830 320 L890 356 L864 402 L780 392 Z"/>
-        <path class="haritaKita" d="M612 245 L660 258 L680 300 L632 300 Z" opacity=".55"/>
-      </svg>    </div>
-    <div class="dunyaListe" id="dunyaListe"></div>
   </div>
 </div>
 
@@ -3422,7 +3582,12 @@ function naiDon(){
 }
 function codexDosyaOku(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{codexKod.value=ev.target.result;projeHafizaBaslik.value=f.name};r.readAsText(f)}
 function codexKomutMetni(t){return {hata:"Bu kodda hata var mı? Hataları bul ve nasıl düzelteceğimi net anlat.",acikla:"Bu kodu anlaşılır şekilde açıkla. Önemli fonksiyonları tek tek anlat.",optimize:"Bu kodu daha temiz, hızlı ve düzenli hale getirmek için öneriler ver.",guvenlik:"Bu kodda güvenlik açığı veya riskli kullanım var mı? Güvenli şekilde açıkla.",ozellik:"Bu koda eklenebilecek yararlı özellikler öner. Öncelik sırasıyla yaz.",dosya:"Bu özellik/kod hangi dosyaya eklenmeli? HTML, CSS, frontend JS, server.js gibi ayırarak söyle."}[t]||"Bu kodu incele."}
-async function codexGonder(t){const kod=codexKod.value.trim();if(!kod){codexCevap.innerText="Önce kod yapıştır veya dosya yükle.";return}codexCevap.innerText="Codex inceliyor...";try{const res=await fetch("/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:codexKomutMetni(t)+"\n\nKod:\n"+kod,mode:"uzun",konusmaModu:"codex",messages:[{role:"user",content:codexKomutMetni(t)+"\n\n"+kod}]})});const data=await res.json();codexCevap.innerText=data.reply||"Codex cevap vermedi."}catch(e){codexCevap.innerText="Codex bağlantı hatası.";console.error(e)}}
+async function codexGonder(t){
+  const komut = codexKomutMetni(t);
+  const input = document.getElementById("codexChatInput");
+  if(input) input.value = komut;
+  if(typeof codexChatGonder === "function") return codexChatGonder();
+}
 function codexDilAnalizi(d){codexCevap.innerText=({html:"HTML",css:"CSS",javascript:"JavaScript",nodejs:"Node.js"}[d]||d)+" analizi hazırlanıyor...";codexGonder("acikla")}
 function codexKarsilastir(){if(!codexEskiKod.value.trim()||!codexYeniKod.value.trim()){codexCevap.innerText="Eski ve yeni kodu yaz.";return}codexKod.value="ESKİ KOD:\n"+codexEskiKod.value+"\n\nYENİ KOD:\n"+codexYeniKod.value;codexGonder("hata")}
 function codexCevapKopyala(){navigator.clipboard.writeText(codexCevap.innerText).catch(()=>{})}
@@ -4171,16 +4336,20 @@ async function codexChatGonder(){
   const cevapEl = document.getElementById("codexCevap");
   if(!input) return;
 
-  const message = input.value.trim();
+  let message = input.value.trim();
   const code = kodEl ? kodEl.value.trim() : "";
 
   if(!message && !code){
-    codexChatMesajEkle("Merhaba, ben Codex. Kodunu gönder, istediğin şeyi yaz; birlikte inceleyelim.", "ai");
+    codexChatMesajEkle("Merhaba, ben Codex. Kodunu gönder, istediğini yaz; birlikte güçlü şekilde inceleyelim.", "ai");
     return;
   }
 
+  if(!message && code){
+    message = "Bu kodu güçlü şekilde analiz et. Hata, güvenlik, performans ve düzen açısından incele. Gereken düzeltmeleri net söyle.";
+  }
+
   input.value = "";
-  codexChatMesajEkle(message || "Kod alanındaki kodu incele.", "user");
+  codexChatMesajEkle(message, "user");
   codexChatMesajEkle("Codex düşünüyor...", "ai");
 
   try{
@@ -4292,7 +4461,7 @@ async function kurucuDurumGuncelle(data){
 
   const aktif = !!(data && data.founderOnline);
   box.classList.toggle("aktif", aktif);
-  yazi.innerText = aktif ? "Kurucu çevrimiçi" : "KurucuI çevrimdışı";
+  yazi.innerText = aktif ? "NeuraAI çevrimiçi" : "NeuraAI çevrimdışı";
 }
 
 const eskiCanliPing = window.canliKullaniciPing;
@@ -4338,6 +4507,18 @@ setTimeout(() => {
   if(typeof window.canliKullaniciPing === "function") window.canliKullaniciPing();
   if(typeof window.canliKullaniciSayisiniGuncelle === "function") window.canliKullaniciSayisiniGuncelle();
 }, 1200);
+
+
+
+/* === FIX4: Sosyal medya popup fonksiyonları === */
+function sosyalPanelAc(){
+  const p = document.getElementById("sosyalPopup");
+  if(p) p.style.display = "flex";
+}
+function sosyalPanelKapat(){
+  const p = document.getElementById("sosyalPopup");
+  if(p) p.style.display = "none";
+}
 
 </script>
 </body>
