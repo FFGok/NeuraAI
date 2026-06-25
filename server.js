@@ -12,12 +12,11 @@ app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.set("trust proxy", true);
 
 /* =========================
-   NeuraAI Server.js - V2 FIX
+   NeuraAI Server.js - V2 PATCH
    Eklenenler:
    - path.join hatası düzeltildi
    - Canlı kullanıcı sayacı
    - Kurucu çevrimiçi durumu
-   - Dünya haritası ülke verisi
    - Profil Codex kullanımı
    - Codex Chat güçlü analiz
    - Akıllı hafıza
@@ -124,30 +123,6 @@ function kullaniciKey(req){
   return temizKey(bodyKey || headerKey || ipAl(req));
 }
 
-function ulkeTahminEt(req){
-  const cfCountry = req.headers["cf-ipcountry"];
-  const renderCountry = req.headers["x-vercel-ip-country"] || req.headers["x-country-code"];
-
-  const code = String(cfCountry || renderCountry || "").toUpperCase();
-
-  const map = {
-    TR: "Türkiye",
-    US: "Amerika",
-    DE: "Almanya",
-    GB: "İngiltere",
-    FR: "Fransa",
-    NL: "Hollanda",
-    AZ: "Azerbaycan",
-    RU: "Rusya",
-    JP: "Japonya",
-    BR: "Brezilya",
-    ES: "İspanya",
-    IT: "İtalya"
-  };
-
-  return map[code] || "Türkiye";
-}
-
 function profilHazirla(key){
   if(!neuraData.profileStats[key]){
     neuraData.profileStats[key] = {
@@ -195,64 +170,15 @@ function founderOnlineMi(){
   return Date.now() - Number(neuraData.founderLastSeen || 0) < 45000;
 }
 
-function worldStatsGuncelle(req){
-  const ulke = temizMesaj(req.body?.country || req.query?.country || ulkeTahminEt(req), 60) || "Türkiye";
-
-  if(!neuraData.worldStats[ulke]){
-    neuraData.worldStats[ulke] = {
-      country: ulke,
-      count: 0,
-      lastSeen: 0
-    };
-  }
-
-  // Aynı kişi sürekli ping atınca sayı uçmasın diye online key ile sayıyoruz.
-  const key = kullaniciKey(req);
-  const onlineCountryKey = "country_seen_" + temizKey(ulke);
-  if(!onlineUsers[key]?.[onlineCountryKey]){
-    neuraData.worldStats[ulke].count = Math.max(1, Number(neuraData.worldStats[ulke].count || 0));
-  }
-
-  neuraData.worldStats[ulke].lastSeen = Date.now();
-  return ulke;
-}
-
-function worldPayload(){
-  const countries = Object.values(neuraData.worldStats || {})
-    .filter(x => x && x.country)
-    .map(x => ({
-      country: x.country,
-      count: Math.max(1, Number(x.count || 1)),
-      lastSeen: Number(x.lastSeen || 0)
-    }))
-    .sort((a,b) => b.count - a.count);
-
-  if(countries.length === 0){
-    countries.push({ country:"Türkiye", count:1, lastSeen:Date.now() });
-  }
-
-  const leader = countries[0];
-
-  return {
-    ok:true,
-    totalUsers: countries.reduce((t,c) => t + Number(c.count || 0), 0),
-    countryCount: countries.length,
-    leader,
-    countries
-  };
-}
-
 function onlinePingHandler(req, res){
   try{
     const key = kullaniciKey(req);
     const founderKey = req.body?.founderKey || req.query?.founderKey || req.headers["x-founder-key"];
-    const isFounder = founderKey === FOUNDER_KEY || String(req.body?.nick || "").toLowerCase() === "neurai";
-
-    const country = worldStatsGuncelle(req);
+    const nick = String(req.body?.nick || req.query?.nick || "").toLowerCase();
+    const isFounder = founderKey === FOUNDER_KEY || nick === "neurai" || nick === "neuraai";
 
     onlineUsers[key] = {
       lastSeen: Date.now(),
-      country,
       founder: !!isFounder
     };
 
@@ -267,15 +193,16 @@ function onlinePingHandler(req, res){
       online: onlineSayisi(),
       onlineCount: onlineSayisi(),
       founderOnline: founderOnlineMi(),
-      founderName: FOUNDER_NAME,
-      world: worldPayload()
+      founderName: FOUNDER_NAME
     });
   }catch(err){
     console.error("online ping hata:", err);
     res.json({
       ok:false,
       online: onlineSayisi(),
-      founderOnline: founderOnlineMi()
+      onlineCount: onlineSayisi(),
+      founderOnline: founderOnlineMi(),
+      founderName: FOUNDER_NAME
     });
   }
 }
@@ -287,6 +214,19 @@ app.post("/api/live-users", onlinePingHandler);
 app.get("/api/ping", onlinePingHandler);
 app.post("/api/ping", onlinePingHandler);
 
+// Eski frontend uyumluluğu
+app.post("/online-ping", onlinePingHandler);
+app.get("/online-count", (req, res) => {
+  res.json({
+    ok:true,
+    online: onlineSayisi(),
+    onlineCount: onlineSayisi(),
+    founderOnline: founderOnlineMi(),
+    founderName: FOUNDER_NAME
+  });
+});
+
+
 app.get("/api/founder-status", (req,res) => {
   res.json({
     ok:true,
@@ -296,13 +236,6 @@ app.get("/api/founder-status", (req,res) => {
   });
 });
 
-app.get("/api/world-stats", (req,res) => {
-  res.json(worldPayload());
-});
-
-app.get("/api/world", (req,res) => {
-  res.json(worldPayload());
-});
 
 /* =========================
    Akıllı Hafıza
@@ -969,7 +902,7 @@ app.post("/api/check-nick", (req,res) => {
   const nick = String(req.body?.nick || "").trim();
   const founderKey = req.body?.founderKey || req.headers["x-founder-key"];
 
-  if(nick.toLowerCase() === "neurai" && founderKey !== FOUNDER_KEY){
+  if((nick.toLowerCase() === "neurai" || nick.toLowerCase() === "neuraai") && founderKey !== FOUNDER_KEY){
     return res.json({
       ok:false,
       allowed:false,
