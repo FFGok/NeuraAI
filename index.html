@@ -985,7 +985,7 @@ body::before{
 
 
 
-/* === NeuraAI V2: Codex Chat + Dünya Haritası + Kurucu Durumu === */
+/* === NeuraAI V2: Codex Chat + Kurucu Durumu === */
 .kurucuDurumKutusu{
   display:inline-flex;
   align-items:center;
@@ -1010,55 +1010,6 @@ body::before{
 .kurucuDurumKutusu.aktif .kurucuTac{animation:tacParla 1.3s ease-in-out infinite}
 .kurucuTac{filter:drop-shadow(0 0 6px rgba(255,200,0,.75))}
 @keyframes tacParla{0%{transform:translateY(0) scale(1)}50%{transform:translateY(-1px) scale(1.13)}100%{transform:translateY(0) scale(1)}}
-.dunyaBtn{
-  position:fixed;
-  right:18px;
-  top:78px;
-  z-index:100000;
-  width:52px;
-  height:52px;
-  border-radius:18px;
-  border:1px solid rgba(255,255,255,0.15);
-  background:linear-gradient(135deg,#00c2ff,#00ffaa);
-  color:white;
-  font-size:24px;
-  cursor:pointer;
-  box-shadow:0 14px 35px rgba(0,0,0,0.35),0 0 24px rgba(0,194,255,0.22);
-}
-.dunyaPopup{max-width:900px}
-.dunyaOzet{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:10px 0 14px}
-.dunyaOzet div{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:10px;text-align:center;font-size:13px}
-.dunyaHarita{
-  position:relative;
-  height:360px;
-  border-radius:20px;
-  overflow:hidden;
-  background:
-    radial-gradient(circle at 50% 50%,rgba(0,194,255,.10),transparent 36%),
-    linear-gradient(135deg,#06111f,#0b1830 48%,#07101c);
-  border:1px solid rgba(255,255,255,.10);
-  box-shadow:inset 0 0 44px rgba(0,0,0,.38),0 0 22px rgba(0,194,255,.08);
-}
-.dunyaHarita::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  background-image:
-    linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
-  background-size:48px 48px;
-  opacity:.45;
-}
-.dunyaHarita svg{position:absolute;inset:0;width:100%;height:100%;opacity:.93;filter:drop-shadow(0 0 18px rgba(0,255,170,.08))}
-.haritaKita{fill:rgba(24,120,120,.34);stroke:rgba(160,255,235,.25);stroke-width:1.2;transition:.2s}
-.haritaKita.asya{fill:rgba(35,105,165,.34)}
-.haritaKita.afrika{fill:rgba(135,105,45,.28)}
-.haritaKita.avustralya{fill:rgba(160,95,35,.26)}
-.haritaKita:hover{filter:brightness(1.35)}
-.ulkeBalon{position:absolute;z-index:5;transform:translate(-50%,-50%);display:flex;align-items:center;gap:5px;padding:7px 10px;border-radius:999px;background:rgba(0,0,0,.66);border:1px solid rgba(255,255,255,.24);color:white;font-size:12px;font-weight:bold;white-space:nowrap;box-shadow:0 0 16px rgba(0,194,255,.20)}
-.ulkeBalon.lider{background:rgba(255,179,0,.25);border-color:rgba(255,179,0,.72);box-shadow:0 0 20px rgba(255,179,0,.36)}
-.dunyaListe{margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:170px;overflow:auto}
-.dunyaListeItem{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:9px 11px;font-size:13px;display:flex;justify-content:space-between;gap:8px}
 .codexButonGrid{display:none!important}
 .codexChatLog{background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:10px;min-height:160px;max-height:300px;overflow:auto;margin-top:10px;display:flex;flex-direction:column;gap:8px}
 .codexMsg{padding:9px 11px;border-radius:13px;white-space:pre-wrap;line-height:1.45;font-size:13px}
@@ -1068,7 +1019,7 @@ body::before{
 .codexChatInputSatir textarea{flex:1;min-height:64px;border-radius:14px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.30);color:white;padding:10px;outline:none;resize:vertical}
 .codexChatInputSatir button{width:110px;margin-top:0;border-radius:14px;border:none;background:white;color:black;font-weight:bold;cursor:pointer}
 .codexMiniIpucu{color:#aaa;font-size:12px;margin-top:6px;line-height:1.35}
-@media(max-width:700px){.dunyaBtn{right:12px;top:64px;width:46px;height:46px;font-size:21px}.kurucuDurumKutusu{font-size:11px;padding:6px 9px;margin-left:0}.dunyaOzet{grid-template-columns:1fr}.dunyaListe{grid-template-columns:1fr}.dunyaHarita{height:270px}.codexChatInputSatir{flex-direction:column}.codexChatInputSatir button{width:100%}}
+@media(max-width:700px){.kurucuDurumKutusu{font-size:11px;padding:6px 9px;margin-left:0}.dunyaOzet{grid-template-columns:1fr}.dunyaListe{grid-template-columns:1fr}.dunyaHarita{height:270px}.codexChatInputSatir{flex-direction:column}.codexChatInputSatir button{width:100%}}
 
 
 /* === FIX3: Başlık hızlı modelin üstünde + Kurucu NeuraAI === */
@@ -1293,7 +1244,6 @@ body::before{
 <button class="karakterBtn" onclick="ozelAiPanelAc()">🤖 AI Oluştur</button>
 
 <button class="miniAracBtn" onclick="miniAracPanelAc()" title="Mini Araçlar">🧰</button>
-<button class="dunyaBtn" onclick="dunyaPanelAc()" title="NeuraAI Dünya Haritası">🌍</button>
 <div class="splashScreen">
   <img src="./splash.png" alt="NeuraAI Açılış">
 </div>
@@ -4387,52 +4337,6 @@ try{
   };
 }catch(err){}
 
-function dunyaPanelAc(){
-  const p = document.getElementById("dunyaPopup");
-  if(p) p.style.display = "flex";
-  dunyaHaritasiYukle();
-}
-
-function dunyaPanelKapat(){
-  const p = document.getElementById("dunyaPopup");
-  if(p) p.style.display = "none";
-}
-
-async function dunyaHaritasiYukle(){
-  const harita = document.getElementById("dunyaHarita");
-  const liste = document.getElementById("dunyaListe");
-  if(!harita || !liste) return;
-
-  try{
-    const res = await fetch("/world-stats");
-    const data = await res.json();
-
-    document.getElementById("dunyaToplamKullanici").innerText = Number(data.total || 0);
-    document.getElementById("dunyaUlkeSayisi").innerText = Number(data.countryCount || 0);
-    document.getElementById("dunyaLiderUlke").innerText = data.leader ? data.leader.name + " 👑" : "-";
-
-    harita.querySelectorAll(".ulkeBalon").forEach(e => e.remove());
-    liste.innerHTML = "";
-
-    const countries = Array.isArray(data.countries) ? data.countries : [];
-    countries.forEach((c, index) => {
-      const balon = document.createElement("div");
-      balon.className = "ulkeBalon" + (index === 0 ? " lider" : "");
-      balon.style.left = Number(c.x || 50) + "%";
-      balon.style.top = Number(c.y || 50) + "%";
-      balon.innerText = (index === 0 ? "👑 " : "") + c.name + " • " + Number(c.users || 0);
-      harita.appendChild(balon);
-
-      const item = document.createElement("div");
-      item.className = "dunyaListeItem";
-      item.innerHTML = `<span>${index === 0 ? "👑 " : "🌍 "}${c.name}</span><b>${Number(c.users || 0)} kişi</b>`;
-      liste.appendChild(item);
-    });
-  }catch(err){
-    liste.innerHTML = '<div class="dunyaListeItem"><span>Harita verisi alınamadı.</span><b>--</b></div>';
-  }
-}
-
 /* Kurucu modu:
    - En sağlam yol: localStorage.setItem("neura_founder_key", "ffgok-kurucu")
    - FFGok profili açıksa otomatik de kurucu anahtarını hazırlar.
@@ -4444,7 +4348,7 @@ function kurucuAnahtariAl(){
     const nick = String(profil.nick || "").trim().toLowerCase();
 
     // Eski kurucu adı FFGok ve yeni kurucu adı NeuraAI için otomatik kurucu anahtarı.
-    if(!key && (nick === "ffgok" || nick === "neurai" || nick === "neuraai")){
+    if(!key && (nick === "neurai" || nick === "neuraai")){
       key = "ffgok-kurucu";
       localStorage.setItem("neura_founder_key", key);
     }
