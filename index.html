@@ -1237,6 +1237,14 @@ body::before{
   .codexKomutSatiri button{width:100%;padding:14px;}
 }
 
+
+.aiSure{
+  color:#8fd3ff;
+  font-size:12px;
+  margin-top:4px;
+  font-weight:bold;
+  opacity:.9;
+}
 </style>
 </head>
 
@@ -1992,7 +2000,7 @@ function modSec(mod){
 
 function profesorKilidi(){
   sistemMesaji(
-    "🎓 Profesör Modu için Pro gerekli."
+    "🎓 Profesör Modu yakında gelecek."
   );
 
   modPanelKapat();
@@ -2462,6 +2470,8 @@ async function mesajdanSonraTekrarCevapla(msgId){
     .slice(-80);
 aiBaslangic = performance.now();
   try{
+    aiBaslangic = performance.now();
+
     const res = await fetch("/chat", {
       method:"POST",
       headers:{ "Content-Type":"application/json" },
@@ -2479,6 +2489,11 @@ aiBaslangic = performance.now();
     });
 
     const data = await res.json();
+    const aiBitis = performance.now();
+    const aiSureEl = document.getElementById("aiSure");
+    if(aiSureEl){
+      aiSureEl.innerHTML = "⚡ " + ((aiBitis - aiBaslangic) / 1000).toFixed(2) + " sn";
+    }
     yaziyorEfektiKapat(loading);
 
     if(data.reply){
@@ -3135,6 +3150,11 @@ async function fotografAnalizEt(kullaniciMesaji){
     });
 
     const data = await res.json();
+    const aiBitis = performance.now();
+    const aiSureEl = document.getElementById("aiSure");
+    if(aiSureEl){
+      aiSureEl.innerHTML = "⚡ " + ((aiBitis - aiBaslangic) / 1000).toFixed(2) + " sn";
+    }
     yaziyorEfektiKapat(loading);
 
     if(data.reply){
@@ -3287,6 +3307,8 @@ async function gonder(){
   });
 
   try{
+    aiBaslangic = performance.now();
+
     const res = await fetch("/chat", {
       method:"POST",
       headers:{ "Content-Type":"application/json" },
@@ -3304,6 +3326,11 @@ async function gonder(){
     });
 
     const data = await res.json();
+    const aiBitis = performance.now();
+    const aiSureEl = document.getElementById("aiSure");
+    if(aiSureEl){
+      aiSureEl.innerHTML = "⚡ " + ((aiBitis - aiBaslangic) / 1000).toFixed(2) + " sn";
+    }
     yaziyorEfektiKapat(loading);
 
     if(data.reply){
@@ -4334,10 +4361,6 @@ async function codexChatGonder(){
   codexChatMesajEkle("Codex düşünüyor...", "ai");
 aiBaslangic = performance.now();
   try{
-    const aiBitis = performance.now();
-
-document.getElementById("aiSure").innerHTML =
-"⚡ " + ((aiBitis - aiBaslangic) / 1000).toFixed(2) + " sn";
     const res = await fetch("/codex-chat", {
       method:"POST",
       headers:{ "Content-Type":"application/json" },
@@ -4352,9 +4375,10 @@ document.getElementById("aiSure").innerHTML =
     const log = document.getElementById("codexChatLog");
     if(log && log.lastElementChild && log.lastElementChild.innerText === "Codex düşünüyor...") log.lastElementChild.remove();
 const aiBitis = performance.now();
-
-document.getElementById("aiSure").innerHTML =
-"⚡ " + ((aiBitis - aiBaslangic) / 1000).toFixed(2) + " sn";
+const aiSureEl = document.getElementById("aiSure");
+if(aiSureEl){
+  aiSureEl.innerHTML = "⚡ " + ((aiBitis - aiBaslangic) / 1000).toFixed(2) + " sn";
+}
     const reply = data.reply || "Codex cevap veremedi.";
     codexChatMesajEkle(reply, "ai");
     if(cevapEl) cevapEl.innerText = reply;
