@@ -1301,7 +1301,7 @@ body::before{
 
   <div class="altBaslik" id="durumYazi"></div>
 </div>
-
+<div id="aiSure" class="aiSure"></div>
 <div class="ustButonlar">
         <button class="sosyalTelefonBtn" onclick="sosyalPanelAc()" title="Sosyal Medya Hesaplarımız">📱</button>
         <select id="aiModelSec" class="aiModelSec" onchange="aiModelDegisti()">
@@ -1370,7 +1370,22 @@ body::before{
           </div>
           <textarea id="codexKod" class="codexTextarea" placeholder="Kodunu buraya yapıştır veya dosya seç..."></textarea>
         </div>
+<button onclick="codexCanliOnizleme()">
+💻 Canlı Önizleme
+</button>
 
+<iframe
+id="codexOnizleme"
+style="
+width:100%;
+height:420px;
+margin-top:12px;
+border:none;
+border-radius:14px;
+background:white;
+display:none;
+">
+</iframe>
         <div class="codexKodKart">
           <h3>🧠 Proje Hafızası</h3>
           <input id="projeHafizaBaslik" class="profilInput" placeholder="Örn: index.html, server.js, sw.js">
@@ -1687,7 +1702,7 @@ const onizlemeResim = document.getElementById("onizlemeResim");
 const onizlemeYazi = document.getElementById("onizlemeYazi");
 const durumYazi = document.getElementById("durumYazi");
 const gonderBtn = document.getElementById("gonderBtn");
-
+let aiBaslangic = 0;
 function escapeHtml(text){
   return String(text || "").replace(/[&<>]/g, c => ({
     "&":"&amp;",
@@ -2445,7 +2460,7 @@ async function mesajdanSonraTekrarCevapla(msgId){
       content: m.text
     }))
     .slice(-80);
-
+aiBaslangic = performance.now();
   try{
     const res = await fetch("/chat", {
       method:"POST",
@@ -2508,6 +2523,10 @@ function gorselGecmisiAc(){
   if(gorselGecmisi.length === 0){ sistemMesaji("Görsel geçmişi boş."); return; }
   gorselGecmisi.slice(0,8).forEach(g => mesajEkle(g.prompt || "Görsel geçmişi", "ai", g.image, "", false));
 }
+  const aiBitis = performance.now();
+
+document.getElementById("aiSure").innerHTML =
+"⚡ " + ((aiBitis-aiBaslangic)/1000).toFixed(2) + " sn";
 function sonGorseliTekrarUret(){
   const son = gorselGecmisi[0];
   if(!son){ sistemMesaji("Tekrar üretilecek görsel yok."); return; }
@@ -4279,7 +4298,19 @@ function codexChatMesajEkle(text, kim){
   log.appendChild(div);
   log.scrollTop = log.scrollHeight;
 }
+function codexCanliOnizleme(){
 
+const kod =
+document.getElementById("codexKod").value;
+
+const iframe =
+document.getElementById("codexOnizleme");
+
+iframe.style.display="block";
+
+iframe.srcdoc = kod;
+
+}
 async function codexChatGonder(){
   const input = document.getElementById("codexChatInput");
   const kodEl = document.getElementById("codexKod");
@@ -4301,8 +4332,12 @@ async function codexChatGonder(){
   input.value = "";
   codexChatMesajEkle(message, "user");
   codexChatMesajEkle("Codex düşünüyor...", "ai");
-
+aiBaslangic = performance.now();
   try{
+    const aiBitis = performance.now();
+
+document.getElementById("aiSure").innerHTML =
+"⚡ " + ((aiBitis - aiBaslangic) / 1000).toFixed(2) + " sn";
     const res = await fetch("/codex-chat", {
       method:"POST",
       headers:{ "Content-Type":"application/json" },
@@ -4316,7 +4351,10 @@ async function codexChatGonder(){
     const data = await res.json();
     const log = document.getElementById("codexChatLog");
     if(log && log.lastElementChild && log.lastElementChild.innerText === "Codex düşünüyor...") log.lastElementChild.remove();
+const aiBitis = performance.now();
 
+document.getElementById("aiSure").innerHTML =
+"⚡ " + ((aiBitis - aiBaslangic) / 1000).toFixed(2) + " sn";
     const reply = data.reply || "Codex cevap veremedi.";
     codexChatMesajEkle(reply, "ai");
     if(cevapEl) cevapEl.innerText = reply;
