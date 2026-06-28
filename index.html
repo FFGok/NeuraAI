@@ -1245,6 +1245,118 @@ body::before{
   font-weight:bold;
   opacity:.9;
 }
+
+/* === NeuraAI Sohbet Klasörleri + Araçlar Menüsü === */
+.araclarPanel{
+  display:none;
+  flex-direction:column;
+  gap:7px;
+  background:rgba(255,255,255,0.045);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:14px;
+  padding:8px;
+}
+.araclarPanel.acik{ display:flex; }
+.araclarPanel button{
+  background:rgba(255,255,255,0.06);
+  color:white;
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:10px;
+  padding:9px;
+  cursor:pointer;
+  text-align:left;
+  font-size:12px;
+}
+.klasorPanel{
+  display:none;
+  flex-direction:column;
+  gap:6px;
+  padding:7px;
+  background:rgba(255,255,255,0.035);
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:14px;
+}
+.klasorPanel.acik{ display:flex; }
+.klasorSatir{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  padding:9px 10px;
+  border-radius:11px;
+  background:rgba(255,255,255,0.055);
+  border:1px solid rgba(255,255,255,0.06);
+  cursor:pointer;
+  color:white;
+  font-size:13px;
+}
+.klasorSatir:hover{ background:rgba(255,255,255,0.10); }
+.klasorIcerik{
+  display:none;
+  flex-direction:column;
+  gap:6px;
+  margin-left:8px;
+  padding-left:8px;
+  border-left:1px solid rgba(255,255,255,0.08);
+}
+.klasorIcerik.acik{ display:flex; }
+.klasorBos{
+  color:#aaa;
+  font-size:12px;
+  padding:8px 10px;
+}
+.sohbetItemIc{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+.sohbetItemBaslik{
+  flex:1;
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.sohbetMenuBtn{
+  flex:0 0 auto;
+  background:rgba(255,255,255,0.08);
+  color:white;
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:8px;
+  padding:3px 7px;
+  cursor:pointer;
+  font-weight:bold;
+}
+.sohbetMenu{
+  position:fixed;
+  z-index:1000000;
+  min-width:190px;
+  background:#111;
+  border:1px solid rgba(255,255,255,0.13);
+  border-radius:14px;
+  box-shadow:0 18px 50px rgba(0,0,0,0.55);
+  padding:8px;
+}
+.sohbetMenu button{
+  display:block;
+  width:100%;
+  text-align:left;
+  background:rgba(255,255,255,0.06);
+  color:white;
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:10px;
+  padding:9px 10px;
+  margin:5px 0;
+  cursor:pointer;
+}
+.klasorSecenek{
+  width:100%;
+  display:block;
+  text-align:left;
+  margin-top:8px!important;
+}
+
 </style>
 </head>
 
@@ -1259,19 +1371,27 @@ body::before{
   <div class="solPanel">
     <div class="solUst">
       <button class="yeniSohbetBtn" onclick="yeniSohbet()">+ Yeni Sohbet</button>
-      <button class="sidebarMiniBtn" onclick="modPanelAc()">🎭 Modlar</button>
-      <button class="sidebarMiniBtn" onclick="profilPanelAc()">👤 Profil</button>
+
       <input
         id="sohbetAramaInput"
         class="profilInput"
         placeholder="🔍 Sohbet ara..."
         oninput="sohbetleriGoster()">
-      <button class="sidebarMiniBtn" onclick="aktifSohbetiSil()">Bu sohbeti sil</button>
-      <button class="sidebarMiniBtn" onclick="sohbetiDisaAktar()">Sohbeti dışa aktar</button>
-      <button class="sidebarMiniBtn" onclick="yeniGizliSohbet()">🔒 Gizli sohbet başlat</button>
-      <button class="sidebarMiniBtn" onclick="aktifSohbetiYenidenAdlandir()">✏️ Sohbet adını değiştir</button>
-      <button class="sidebarMiniBtn" onclick="sohbetiPdfIndir()">📄 PDF indir</button>
 
+      <button class="sidebarMiniBtn" onclick="yeniGizliSohbet()">🔒 Gizli sohbet başlat</button>
+      <button class="sidebarMiniBtn" onclick="aktifSohbetiSil()">🗑️ Sil</button>
+
+      <button class="sidebarMiniBtn klasorToggleBtn" onclick="klasorlerPanelToggle()">📁 Klasörler <span id="klasorOk">▶</span></button>
+      <div id="klasorPanel" class="klasorPanel"></div>
+
+      <button class="sidebarMiniBtn araclarToggleBtn" onclick="araclarAcKapat()">⚙️ Araçlar <span id="araclarOk">▼</span></button>
+      <div id="araclarPanel" class="araclarPanel">
+        <button onclick="profilPanelAc()">👤 Profil</button>
+        <button onclick="modPanelAc()">🎭 Modlar</button>
+        <button onclick="profilPanelAc()">📊 İstatistikler</button>
+        <button onclick="sohbetiDisaAktar()">📤 Dışa Aktar</button>
+        <button onclick="sohbetiPdfIndir()">📄 PDF</button>
+      </div>
     </div>
 
     <div class="ozelAiBaslikSatir">
@@ -1698,6 +1818,17 @@ display:none;
 </div>
 
 
+
+<div class="popupArka" id="klasorTasiPopup">
+  <div class="popup">
+    <button class="merkezKapatX" onclick="klasorTasiPanelKapat()">✖</button>
+    <h2>📂 Sohbeti Taşı</h2>
+    <div class="sosyalPopupMini">Nereye taşımak istiyorsun?</div>
+    <div id="klasorTasiListe"></div>
+    <button onclick="yeniKlasorOlusturVeTasi()">➕ Yeni Klasör</button>
+  </div>
+</div>
+
 <script>
 const NEURAAI_V2_AKILLI_HAFIZA = true;
 const NEURAAI_V2_KENDINI_KONTROL = true;
@@ -1711,6 +1842,35 @@ const onizlemeYazi = document.getElementById("onizlemeYazi");
 const durumYazi = document.getElementById("durumYazi");
 const gonderBtn = document.getElementById("gonderBtn");
 let aiBaslangic = 0;
+
+let klasorlerAcik = false;
+let acikKlasorAdi = "";
+let tasinacakSohbetId = null;
+let sohbetMenuElemani = null;
+let kayitliKlasorler = JSON.parse(localStorage.getItem("neura_klasorler") || '["Genel","Kodlama","NeuraAI","Okul"]');
+
+function klasorleriKaydet(){
+  localStorage.setItem("neura_klasorler", JSON.stringify(kayitliKlasorler));
+}
+
+function klasorAdiTemizle(ad){
+  return String(ad || "").replace(/\s+/g, " ").trim().slice(0, 28);
+}
+
+function tumKlasorAdlari(){
+  const set = new Set(["Genel"]);
+  kayitliKlasorler.forEach(k => {
+    const temiz = klasorAdiTemizle(k);
+    if(temiz) set.add(temiz);
+  });
+  (tumSohbetler || []).forEach(s => {
+    const temiz = klasorAdiTemizle(s.klasor || "Genel");
+    if(temiz) set.add(temiz);
+  });
+  kayitliKlasorler = Array.from(set);
+  klasorleriKaydet();
+  return kayitliKlasorler;
+}
 function escapeHtml(text){
   return String(text || "").replace(/[&<>]/g, c => ({
     "&":"&amp;",
@@ -2805,8 +2965,275 @@ async function cevap(text, kaydet = true){
   }
 }
 
+function sohbetItemOlustur(sohbet, ayarlar = {}){
+  const item = document.createElement("div");
+
+  item.className =
+    "sohbetItem" +
+    (sohbet.id === aktifSohbetId ? " aktif" : "") +
+    (sohbet.sabit ? " sabit" : "");
+
+  const ikon =
+    (sohbet.sabit ? "📌 " : "") +
+    (sohbet.arsiv ? "🗄️ " : "") +
+    (sohbet.gizli ? "🔒 " : (sohbet.favori ? "❤️ " : "💬 "));
+
+  item.innerHTML = `
+    <div class="sohbetItemIc">
+      <span class="sohbetItemBaslik">${escapeHtml(ikon + (sohbet.baslik || "Yeni Sohbet"))}</span>
+      <button class="sohbetMenuBtn" title="Sohbet menüsü">⋮</button>
+    </div>
+  `;
+
+  item.querySelector(".sohbetItemBaslik").onclick = () => {
+    sohbetAc(sohbet.id);
+    document.querySelector(".solPanel")?.classList.remove("acik");
+  };
+
+  item.querySelector(".sohbetMenuBtn").onclick = (e) => {
+    e.stopPropagation();
+    sohbetMenuAc(e, sohbet.id);
+  };
+
+  item.ondblclick = () => {
+    if(sohbet.gizli || ayarlar.klasorIcinde) return;
+
+    sohbet.favori = !sohbet.favori;
+    sohbetleriKaydet();
+    sohbetleriGoster();
+  };
+
+  return item;
+}
+
+function sohbetMenuKapat(){
+  if(sohbetMenuElemani){
+    sohbetMenuElemani.remove();
+    sohbetMenuElemani = null;
+  }
+}
+
+function sohbetMenuAc(e, sohbetId){
+  sohbetMenuKapat();
+
+  sohbetMenuElemani = document.createElement("div");
+  sohbetMenuElemani.className = "sohbetMenu";
+  sohbetMenuElemani.innerHTML = `
+    <button onclick="sohbetiKlasoreTasiPanelAc(${sohbetId})">📂 Klasöre Taşı</button>
+    <button onclick="sohbetiSabitle(${sohbetId})">📌 Sabitle</button>
+    <button onclick="sohbetiYenidenAdlandirId(${sohbetId})">✏️ Yeniden Adlandır</button>
+    <button onclick="sohbetiSilId(${sohbetId})">🗑️ Sil</button>
+  `;
+
+  document.body.appendChild(sohbetMenuElemani);
+
+  const x = Math.min(e.clientX, window.innerWidth - 210);
+  const y = Math.min(e.clientY, window.innerHeight - 190);
+  sohbetMenuElemani.style.left = x + "px";
+  sohbetMenuElemani.style.top = y + "px";
+}
+
+document.addEventListener("click", (e) => {
+  if(sohbetMenuElemani && !sohbetMenuElemani.contains(e.target)){
+    sohbetMenuKapat();
+  }
+});
+
+function sohbetiSabitle(id){
+  const s = tumSohbetler.find(x => x.id === id);
+  if(!s) return;
+  s.sabit = !s.sabit;
+  sohbetleriKaydet();
+  sohbetleriGoster();
+  sohbetMenuKapat();
+}
+
+function sohbetiYenidenAdlandirId(id){
+  const s = tumSohbetler.find(x => x.id === id);
+  if(!s) return;
+  const ad = prompt("Yeni sohbet adı:", s.baslik || "Yeni Sohbet");
+  if(!ad) return;
+  s.baslik = ad.slice(0,40);
+  sohbetleriKaydet();
+  sohbetleriGoster();
+  sohbetMenuKapat();
+}
+
+function sohbetiSilId(id){
+  if(!confirm("Bu sohbet silinsin mi?")) return;
+  tumSohbetler = tumSohbetler.filter(s => s.id !== id);
+
+  if(tumSohbetler.length === 0){
+    yeniSohbet();
+  }else{
+    if(aktifSohbetId === id) aktifSohbetId = tumSohbetler[0].id;
+    sohbetleriKaydet();
+    sohbetAc(aktifSohbetId);
+    sohbetleriGoster();
+  }
+
+  sohbetMenuKapat();
+}
+
+function klasorlerPanelToggle(){
+  klasorlerAcik = !klasorlerAcik;
+  const panel = document.getElementById("klasorPanel");
+  const ok = document.getElementById("klasorOk");
+
+  if(panel) panel.classList.toggle("acik", klasorlerAcik);
+  if(ok) ok.innerText = klasorlerAcik ? "▼" : "▶";
+
+  klasorleriGoster();
+}
+
+function klasorToggle(ad){
+  acikKlasorAdi = acikKlasorAdi === ad ? "" : ad;
+  klasorleriGoster();
+}
+
+function klasorleriGoster(){
+  const panel = document.getElementById("klasorPanel");
+  if(!panel) return;
+
+  panel.innerHTML = "";
+
+  if(!klasorlerAcik) return;
+
+  const arama =
+    sohbetAramaInput
+    ? sohbetAramaInput.value.toLowerCase().trim()
+    : "";
+
+  const klasorler = tumKlasorAdlari();
+
+  klasorler.forEach(klasor => {
+    const sohbetler = tumSohbetler.filter(s => {
+      const ayniKlasor = (s.klasor || "Genel") === klasor;
+      const baslik = (s.baslik || "").toLowerCase();
+      const mesajlar = (s.mesajlar || []).map(m => m.text || "").join(" ").toLowerCase();
+      return ayniKlasor && (!arama || baslik.includes(arama) || mesajlar.includes(arama));
+    });
+
+    const satir = document.createElement("div");
+    satir.className = "klasorSatir";
+    satir.innerHTML = `<span>${acikKlasorAdi === klasor ? "📂" : "📁"} ${escapeHtml(klasor)} (${sohbetler.length})</span><span>${acikKlasorAdi === klasor ? "▼" : "▶"}</span>`;
+    satir.onclick = () => klasorToggle(klasor);
+    panel.appendChild(satir);
+
+    const ic = document.createElement("div");
+    ic.className = "klasorIcerik" + (acikKlasorAdi === klasor ? " acik" : "");
+
+    if(sohbetler.length === 0){
+      const bos = document.createElement("div");
+      bos.className = "klasorBos";
+      bos.innerText = "Henüz sohbet yok.";
+      ic.appendChild(bos);
+    }else{
+      sohbetler
+        .sort((a,b) => Number(!!b.sabit) - Number(!!a.sabit))
+        .forEach(sohbet => ic.appendChild(sohbetItemOlustur(sohbet, { klasorIcinde:true })));
+    }
+
+    panel.appendChild(ic);
+  });
+
+  const yeniBtn = document.createElement("button");
+  yeniBtn.className = "sidebarMiniBtn";
+  yeniBtn.innerText = "➕ Yeni Klasör";
+  yeniBtn.onclick = yeniKlasorOlustur;
+  panel.appendChild(yeniBtn);
+}
+
+function yeniKlasorOlustur(){
+  const ad = klasorAdiTemizle(prompt("Yeni klasör adı:"));
+  if(!ad) return;
+
+  if(!kayitliKlasorler.includes(ad)){
+    kayitliKlasorler.push(ad);
+    klasorleriKaydet();
+  }
+
+  acikKlasorAdi = ad;
+  klasorlerAcik = true;
+  document.getElementById("klasorPanel")?.classList.add("acik");
+  const ok = document.getElementById("klasorOk");
+  if(ok) ok.innerText = "▼";
+  klasorleriGoster();
+}
+
+function sohbetiKlasoreTasiPanelAc(id){
+  tasinacakSohbetId = id;
+  sohbetMenuKapat();
+
+  const liste = document.getElementById("klasorTasiListe");
+  const popup = document.getElementById("klasorTasiPopup");
+  if(!liste || !popup) return;
+
+  liste.innerHTML = "";
+
+  tumKlasorAdlari().forEach(klasor => {
+    const btn = document.createElement("button");
+    btn.className = "klasorSecenek";
+    btn.innerText = "📁 " + klasor;
+    btn.onclick = () => sohbetiKlasoreTasi(klasor);
+    liste.appendChild(btn);
+  });
+
+  popup.style.display = "flex";
+}
+
+function klasorTasiPanelKapat(){
+  const popup = document.getElementById("klasorTasiPopup");
+  if(popup) popup.style.display = "none";
+  tasinacakSohbetId = null;
+}
+
+function sohbetiKlasoreTasi(klasor){
+  const s = tumSohbetler.find(x => x.id === tasinacakSohbetId);
+  if(!s) return;
+
+  s.klasor = klasorAdiTemizle(klasor) || "Genel";
+
+  if(!kayitliKlasorler.includes(s.klasor)){
+    kayitliKlasorler.push(s.klasor);
+    klasorleriKaydet();
+  }
+
+  acikKlasorAdi = s.klasor;
+  klasorlerAcik = true;
+
+  sohbetleriKaydet();
+  sohbetleriGoster();
+  klasorleriGoster();
+  klasorTasiPanelKapat();
+  sistemMesaji("📁 Sohbet klasöre taşındı: " + s.klasor);
+}
+
+function yeniKlasorOlusturVeTasi(){
+  const ad = klasorAdiTemizle(prompt("Yeni klasör adı:"));
+  if(!ad) return;
+
+  if(!kayitliKlasorler.includes(ad)){
+    kayitliKlasorler.push(ad);
+    klasorleriKaydet();
+  }
+
+  sohbetiKlasoreTasi(ad);
+}
+
+function araclarAcKapat(){
+  const panel = document.getElementById("araclarPanel");
+  const ok = document.getElementById("araclarOk");
+  if(!panel) return;
+
+  const acik = panel.classList.toggle("acik");
+  if(ok) ok.innerText = acik ? "▲" : "▼";
+}
+
 function sohbetleriGoster(){
   const liste = document.getElementById("sohbetListesi");
+
+  if(!liste) return;
 
   liste.innerHTML = "";
   favoriListesi.innerHTML = "";
@@ -2821,7 +3248,7 @@ function sohbetleriGoster(){
   .filter(sohbet => {
     if(sohbet.arsiv && !arsivleriGoster) return false;
     const baslik = (sohbet.baslik || "").toLowerCase();
-    const klasor = (sohbet.klasor || "").toLowerCase();
+    const klasor = (sohbet.klasor || "Genel").toLowerCase();
 
     const mesajlar = (sohbet.mesajlar || [])
       .map(m => m.text || "")
@@ -2833,30 +3260,9 @@ function sohbetleriGoster(){
   .sort((a,b) => Number(!!b.sabit) - Number(!!a.sabit));
 
   filtreliSohbetler.forEach(sohbet => {
-    const item = document.createElement("div");
+    if(!sohbet.klasor) sohbet.klasor = "Genel";
 
-    item.className =
-      "sohbetItem" + (sohbet.id === aktifSohbetId ? " aktif" : "") + (sohbet.sabit ? " sabit" : "");
-
-    item.innerHTML =
-      (sohbet.sabit ? "📌 " : "") +
-      (sohbet.arsiv ? "🗄️ " : "") +
-      (sohbet.gizli ? "🔒 " : (sohbet.favori ? "❤️ " : "🤍 ")) +
-      (sohbet.klasor ? "[" + sohbet.klasor + "] " : "") +
-      (sohbet.baslik || "Yeni Sohbet");
-
-    item.ondblclick = () => {
-      if(sohbet.gizli) return;
-
-      sohbet.favori = !sohbet.favori;
-      sohbetleriKaydet();
-      sohbetleriGoster();
-    };
-
-    item.onclick = () => {
-      sohbetAc(sohbet.id);
-      document.querySelector(".solPanel").classList.remove("acik");
-    };
+    const item = sohbetItemOlustur(sohbet);
 
     if(sohbet.gizli){
       if(gizliListesi) gizliListesi.appendChild(item);
@@ -2866,15 +3272,11 @@ function sohbetleriGoster(){
     liste.appendChild(item);
 
     if(sohbet.favori){
-      const favItem = item.cloneNode(true);
-
-      favItem.onclick = () => {
-        sohbetAc(sohbet.id);
-      };
-
-      favoriListesi.appendChild(favItem);
+      favoriListesi.appendChild(sohbetItemOlustur(sohbet));
     }
   });
+
+  klasorleriGoster();
 }
 
 function yeniSohbet(){
@@ -4427,7 +4829,7 @@ async function kurucuDurumGuncelle(data){
 
   const aktif = !!(data && data.founderOnline);
   box.classList.toggle("aktif", aktif);
-  yazi.innerText = aktif ? "NeuraAI çevrimiçi" : "NeuraAI çevrimdışı";
+  yazi.innerText = aktif ? "Kurucu çevrimiçi" : "Kurucu çevrimdışı";
 }
 
 const eskiCanliPing = window.canliKullaniciPing;
