@@ -57,6 +57,8 @@ function veriOku(){
         worldStats: {},
         profileStats: {},
         codexMemories: {},
+        folders: {},
+        chatFolders: {},
         founderLastSeen: 0
       };
     }
@@ -69,6 +71,8 @@ function veriOku(){
       worldStats: data.worldStats && typeof data.worldStats === "object" ? data.worldStats : {},
       profileStats: data.profileStats && typeof data.profileStats === "object" ? data.profileStats : {},
       codexMemories: data.codexMemories && typeof data.codexMemories === "object" ? data.codexMemories : {},
+      folders: data.folders && typeof data.folders === "object" ? data.folders : {},
+      chatFolders: data.chatFolders && typeof data.chatFolders === "object" ? data.chatFolders : {},
       founderLastSeen: Number(data.founderLastSeen || 0)
     };
   }catch(err){
@@ -78,6 +82,8 @@ function veriOku(){
       worldStats: {},
       profileStats: {},
       codexMemories: {},
+      folders: {},
+      chatFolders: {},
       founderLastSeen: 0
     };
   }
@@ -143,6 +149,224 @@ function statsArtir(req, alan){
   stats.lastSeen = Date.now();
   neuraData.profileStats[key] = stats;
 }
+
+
+/* =========================
+   Sohbet Klasörleri
+   - Klasör oluşturma
+   - Klasör listeleme
+   - Yeniden adlandırma
+   - Silme
+   - Sohbeti klasöre taşıma
+========================= */
+
+function klasorUserKey(req){
+  return kullaniciKey(req);
+}
+
+function klasorListesiAl(key){
+  if(!neuraData.folders || typeof neuraData.folders !== "object"){
+    neuraData.folders = {};
+  }
+
+  if(!Array.isArray(neuraData.folders[key])){
+    neuraData.folders[key] = [];
+  }
+
+  return neuraData.folders[key];
+}
+
+function sohbetKlasorMapAl(key){
+  if(!neuraData.chatFolders || typeof neuraData.chatFolders !== "object"){
+    neuraData.chatFolders = {};
+  }
+
+  if(!neuraData.chatFolders[key] || typeof neuraData.chatFolders[key] !== "object"){
+    neuraData.chatFolders[key] = {};
+  }
+
+  return neuraData.chatFolders[key];
+}
+
+function klasorIdUret(){
+  return "kl_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 8);
+}
+
+function klasorTemizAd(name){
+  return temizMesaj(name || "Yeni Klasör", 40).replace(/\s+/g, " ").trim() || "Yeni Klasör";
+}
+
+function klasorCevabi(key){
+  const folders = klasorListesiAl(key);
+  const chatFolders = sohbetKlasorMapAl(key);
+
+  return {
+    ok:true,
+    folders,
+    chatFolders
+  };
+}
+
+app.get("/api/folders", (req,res) => {
+  try{
+    const key = klasorUserKey(req);
+    res.json(klasorCevabi(key));
+  }catch(err){
+    console.error("folders liste hata:", err);
+    res.json({ ok:false, reply:"Klasörler alınamadı." });
+  }
+});
+
+app.post("/api/folders", (req,res) => {
+  try{
+    const key = klasorUserKey(req);
+    res.json(klasorCevabi(key));
+  }catch(err){
+    console.error("folders post liste hata:", err);
+    res.json({ ok:false, reply:"Klasörler alınamadı." });
+  }
+});
+
+app.post("/api/folders/create", (req,res) => {
+  try{
+    const key = klasorUserKey(req);
+    const name = klasorTemizAd(req.body?.name || req.body?.folderName);
+    const folders = klasorListesiAl(key);
+
+    const ayniAdVar = folders.some(f => String(f.name || "").toLowerCase() === name.toLowerCase());
+    if(ayniAdVar){
+      return res.json({ ok:false, reply:"Bu isimde bir klasör zaten var." });
+    }
+
+    const folder = {
+      id: klasorIdUret(),
+      name,
+      color: temizMesaj(req.body?.color || "purple", 30),
+      pinned: false,
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    };
+
+    folders.push(folder);
+    neuraData.folders[key] = folders;
+    veriKaydet();
+
+    res.json({ ...klasorCevabi(key), folder, reply:"Klasör oluşturuldu." });
+  }catch(err){
+    console.error("folder create hata:", err);
+    res.json({ ok:false, reply:"Klasör oluşturulamadı." });
+  }
+});
+
+app.post("/api/folders/rename", (req,res) => {
+  try{
+    const key = klasorUserKey(req);
+    const folderId = temizMesaj(req.body?.folderId || req.body?.id, 120);
+    const newName = klasorTemizAd(req.body?.name || req.body?.newName);
+    const folders = klasorListesiAl(key);
+    const folder = folders.find(f => f.id === folderId);
+
+    if(!folder){
+      return res.json({ ok:false, reply:"Klasör bulunamadı." });
+    }
+
+    folder.name = newName;
+    folder.updatedAt = Date.now();
+    veriKaydet();
+
+    res.json({ ...klasorCevabi(key), folder, reply:"Klasör adı değiştirildi." });
+  }catch(err){
+    console.error("folder rename hata:", err);
+    res.json({ ok:false, reply:"Klasör adı değiştirilemedi." });
+  }
+});
+
+app.post("/api/folders/delete", (req,res) => {
+  try{
+    const key = klasorUserKey(req);
+    const folderId = temizMesaj(req.body?.folderId || req.body?.id, 120);
+    let folders = klasorListesiAl(key);
+    const chatFolders = sohbetKlasorMapAl(key);
+
+    folders = folders.filter(f => f.id !== folderId);
+    neuraData.folders[key] = folders;
+
+    for(const chatId of Object.keys(chatFolders)){
+      if(chatFolders[chatId] === folderId){
+        delete chatFolders[chatId];
+      }
+    }
+
+    neuraData.chatFolders[key] = chatFolders;
+    veriKaydet();
+
+    res.json({ ...klasorCevabi(key), reply:"Klasör silindi. İçindeki sohbetler silinmedi." });
+  }catch(err){
+    console.error("folder delete hata:", err);
+    res.json({ ok:false, reply:"Klasör silinemedi." });
+  }
+});
+
+app.post("/api/folders/move-chat", (req,res) => {
+  try{
+    const key = klasorUserKey(req);
+    const chatId = temizMesaj(req.body?.chatId || req.body?.sohbetId || req.body?.id, 160);
+    const folderId = temizMesaj(req.body?.folderId || req.body?.klasorId || "", 120);
+
+    if(!chatId){
+      return res.json({ ok:false, reply:"Taşınacak sohbet bulunamadı." });
+    }
+
+    const folders = klasorListesiAl(key);
+    const chatFolders = sohbetKlasorMapAl(key);
+
+    if(folderId){
+      const folderExists = folders.some(f => f.id === folderId);
+      if(!folderExists){
+        return res.json({ ok:false, reply:"Klasör bulunamadı." });
+      }
+      chatFolders[chatId] = folderId;
+    }else{
+      delete chatFolders[chatId];
+    }
+
+    neuraData.chatFolders[key] = chatFolders;
+    veriKaydet();
+
+    res.json({ ...klasorCevabi(key), reply: folderId ? "Sohbet klasöre taşındı." : "Sohbet klasörden çıkarıldı." });
+  }catch(err){
+    console.error("move chat hata:", err);
+    res.json({ ok:false, reply:"Sohbet klasöre taşınamadı." });
+  }
+});
+
+app.post("/api/folders/pin", (req,res) => {
+  try{
+    const key = klasorUserKey(req);
+    const folderId = temizMesaj(req.body?.folderId || req.body?.id, 120);
+    const folders = klasorListesiAl(key);
+    const folder = folders.find(f => f.id === folderId);
+
+    if(!folder){
+      return res.json({ ok:false, reply:"Klasör bulunamadı." });
+    }
+
+    folder.pinned = !folder.pinned;
+    folder.updatedAt = Date.now();
+    veriKaydet();
+
+    res.json({ ...klasorCevabi(key), folder, reply: folder.pinned ? "Klasör sabitlendi." : "Klasör sabitlemesi kaldırıldı." });
+  }catch(err){
+    console.error("folder pin hata:", err);
+    res.json({ ok:false, reply:"Klasör sabitlenemedi." });
+  }
+});
+
+// Eski veya farklı frontend isimleriyle uyumluluk
+app.post("/folders/create", (req,res) => app._router.handle(Object.assign(req, { url:"/api/folders/create" }), res));
+app.post("/folders/rename", (req,res) => app._router.handle(Object.assign(req, { url:"/api/folders/rename" }), res));
+app.post("/folders/delete", (req,res) => app._router.handle(Object.assign(req, { url:"/api/folders/delete" }), res));
+app.post("/folders/move-chat", (req,res) => app._router.handle(Object.assign(req, { url:"/api/folders/move-chat" }), res));
 
 /* =========================
    Online + Kurucu + Dünya
