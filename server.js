@@ -1091,6 +1091,104 @@ app.post("/api/generate-image", async (req,res) => {
   app._router.handle(req,res);
 });
 
+
+
+/* =========================
+   NeuraAI Voice V1
+   - HTML tarafındaki sesli sohbet ekranı için güvenli endpoint
+   - ElevenLabs yok: V1 sadece metin cevabı döndürür
+   - Tarayıcı cevabı speechSynthesis ile seslendirir
+========================= */
+
+app.post("/api/voice/chat", async (req,res) => {
+  try{
+    const msg = temizMesaj(req.body?.message || req.body?.text || "", 4000).trim();
+    const userKey = kullaniciKey(req);
+
+    if(!msg){
+      return res.json({
+        ok:false,
+        status:"listening",
+        reply:"Ses algılanamadı. Tekrar konuşmayı dene."
+      });
+    }
+
+    if(!process.env.OPENROUTER_API_KEY){
+      return res.json({
+        ok:false,
+        status:"error",
+        reply:"AI API key ayarlanmamış."
+      });
+    }
+
+    statsArtir(req, "chat");
+    hafizaKaydet(userKey, msg);
+
+    const aiModelTipi = req.body?.aiModelTipi || "akilli";
+    const konusmaModu = ["samimi","resmi","profesor"].includes(req.body?.konusmaModu)
+      ? req.body.konusmaModu
+      : "samimi";
+
+    const profil = modelProfili(aiModelTipi);
+    const gelenMesajlar = Array.isArray(req.body?.messages) ? req.body.messages.slice(-30) : [];
+
+    const messages = [
+      {
+        role:"system",
+        content:
+          sistemPrompt({
+            modeName:konusmaModu,
+            aiModelTipi,
+            customAi:req.body?.customAi,
+            userKey
+          }) +
+          " Kullanıcı sesli sohbet modunda konuşuyor. Cevapların doğal, konuşma diline uygun, kısa ve akıcı olsun. " +
+          "Çok uzun paragraflar yazma; sesli okununca anlaşılır şekilde cevap ver."
+      },
+      ...gelenMesajlar,
+      { role:"user", content:msg }
+    ];
+
+    const ilkCevap = await openrouterChat({
+      model: profil.model,
+      max_tokens: 900,
+      messages
+    });
+
+    const finalCevap = await kendiniKontrolEt({
+      soru: msg,
+      cevap: ilkCevap,
+      model: profil.model,
+      mode:"kisa"
+    });
+
+    res.json({
+      ok:true,
+      status:"speaking",
+      reply: temizMesaj(finalCevap, 5000),
+      voiceEngine:"browser",
+      elevenLabs:false,
+      summary:{
+        lastUserMessage: msg,
+        lastAiReply: temizMesaj(finalCevap, 700),
+        time: Date.now()
+      }
+    });
+  }catch(err){
+    console.error("voice chat hata:", err);
+    res.json({
+      ok:false,
+      status:"error",
+      reply:"Sesli sohbet tarafında hata oluştu. Biraz sonra tekrar dene."
+    });
+  }
+});
+
+app.post("/voice-chat", (req,res) => {
+  req.url = "/api/voice/chat";
+  app._router.handle(req,res);
+});
+
 /* =========================
    Profil Stats
 ========================= */
