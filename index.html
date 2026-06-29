@@ -1357,6 +1357,158 @@ body::before{
   margin-top:8px!important;
 }
 
+
+
+/* === NeuraAI Voice V1 - Tam ekran sesli sohbet === */
+.voiceScreen{
+  position:fixed;
+  inset:0;
+  z-index:2000000;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(123,44,255,.24), transparent 27%),
+    radial-gradient(circle at 50% 58%, rgba(255,0,170,.12), transparent 30%),
+    #000;
+  color:white;
+  opacity:0;
+  transform:scale(1.03);
+  transition:opacity .45s ease, transform .45s ease;
+}
+.voiceScreen.acik{
+  display:flex;
+  opacity:1;
+  transform:scale(1);
+}
+.voiceKapat{
+  position:absolute;
+  right:22px;
+  top:18px;
+  width:46px;
+  height:46px;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.07);
+  color:white;
+  font-size:22px;
+  cursor:pointer;
+  z-index:2;
+}
+.voiceMerkez{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  gap:18px;
+  padding:24px;
+  width:min(92vw,640px);
+}
+.voiceMarka{
+  font-size:28px;
+  font-weight:900;
+  letter-spacing:.4px;
+  opacity:.95;
+}
+.voiceLogoSarma{
+  width:220px;
+  height:220px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  background:radial-gradient(circle, rgba(123,44,255,.18), rgba(0,0,0,.2) 58%, transparent 70%);
+  box-shadow:0 0 60px rgba(123,44,255,.26), inset 0 0 42px rgba(255,255,255,.04);
+  animation:voiceNefes 2.8s ease-in-out infinite;
+}
+.voiceLogoSarma::before,
+.voiceLogoSarma::after{
+  content:"";
+  position:absolute;
+  inset:-14px;
+  border-radius:50%;
+  border:1px solid rgba(180,80,255,.20);
+  animation:voiceDalga 2.3s ease-in-out infinite;
+}
+.voiceLogoSarma::after{
+  inset:-30px;
+  opacity:.55;
+  animation-delay:.55s;
+}
+.voiceLogo{
+  width:165px;
+  height:165px;
+  border-radius:50%;
+  object-fit:cover;
+  filter:drop-shadow(0 0 22px rgba(180,80,255,.55));
+  transition:transform .12s ease, filter .2s ease;
+}
+.voiceScreen.dinliyor .voiceLogoSarma{ animation:voiceNefes 2.3s ease-in-out infinite; }
+.voiceScreen.konusuyor .voiceLogoSarma{ animation:voiceKonusuyor .55s ease-in-out infinite; }
+.voiceScreen.dusunuyor .voiceLogoSarma{ animation:voiceDusunuyor 2.4s linear infinite; }
+.voiceScreen.aiKonusuyor .voiceLogoSarma{ animation:voiceAiKonusuyor .8s ease-in-out infinite; }
+.voiceDurum{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 14px;
+  border-radius:999px;
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.10);
+  color:#e9e9e9;
+  font-weight:800;
+  box-shadow:0 0 20px rgba(123,44,255,.12);
+}
+.voiceAltYazi{
+  min-height:22px;
+  max-width:540px;
+  color:#bdbdbd;
+  font-size:14px;
+  line-height:1.45;
+}
+.voiceSure{
+  color:#888;
+  font-size:13px;
+}
+.voiceBaslatBtn{
+  margin-top:4px;
+  padding:12px 18px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.12);
+  background:linear-gradient(135deg,#7b2cff,#3d7cff);
+  color:white;
+  font-weight:900;
+  cursor:pointer;
+}
+@keyframes voiceNefes{
+  0%,100%{ transform:scale(1); filter:brightness(1); }
+  50%{ transform:scale(1.035); filter:brightness(1.13); }
+}
+@keyframes voiceDalga{
+  0%{ transform:scale(.88); opacity:.55; }
+  100%{ transform:scale(1.18); opacity:0; }
+}
+@keyframes voiceKonusuyor{
+  0%,100%{ transform:scale(1); box-shadow:0 0 45px rgba(123,44,255,.30); }
+  50%{ transform:scale(1.09); box-shadow:0 0 80px rgba(255,0,170,.34); }
+}
+@keyframes voiceDusunuyor{
+  0%{ transform:rotate(0deg) scale(1.02); }
+  100%{ transform:rotate(360deg) scale(1.02); }
+}
+@keyframes voiceAiKonusuyor{
+  0%,100%{ transform:scale(1.02); filter:brightness(1); }
+  50%{ transform:scale(1.075); filter:brightness(1.22); }
+}
+@media(max-width:700px){
+  .voiceLogoSarma{ width:185px; height:185px; }
+  .voiceLogo{ width:138px; height:138px; }
+  .voiceMarka{ font-size:24px; }
+  .voiceKapat{ right:14px; top:14px; }
+}
+
 </style>
 </head>
 
@@ -1438,8 +1590,6 @@ body::before{
           <option value="yaratici">🎨 Yaratıcı</option>
           <option value="kod">💻 Kod</option>
         </select>
-        <button onclick="sohbetiTemizle()">Temizle</button>
-        <button onclick="kaydet()">Kaydet</button>
         <button onclick="sesAcKapat()" id="sesBtn">🔊</button>
         <button onclick="codexAc()">💻 Codex</button>
       </div>
@@ -1458,7 +1608,7 @@ body::before{
       <input type="file" id="fotoInput" accept="image/*">
       <input id="input" placeholder="Mesaj yaz...">
       <button type="button" onclick="document.getElementById('fotoInput').click()">📷</button>
-      <button type="button" onclick="mikrofonBaslat()">🎤</button>
+      <button type="button" onclick="sesliSohbetAc()">🎤</button>
       <button id="gonderBtn" type="button" onclick="gonder()">Gönder</button>
     </div>
   </div>
@@ -1827,6 +1977,22 @@ display:none;
   </div>
 </div>
 
+
+
+<!-- === NeuraAI Voice V1 Ekranı === -->
+<div class="voiceScreen" id="voiceScreen">
+  <button class="voiceKapat" onclick="sesliSohbetKapat()" title="Sesli sohbeti kapat">×</button>
+  <div class="voiceMerkez">
+    <div class="voiceMarka">NeuraAI</div>
+    <div class="voiceLogoSarma" id="voiceLogoSarma">
+      <img class="voiceLogo" id="voiceLogo" src="./splash.png" alt="NeuraAI Voice">
+    </div>
+    <div class="voiceDurum" id="voiceDurum">🟢 Dinleniyor...</div>
+    <div class="voiceAltYazi" id="voiceAltYazi">Konuşmaya başlayabilirsin. Sustuktan 2 saniye sonra NeuraAI cevap verir.</div>
+    <div class="voiceSure" id="voiceSure">00:00</div>
+    <button class="voiceBaslatBtn" id="voiceBaslatBtn" onclick="sesliSohbetBaslatButonu()">🎙️ Dinlemeyi Başlat</button>
+  </div>
+</div>
 <script>
 const NEURAAI_V2_AKILLI_HAFIZA = true;
 const NEURAAI_V2_KENDINI_KONTROL = true;
@@ -2306,7 +2472,16 @@ function sesliOku(text){
     ses.voiceURI = iyiSes.voiceURI;
   }
 
+  ses.onstart = () => {
+    if(sesliSohbetAktif){
+      voiceDurumAyar("aiKonusuyor", "🔵 NeuraAI konuşuyor...", "Cevap sesli okunuyor.");
+    }
+  };
+
   ses.onend = () => {
+    if(sesliSohbetAktif){
+      voiceDurumAyar("dinliyor", "🟢 Dinleniyor...", "Tekrar konuşabilirsin.");
+    }
     if(sesliSohbetAktif && !cevapYaziliyor){
       setTimeout(() => mikrofonuDinle(), 650);
     }
@@ -2326,10 +2501,110 @@ function sesAcKapat(){
   if(!sesAcik) speechSynthesis.cancel();
 }
 
+function voiceDurumAyar(mod, durum, alt){
+  const ekran = document.getElementById("voiceScreen");
+  const durumEl = document.getElementById("voiceDurum");
+  const altEl = document.getElementById("voiceAltYazi");
+  if(ekran){
+    ekran.classList.remove("dinliyor", "konusuyor", "dusunuyor", "aiKonusuyor");
+    if(mod) ekran.classList.add(mod);
+  }
+  if(durumEl) durumEl.innerText = durum || "🟢 Dinleniyor...";
+  if(altEl) altEl.innerText = alt || "Konuşmaya başlayabilirsin.";
+}
+
+let voiceSureTimer = null;
+let voiceBaslangic = 0;
+let voiceMesajSayisi = 0;
+let voiceSonMetin = "";
+let voiceSessizlikTimer = null;
+let voiceInterimMetin = "";
+
+function voiceSureBaslat(){
+  voiceBaslangic = Date.now();
+  const sureEl = document.getElementById("voiceSure");
+  if(voiceSureTimer) clearInterval(voiceSureTimer);
+  voiceSureTimer = setInterval(() => {
+    const sn = Math.floor((Date.now() - voiceBaslangic) / 1000);
+    const dk = String(Math.floor(sn / 60)).padStart(2, "0");
+    const ss = String(sn % 60).padStart(2, "0");
+    if(sureEl) sureEl.innerText = dk + ":" + ss;
+  }, 250);
+}
+
+function voiceSureDurdur(){
+  if(voiceSureTimer) clearInterval(voiceSureTimer);
+  voiceSureTimer = null;
+}
+
+function sesliSohbetAc(){
+  const ekran = document.getElementById("voiceScreen");
+  if(ekran){
+    ekran.style.display = "flex";
+    requestAnimationFrame(() => ekran.classList.add("acik", "dinliyor"));
+  }
+  voiceMesajSayisi = 0;
+  voiceSonMetin = "";
+  voiceInterimMetin = "";
+  voiceSureBaslat();
+  voiceDurumAyar("dinliyor", "🟢 Dinleniyor...", "Konuşmaya başlayabilirsin. Sustuktan 2 saniye sonra NeuraAI cevap verir.");
+  sesliSohbetAktif = true;
+  sesliCevapBekleniyor = false;
+  speechSynthesis.cancel();
+  setTimeout(() => mikrofonuDinle(), 450);
+}
+
+function sesliSohbetKapat(){
+  sesliSohbetAktif = false;
+  sesliCevapBekleniyor = false;
+  voiceSureDurdur();
+  if(voiceSessizlikTimer) clearTimeout(voiceSessizlikTimer);
+
+  try{ if(recognition) recognition.stop(); }catch(err){}
+  try{ speechSynthesis.cancel(); }catch(err){}
+
+  const ekran = document.getElementById("voiceScreen");
+  if(ekran){
+    ekran.classList.remove("acik", "dinliyor", "konusuyor", "dusunuyor", "aiKonusuyor");
+    setTimeout(() => { ekran.style.display = "none"; }, 260);
+  }
+
+  const toplamSn = voiceBaslangic ? Math.floor((Date.now() - voiceBaslangic) / 1000) : 0;
+  const dk = Math.floor(toplamSn / 60);
+  const sn = toplamSn % 60;
+  const sureYazi = (dk ? dk + " dk " : "") + sn + " sn";
+
+  if(voiceMesajSayisi > 0){
+    sistemMesaji("🎙️ Sesli Sohbet Özeti\n\n⏱️ Süre: " + sureYazi + "\n💬 İşlenen konuşma: " + voiceMesajSayisi + "\n📌 Son konu: " + (voiceSonMetin || "Belirlenemedi") + "\n\nYazılı sohbetten devam edebilirsin.");
+  }
+
+  if(!cooldownTimer) durumYazi.innerText = "";
+}
+
+function sesliSohbetBaslatButonu(){
+  if(!sesliSohbetAktif){
+    sesliSohbetAc();
+    return;
+  }
+  mikrofonuDinle();
+}
+
+function sesliSohbetMetniGonder(){
+  const metin = (input.value || "").trim();
+  if(!metin || cevapYaziliyor) return;
+  voiceSonMetin = metin;
+  voiceMesajSayisi++;
+  sesliCevapBekleniyor = true;
+  voiceDurumAyar("dusunuyor", "🟡 NeuraAI düşünüyor...", "Cevap hazırlanıyor.");
+  durumYazi.innerText = "Sesli cevap hazırlanıyor...";
+  gonder();
+}
+
 function mikrofonuDinle(){
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
   if(!SpeechRecognition){
+    voiceDurumAyar("dinliyor", "⚠️ Desteklenmiyor", "Bu tarayıcı mikrofonlu konuşmayı desteklemiyor. Chrome veya Edge deneyebilirsin.");
     cevap("Tarayıcın mikrofonlu konuşmayı desteklemiyor. Edge güncel değilse Chrome deneyebilirsin.", false);
     sesliSohbetAktif = false;
     return;
@@ -2339,50 +2614,57 @@ function mikrofonuDinle(){
 
   if(!recognition){
     recognition = new SpeechRecognition();
-    recognition.continuous = false;
+    recognition.continuous = true;
     recognition.interimResults = true;
     recognition.lang = mikrofonDili;
 
     recognition.onstart = function(){
       mikrofonCalisiyor = true;
+      voiceDurumAyar("dinliyor", "🟢 Dinleniyor...", "Konuşmaya başlayabilirsin.");
       durumYazi.innerText = "Dinliyorum 🎤";
     };
 
     recognition.onresult = function(event){
       let metin = "";
-      let finalMi = false;
 
       for(let i = event.resultIndex; i < event.results.length; i++){
         metin += event.results[i][0].transcript;
-        if(event.results[i].isFinal) finalMi = true;
       }
 
-      input.value = metin.trim();
+      metin = metin.trim();
+      if(!metin) return;
 
-      if(finalMi && input.value.trim()){
-        sesliCevapBekleniyor = true;
-        durumYazi.innerText = "Cevap hazırlanıyor...";
-        gonder();
-      }
+      input.value = metin;
+      voiceInterimMetin = metin;
+      voiceDurumAyar("konusuyor", "🟢 Dinleniyor...", "Seni duyuyorum: “" + metin.slice(0, 90) + (metin.length > 90 ? "..." : "") + "”");
+
+      if(voiceSessizlikTimer) clearTimeout(voiceSessizlikTimer);
+      voiceSessizlikTimer = setTimeout(() => {
+        if(!sesliSohbetAktif || cevapYaziliyor || sesliCevapBekleniyor) return;
+        try{ if(recognition) recognition.stop(); }catch(err){}
+        sesliSohbetMetniGonder();
+      }, 2000);
     };
 
     recognition.onerror = function(event){
       mikrofonCalisiyor = false;
       sesliCevapBekleniyor = false;
-      durumYazi.innerText = "";
 
       if(event.error === "not-allowed"){
         sesliSohbetAktif = false;
+        voiceDurumAyar("dinliyor", "⚠️ Mikrofon izni lazım", "Tarayıcıdan mikrofon izni vermen gerekiyor.");
         cevap("Mikrofon izni kapalı. Tarayıcıdan izin vermen lazım.", false);
       }else if(event.error === "no-speech"){
         if(sesliSohbetAktif){
-          durumYazi.innerText = "Ses duyamadım, tekrar dinliyorum...";
+          voiceDurumAyar("dinliyor", "🟢 Dinleniyor...", "Ses duyamadım, tekrar dinliyorum.");
           setTimeout(() => mikrofonuDinle(), 800);
         }
       }else if(event.error === "audio-capture"){
         sesliSohbetAktif = false;
+        voiceDurumAyar("dinliyor", "⚠️ Mikrofon bulunamadı", "Cihazında mikrofon bulunamadı.");
         cevap("Mikrofon bulunamadı.", false);
       }else{
+        voiceDurumAyar("dinliyor", "⚠️ Mikrofon hatası", "Hata: " + event.error);
         cevap("Mikrofon hatası: " + event.error, false);
       }
     };
@@ -2402,6 +2684,7 @@ function mikrofonuDinle(){
   }
 
   try{
+    recognition.lang = mikrofonDili;
     recognition.start();
   }catch(err){
     console.log("Mikrofon başlatma hatası:", err);
@@ -2410,25 +2693,10 @@ function mikrofonuDinle(){
 
 function mikrofonBaslat(){
   if(sesliSohbetAktif){
-    sesliSohbetAktif = false;
-    sesliCevapBekleniyor = false;
-    durumYazi.innerText = "Sesli sohbet kapatıldı.";
-
-    try{
-      if(recognition) recognition.stop();
-    }catch(err){}
-
-    setTimeout(() => {
-      if(!sesliSohbetAktif && !cooldownTimer) durumYazi.innerText = "";
-    }, 1200);
-
-    return;
+    sesliSohbetKapat();
+  }else{
+    sesliSohbetAc();
   }
-
-  sesliSohbetAktif = true;
-  sesliCevapBekleniyor = false;
-  speechSynthesis.cancel();
-  mikrofonuDinle();
 }
 
 function temizleMetin(m){
@@ -2973,6 +3241,14 @@ async function cevap(text, kaydet = true){
 
   cevapYaziliyor = false;
   sesliCevapBekleniyor = false;
+
+  if(sesliSohbetAktif){
+    if(speechSynthesis.speaking){
+      voiceDurumAyar("aiKonusuyor", "🔵 NeuraAI konuşuyor...", "Cevap sesli okunuyor.");
+    }else{
+      voiceDurumAyar("dinliyor", "🟢 Dinleniyor...", "Tekrar konuşabilirsin.");
+    }
+  }
 
   if(sesliSohbetAktif && !speechSynthesis.speaking){
     setTimeout(() => mikrofonuDinle(), 700);
