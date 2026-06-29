@@ -1440,8 +1440,6 @@ body::before{
         </select>
         <button onclick="sohbetiTemizle()">Temizle</button>
         <button onclick="kaydet()">Kaydet</button>
-        <button onclick="kisaMod()">Kısa Mod</button>
-        <button onclick="uzunMod()">Uzun Mod</button>
         <button onclick="sesAcKapat()" id="sesBtn">🔊</button>
         <button onclick="codexAc()">💻 Codex</button>
       </div>
@@ -1847,7 +1845,27 @@ let klasorlerAcik = false;
 let acikKlasorAdi = "";
 let tasinacakSohbetId = null;
 let sohbetMenuElemani = null;
-let kayitliKlasorler = JSON.parse(localStorage.getItem("neura_klasorler") || '["Genel","Kodlama","NeuraAI","Okul"]');
+
+const HAZIR_KLASORLER = ["Genel", "Kodlama", "NeuraAI", "Okul"];
+
+function klasorStorageOku(){
+  try{
+    const v = JSON.parse(localStorage.getItem("neura_klasorler") || "[]");
+    return Array.isArray(v) ? v : [];
+  }catch(e){
+    return [];
+  }
+}
+
+let kayitliKlasorler = klasorStorageOku();
+
+// Eski sürümde otomatik gelen hazır klasörleri bir kere temizle.
+// Bundan sonra kullanıcı isterse aynı isimle kendi klasörünü oluşturabilir.
+if(localStorage.getItem("neura_klasor_migration_v2") !== "ok"){
+  kayitliKlasorler = kayitliKlasorler.filter(k => !HAZIR_KLASORLER.includes(klasorAdiTemizle(k)));
+  localStorage.setItem("neura_klasor_migration_v2", "ok");
+  localStorage.setItem("neura_klasorler", JSON.stringify(kayitliKlasorler));
+}
 
 function klasorleriKaydet(){
   localStorage.setItem("neura_klasorler", JSON.stringify(kayitliKlasorler));
@@ -1858,13 +1876,9 @@ function klasorAdiTemizle(ad){
 }
 
 function tumKlasorAdlari(){
-  const set = new Set(["Genel"]);
+  const set = new Set();
   kayitliKlasorler.forEach(k => {
     const temiz = klasorAdiTemizle(k);
-    if(temiz) set.add(temiz);
-  });
-  (tumSohbetler || []).forEach(s => {
-    const temiz = klasorAdiTemizle(s.klasor || "Genel");
     if(temiz) set.add(temiz);
   });
   kayitliKlasorler = Array.from(set);
@@ -2488,7 +2502,7 @@ function aktifSohbetiYenidenAdlandir(){
 function aktifSohbetKlasorDegistir(){
   const aktif = aktifSohbetBul();
   if(!aktif) return;
-  const klasor = prompt("Klasör adı:", aktif.klasor || "Genel");
+  const klasor = prompt("Klasör adı:", aktif.klasor || "");
   if(!klasor) return;
   aktif.klasor = klasor.slice(0,28);
   sohbetleriKaydet();
@@ -3106,9 +3120,16 @@ function klasorleriGoster(){
 
   const klasorler = tumKlasorAdlari();
 
+  if(klasorler.length === 0){
+    const bos = document.createElement("div");
+    bos.className = "klasorBos";
+    bos.innerHTML = "Henüz klasör oluşturmadın.<br>➕ Yeni Klasör ile başlayabilirsin.";
+    panel.appendChild(bos);
+  }
+
   klasorler.forEach(klasor => {
     const sohbetler = tumSohbetler.filter(s => {
-      const ayniKlasor = (s.klasor || "Genel") === klasor;
+      const ayniKlasor = (s.klasor || "") === klasor;
       const baslik = (s.baslik || "").toLowerCase();
       const mesajlar = (s.mesajlar || []).map(m => m.text || "").join(" ").toLowerCase();
       return ayniKlasor && (!arama || baslik.includes(arama) || mesajlar.includes(arama));
@@ -3171,13 +3192,22 @@ function sohbetiKlasoreTasiPanelAc(id){
 
   liste.innerHTML = "";
 
-  tumKlasorAdlari().forEach(klasor => {
-    const btn = document.createElement("button");
-    btn.className = "klasorSecenek";
-    btn.innerText = "📁 " + klasor;
-    btn.onclick = () => sohbetiKlasoreTasi(klasor);
-    liste.appendChild(btn);
-  });
+  const klasorler = tumKlasorAdlari();
+
+  if(klasorler.length === 0){
+    const bos = document.createElement("div");
+    bos.className = "klasorBos";
+    bos.innerText = "Henüz klasör yok. Önce yeni klasör oluştur.";
+    liste.appendChild(bos);
+  }else{
+    klasorler.forEach(klasor => {
+      const btn = document.createElement("button");
+      btn.className = "klasorSecenek";
+      btn.innerText = "📁 " + klasor;
+      btn.onclick = () => sohbetiKlasoreTasi(klasor);
+      liste.appendChild(btn);
+    });
+  }
 
   popup.style.display = "flex";
 }
@@ -3192,7 +3222,7 @@ function sohbetiKlasoreTasi(klasor){
   const s = tumSohbetler.find(x => x.id === tasinacakSohbetId);
   if(!s) return;
 
-  s.klasor = klasorAdiTemizle(klasor) || "Genel";
+  s.klasor = klasorAdiTemizle(klasor);
 
   if(!kayitliKlasorler.includes(s.klasor)){
     kayitliKlasorler.push(s.klasor);
@@ -3248,7 +3278,7 @@ function sohbetleriGoster(){
   .filter(sohbet => {
     if(sohbet.arsiv && !arsivleriGoster) return false;
     const baslik = (sohbet.baslik || "").toLowerCase();
-    const klasor = (sohbet.klasor || "Genel").toLowerCase();
+    const klasor = (sohbet.klasor || "").toLowerCase();
 
     const mesajlar = (sohbet.mesajlar || [])
       .map(m => m.text || "")
@@ -3260,8 +3290,6 @@ function sohbetleriGoster(){
   .sort((a,b) => Number(!!b.sabit) - Number(!!a.sabit));
 
   filtreliSohbetler.forEach(sohbet => {
-    if(!sohbet.klasor) sohbet.klasor = "Genel";
-
     const item = sohbetItemOlustur(sohbet);
 
     if(sohbet.gizli){
@@ -3292,7 +3320,7 @@ const yeni = {
   favori: false,
   sabit: false,
   arsiv: false,
-  klasor: "Genel",
+  klasor: "",
   gizli: false,
   sifre: "",
   kilitli: false,
@@ -3643,7 +3671,7 @@ async function gonder(){
   favori: false,
   sabit: false,
   arsiv: false,
-  klasor: "Genel",
+  klasor: "",
   gizli: false,
   sifre: "",
   kilitli: false,
