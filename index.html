@@ -2614,7 +2614,7 @@ function mikrofonuDinle(){
 
   if(!recognition){
     recognition = new SpeechRecognition();
-    recognition.continuous = true;
+    recognition.continuous = false;
     recognition.interimResults = true;
     recognition.lang = mikrofonDili;
 
@@ -2663,29 +2663,53 @@ function mikrofonuDinle(){
         sesliSohbetAktif = false;
         voiceDurumAyar("dinliyor", "⚠️ Mikrofon bulunamadı", "Cihazında mikrofon bulunamadı.");
         cevap("Mikrofon bulunamadı.", false);
-      }else{
-        voiceDurumAyar("dinliyor", "⚠️ Mikrofon hatası", "Hata: " + event.error);
-        cevap("Mikrofon hatası: " + event.error, false);
-      }
+      }else if(event.error === "network"){
+
+    console.log("Network hatası, tekrar bağlanılıyor...");
+
+    setTimeout(() => {
+
+        if(
+            sesliSohbetAktif &&
+            !speechSynthesis.speaking &&
+            !mikrofonCalisiyor
+        ){
+            mikrofonuDinle();
+        }
+
+    },1000);
+
+}else{
+
+    voiceDurumAyar("dinliyor", "⚠️ Mikrofon hatası", "Hata: " + event.error);
+    cevap("Mikrofon hatası: " + event.error, false);
+
+}
     };
 
-    recognition.onend = function(){
-      mikrofonCalisiyor = false;
+    setTimeout(() => {
 
-      if(!sesliSohbetAktif){
-        durumYazi.innerText = "";
-        return;
-      }
+    if(
+        sesliSohbetAktif &&
+        !speechSynthesis.speaking &&
+        !mikrofonCalisiyor
+    ){
+        mikrofonuDinle();
+    }
 
-      if(!sesliCevapBekleniyor && !cevapYaziliyor && !speechSynthesis.speaking){
-        setTimeout(() => mikrofonuDinle(), 700);
-      }
+},1200);
     };
   }
 
   try{
     recognition.lang = mikrofonDili;
+    if (
+    sesliSohbetAktif &&
+    !mikrofonCalisiyor &&
+    !speechSynthesis.speaking
+) {
     recognition.start();
+}
   }catch(err){
     console.log("Mikrofon başlatma hatası:", err);
   }
