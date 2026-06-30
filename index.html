@@ -2439,7 +2439,9 @@ function sesSec(lang){
   sesler[0] ||
   null;
 }
+async function elevenLabsOku(text){
 
+}
 function sesliOku(text){
   if(!sesAcik || !text) return;
 
@@ -2488,7 +2490,7 @@ function sesliOku(text){
   };
 
   try{
-    speechSynthesis.speak(ses);
+    await elevenLabsOku(okunacak);
   }catch(err){
     console.log("Sesli okuma hatası:", err);
   }
