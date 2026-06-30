@@ -36,7 +36,8 @@ const FOUNDER_KEY = process.env.FOUNDER_KEY || "ffgok-kurucu";
 const FOUNDER_NAME = "NeuraAI";
 
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
-
+const ELEVENLABS_API_URL = "https://api.elevenlabs.io/v1/text-to-speech";
+const ELEVENLABS_VOICE_ID = "i9eiTMiCnVBQnQk0lBUU";
 /* =========================
    Veri
 ========================= */
@@ -1188,7 +1189,78 @@ app.post("/voice-chat", (req,res) => {
   req.url = "/api/voice/chat";
   app._router.handle(req,res);
 });
+app.post("/api/voice", async (req, res) => {
+  try{
+    const text = temizMesaj(req.body?.text || req.body?.message || "", 2500).trim();
 
+    if(!text){
+      return res.json({
+        ok:false,
+        reply:"Seslendirilecek metin yok."
+      });
+    }
+
+    if(!process.env.ELEVENLABS_API_KEY){
+      return res.json({
+        ok:false,
+        reply:"ELEVENLABS_API_KEY ayarlanmamış."
+      });
+    }
+
+    if(!ELEVENLABS_VOICE_ID || ELEVENLABS_VOICE_ID === "BURAYA_SENIN_VOICE_ID"){
+      return res.json({
+        ok:false,
+        reply:"ELEVENLABS_VOICE_ID ayarlanmamış."
+      });
+    }
+
+    const elevenRes = await fetch(
+      `${ELEVENLABS_API_URL}/${ELEVENLABS_VOICE_ID}`,
+      {
+        method:"POST",
+        headers:{
+          "xi-api-key": process.env.ELEVENLABS_API_KEY,
+          "Content-Type":"application/json",
+          "Accept":"audio/mpeg"
+        },
+        body:JSON.stringify({
+          text,
+          model_id:"eleven_multilingual_v2",
+          voice_settings:{
+            stability:0.45,
+            similarity_boost:0.80,
+            style:0.25,
+            use_speaker_boost:true
+          }
+        })
+      }
+    );
+
+    if(!elevenRes.ok){
+      const hataText = await elevenRes.text().catch(() => "");
+      console.error("ElevenLabs hata:", elevenRes.status, hataText);
+
+      return res.json({
+        ok:false,
+        reply:"ElevenLabs ses oluşturamadı.",
+        status:elevenRes.status
+      });
+    }
+
+    const audioBuffer = await elevenRes.arrayBuffer();
+
+    res.setHeader("Content-Type", "audio/mpeg");
+    res.setHeader("Cache-Control", "no-store");
+    res.send(Buffer.from(audioBuffer));
+  }catch(err){
+    console.error("/api/voice hata:", err);
+
+    res.json({
+      ok:false,
+      reply:"Ses oluşturma hatası."
+    });
+  }
+});
 /* =========================
    Profil Stats
 ========================= */
