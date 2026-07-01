@@ -21,7 +21,7 @@ body{
   margin:0;
   font-family:Arial,sans-serif;
   background:
-    radial-gradient(circle at top left, rgba(163, 73, 255, 0.28), transparent 30%),
+    radial-gradient(circle at top left, rgb>a(163, 73, 255, 0.28), transparent 30%),
     radial-gradient(circle at top right, rgba(93, 0, 255, 0.18), transparent 28%),
     radial-gradient(circle at bottom, rgba(255, 0, 170, 0.12), transparent 30%),
     linear-gradient(135deg, #050505 0%, #0d0718 35%, #140821 65%, #050505 100%);
@@ -2440,9 +2440,70 @@ function sesSec(lang){
   null;
 }
 async function elevenLabsOku(text){
+  if(!text) return;
 
+  try{
+    if(sesliSohbetAktif){
+      voiceDurumAyar("aiKonusuyor", "🔵 NeuraAI konuşuyor...", "ElevenLabs sesi hazırlanıyor.");
+    }
+
+    const res = await fetch("/api/voice", {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify({ text })
+    });
+
+    if(!res.ok){
+      throw new Error("Ses isteği başarısız: " + res.status);
+    }
+
+    const blob = await res.blob();
+
+    if(!blob || blob.size < 100){
+      throw new Error("Ses dosyası boş geldi.");
+    }
+
+    const audioUrl = URL.createObjectURL(blob);
+    const audio = new Audio(audioUrl);
+
+    audio.onplay = () => {
+      if(sesliSohbetAktif){
+        voiceDurumAyar("aiKonusuyor", "🔵 NeuraAI konuşuyor...", "ElevenLabs sesi oynatılıyor.");
+      }
+    };
+
+    audio.onended = () => {
+      URL.revokeObjectURL(audioUrl);
+
+      if(sesliSohbetAktif){
+        voiceDurumAyar("dinliyor", "🟢 Dinleniyor...", "Tekrar konuşabilirsin.");
+      }
+
+      if(sesliSohbetAktif && !cevapYaziliyor){
+        setTimeout(() => mikrofonuDinle(), 650);
+      }
+    };
+
+    audio.onerror = () => {
+      URL.revokeObjectURL(audioUrl);
+      throw new Error("Ses oynatılamadı.");
+    };
+
+    await audio.play();
+  }catch(err){
+    console.log("ElevenLabs okuma hatası:", err);
+
+    if("speechSynthesis" in window && "SpeechSynthesisUtterance" in window){
+      const yedekSes = new SpeechSynthesisUtterance(text);
+      yedekSes.lang = dilAlgila(text);
+      yedekSes.rate = sesHizi;
+      yedekSes.pitch = 0.92;
+      yedekSes.volume = 1;
+      speechSynthesis.speak(yedekSes);
+    }
+  }
 }
-function sesliOku(text){
+async function sesliOku(text){
   if(!sesAcik || !text) return;
 
   if(!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)){
