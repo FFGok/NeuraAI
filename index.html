@@ -21,7 +21,7 @@ body{
   margin:0;
   font-family:Arial,sans-serif;
   background:
-    radial-gradient(circle at top left, rgb>a(163, 73, 255, 0.28), transparent 30%),
+    radial-gradient(circle at top left, rgba(163, 73, 255, 0.28), transparent 30%),
     radial-gradient(circle at top right, rgba(93, 0, 255, 0.18), transparent 28%),
     radial-gradient(circle at bottom, rgba(255, 0, 170, 0.12), transparent 30%),
     linear-gradient(135deg, #050505 0%, #0d0718 35%, #140821 65%, #050505 100%);
@@ -1513,6 +1513,9 @@ body::before{
 </head>
 
 <body>
+  <script>
+document.body.style.background = "#050505";
+</script>
 <button class="karakterBtn" onclick="ozelAiPanelAc()">🤖 AI Oluştur</button>
 
 <button class="miniAracBtn" onclick="miniAracPanelAc()" title="Mini Araçlar">🧰</button>
