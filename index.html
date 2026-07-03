@@ -1518,7 +1518,7 @@ document.body.style.background = "#050505";
 </script>
 <button class="karakterBtn" onclick="ozelAiPanelAc()">🤖 AI Oluştur</button>
 
-<button class="miniAracBtn" onclick="miniAracPanelAc()" title="Mini Araçlar">🧰</button>
+<button class="miniAracBtn" onclick="miniAracPanelAc()" title="Mini Araçlar"></button>
 <div class="splashScreen">
   <img src="./splash.png" alt="NeuraAI Açılış">
 </div>
@@ -1542,10 +1542,10 @@ document.body.style.background = "#050505";
       <button class="sidebarMiniBtn araclarToggleBtn" onclick="araclarAcKapat()">⚙️ Araçlar <span id="araclarOk">▼</span></button>
       <div id="araclarPanel" class="araclarPanel">
         <button onclick="profilPanelAc()">👤 Profil</button>
-        <button onclick="modPanelAc()">🎭 Modlar</button>
-        <button onclick="profilPanelAc()">📊 İstatistikler</button>
-        <button onclick="sohbetiDisaAktar()">📤 Dışa Aktar</button>
-        <button onclick="sohbetiPdfIndir()">📄 PDF</button>
+        <button onclick="modPanelAc()"> Modlar</button>
+        <button onclick="profilPanelAc()"> İstatistikler</button>
+        <button onclick="sohbetiDisaAktar()"> Dışa Aktar</button>
+        <button onclick="sohbetiPdfIndir()"> PDF</button>
       </div>
     </div>
 
@@ -1588,10 +1588,10 @@ document.body.style.background = "#050505";
 <div class="ustButonlar">
         <button class="sosyalTelefonBtn" onclick="sosyalPanelAc()" title="Sosyal Medya Hesaplarımız">📱</button>
         <select id="aiModelSec" class="aiModelSec" onchange="aiModelDegisti()">
-          <option value="hizli">⚡ Hızlı</option>
-          <option value="akilli">🧠 Akıllı</option>
-          <option value="yaratici">🎨 Yaratıcı</option>
-          <option value="kod">💻 Kod</option>
+          <option value="hizli"> Hızlı</option>
+          <option value="akilli"> Akıllı</option>
+          <option value="yaratici"> Yaratıcı</option>
+          <option value="kod"> Kod</option>
         </select>
         <button onclick="sesAcKapat()" id="sesBtn">🔊</button>
         <button onclick="codexAc()">💻 Codex</button>
@@ -1623,13 +1623,13 @@ document.body.style.background = "#050505";
 <div class="codexSayfa codexYeniEkran" id="codexSayfa">
   <div class="codexUst">
     <div>
-      <div class="codexBaslik">💻 Codex Chat</div>
+      <div class="codexBaslik"> Codex Chat</div>
       <div class="codexAlt">Kodunu gönder, ne istediğini normal cümleyle yaz. Codex hata bulur, açıklar, optimize eder ve hangi dosyada ne değişeceğini söyler.</div>
     </div>
     <div class="ustButonlar">
       <button onclick="codexHafizaKaydet()">🧠 Kod hafızasına kaydet</button>
       <button onclick="codexCevapKopyala()">📋 Son cevabı kopyala</button>
-      <button onclick="naiDon()">🤖 NeuraAI’ye dön</button>
+      <button onclick="naiDon()"> NeuraAI’ye dön</button>
     </div>
   </div>
 
@@ -1641,16 +1641,16 @@ document.body.style.background = "#050505";
 
       <div class="codexKodKutusu">
         <div class="codexKodKart">
-          <h3>📄 Kod / Dosya Alanı</h3>
+          <h3> Kod / Dosya Alanı</h3>
           <div class="codexAksiyonMini">
-            <label for="codexDosyaInput">📁 Dosya seç</label>
+            <label for="codexDosyaInput"> Dosya seç</label>
             <input type="file" id="codexDosyaInput" accept=".txt,.html,.css,.js,.json,.md,.py,.java,.c,.cpp" onchange="codexDosyaOku(event)" style="display:none">
             <button onclick="codexKod.value=''; codexChatMesajEkle('Kod alanı temizlendi.', 'ai')">🧹 Kodu temizle</button>
           </div>
           <textarea id="codexKod" class="codexTextarea" placeholder="Kodunu buraya yapıştır veya dosya seç..."></textarea>
         </div>
 <button onclick="codexCanliOnizleme()">
-💻 Canlı Önizleme
+ Canlı Önizleme
 </button>
 
 <iframe
@@ -1666,7 +1666,7 @@ display:none;
 ">
 </iframe>
         <div class="codexKodKart">
-          <h3>🧠 Proje Hafızası</h3>
+          <h3> Proje Hafızası</h3>
           <input id="projeHafizaBaslik" class="profilInput" placeholder="Örn: index.html, server.js, sw.js">
           <div class="codexAksiyonMini">
             <button onclick="projeHafizaKaydet()">Projeye kaydet</button>
@@ -1676,7 +1676,7 @@ display:none;
         </div>
       </div>
 
-      <div class="codexMiniIpucu">Buton seçmene gerek yok. “Bu kodu analiz et”, “bu hatayı çöz”, “login ekle”, “server.js güvenli mi?”, “hangi dosyaya koyayım?” gibi yazman yeterli.</div>
+  
 
       <div class="codexKomutSatiri">
         <textarea id="codexChatInput" placeholder="Codex'e ne yapmasını istiyorsun? Örn: Bu kodu analiz et ve hataları düzelt."></textarea>
@@ -1701,11 +1701,11 @@ display:none;
 
     <div class="sosyalPopupGrid">
       <a class="sosyalPopupKart" href="https://www.youtube.com/@NeuraAIReal" target="_blank" rel="noopener noreferrer">
-        ▶️ YouTube
+         YouTube
       </a>
-      <div class="sosyalPopupKart pasif">💬 Discord · Yakında</div>
-      <div class="sosyalPopupKart pasif">📸 Instagram · Yakında</div>
-      <div class="sosyalPopupKart pasif">🎵 TikTok · Yakında</div>
+      <div class="sosyalPopupKart pasif"> Discord · Yakında</div>
+      <div class="sosyalPopupKart pasif"> Instagram · Yakında</div>
+      <div class="sosyalPopupKart pasif"> TikTok · Yakında</div>
     </div>
   </div>
 </div>
@@ -1728,9 +1728,7 @@ display:none;
       🏢 Resmi Mod
     </button>
 
-    <button onclick="profesorKilidi()">
-      🎓 Profesör Modu (Pro Gerekli)
-    </button>
+
 
     <button onclick="modPanelKapat()">
       Kapat
@@ -1752,42 +1750,42 @@ display:none;
         placeholder="Nickname yaz...">
 
       <label for="profilFotoInput" class="profilDosya">
-        📷 Profil fotoğrafı seç
+         Profil fotoğrafı seç
       </label>
       <input type="file" id="profilFotoInput" accept="image/*">
 
       <div class="profilSatir">
-        👤 Nick:
+         Nick:
         <b id="profilNickYazi">Kullanıcı</b>
       </div>
 
       <div class="profilSatir">
-        🤖 Aktif Mod:
+         Aktif Mod:
         <b id="profilAktifMod">Samimi Mod</b>
       </div>
 
       <div class="profilSatir">
-        📅 Katılım:
+         Katılım:
         <b id="profilKatilim">Bugün</b>
       </div>
 
       <div class="profilSatir">
-        💬 Toplam Sohbet:
+         Toplam Sohbet:
         <b id="profilToplamSohbet">0</b>
       </div>
 
       <div class="profilSatir">
-        💻 Codex Kullanımı:
+         Codex Kullanımı:
         <b id="profilToplamCodex">0</b>
       </div>
 
       <div class="profilSatir">
-        🖼️ Görsel Analizi:
+         Görsel Analizi:
         <b id="profilToplamFoto">0</b>
       </div>
 
       <div class="profilSatir">
-        🎨 Görsel Üretimi:
+         Görsel Üretimi:
         <b id="profilToplamResim">0</b>
       </div>
 
@@ -1817,7 +1815,7 @@ display:none;
 
 <div class="popupArka" id="gorselAyarPopup">
   <div class="popup">
-    <h2>🖼️ Görsel Ayarları</h2>
+    <h2> Görsel Ayarları</h2>
     <label>Stil</label>
     <select id="gorselStilSec" class="profilInput">
       <option value="realistic">Gerçekçi</option>
@@ -1872,18 +1870,18 @@ display:none;
 
 <div class="popupArka" id="miniAracPopup">
   <div class="popup miniAracPopup">
-    <h2>🧰 Mini Araçlar</h2>
+    <h2> Mini Araçlar</h2>
 
     <div class="miniAracGrid">
       <div class="miniAracKart">
-        <h3>🧮 Hesap Makinesi</h3>
+        <h3> Hesap Makinesi</h3>
         <input id="calcInput" placeholder="Örn: 12*(5+3)">
         <button onclick="miniHesapla()">Hesapla</button>
         <div class="miniSonuc" id="calcSonuc"></div>
       </div>
 
       <div class="miniAracKart">
-        <h3>💱 TL / Dolar / Euro</h3>
+        <h3> TL / Dolar / Euro</h3>
         <input id="paraMiktar" type="number" placeholder="Miktar">
         <select id="paraTur">
           <option value="TRY">TL</option>
@@ -1897,7 +1895,7 @@ display:none;
       </div>
 
       <div class="miniAracKart">
-        <h3>📊 Yüzde Hesaplayıcı</h3>
+        <h3> Yüzde Hesaplayıcı</h3>
         <input id="yuzdeSayi" type="number" placeholder="Sayı">
         <input id="yuzdeOran" type="number" placeholder="Yüzde">
         <button onclick="yuzdeHesapla()">Hesapla</button>
@@ -1905,14 +1903,14 @@ display:none;
       </div>
 
       <div class="miniAracKart">
-        <h3>🔐 Şifre Oluşturucu</h3>
+        <h3> Şifre Oluşturucu</h3>
         <input id="sifreUzunluk" type="number" value="12" min="6" max="40">
         <button onclick="sifreOlustur()">Şifre oluştur</button>
         <div class="miniSonuc" id="sifreSonuc"></div>
       </div>
 
       <div class="miniAracKart">
-        <h3>⏱️ Kronometre</h3>
+        <h3> Kronometre</h3>
         <div class="miniSonuc" id="kronoSonuc">0 saniye</div>
         <button onclick="kronometreBaslat()">Başlat / Devam</button>
         <button onclick="kronometreDur()">Dur</button>
@@ -1920,21 +1918,21 @@ display:none;
       </div>
 
       <div class="miniAracKart">
-        <h3>⏳ Geri Sayım</h3>
+        <h3> Geri Sayım</h3>
         <input id="geriSaniye" type="number" placeholder="Saniye">
         <button onclick="geriSayimBaslat()">Başlat</button>
         <div class="miniSonuc" id="geriSonuc"></div>
       </div>
 
       <div class="miniAracKart">
-        <h3>🔤 Kelime / Karakter Sayacı</h3>
+        <h3> Kelime / Karakter Sayacı</h3>
         <input id="metinSayInput" placeholder="Metin yaz">
         <button onclick="metinSay()">Say</button>
         <div class="miniSonuc" id="metinSaySonuc"></div>
       </div>
 
       <div class="miniAracKart">
-        <h3>📏 Birim Dönüştürücü</h3>
+        <h3> Birim Dönüştürücü</h3>
         <input id="birimDeger" type="number" placeholder="Değer">
         <select id="birimTur">
           <option value="km-mi">Km → Mil</option>
@@ -1949,14 +1947,14 @@ display:none;
       </div>
 
       <div class="miniAracKart">
-        <h3>📚 Not Ortalaması</h3>
+        <h3> Not Ortalaması</h3>
         <input id="notlarInput" placeholder="Örn: 80,90,75">
         <button onclick="notOrtalamasi()">Ortalama al</button>
         <div class="miniSonuc" id="notSonuc"></div>
       </div>
 
       <div class="miniAracKart">
-        <h3>💰 Gelir Hesaplayıcı</h3>
+        <h3> Gelir Hesaplayıcı</h3>
         <input id="gelirAdet" type="number" placeholder="Kaç satış / kişi?">
         <input id="gelirFiyat" type="number" placeholder="Birim fiyat">
         <button onclick="gelirHesapla()">Hesapla</button>
