@@ -1533,13 +1533,13 @@ document.body.style.background = "#050505";
         placeholder="🔍 Sohbet ara..."
         oninput="sohbetleriGoster()">
 
-      <button class="sidebarMiniBtn" onclick="yeniGizliSohbet()">🔒 Gizli sohbet başlat</button>
-      <button class="sidebarMiniBtn" onclick="aktifSohbetiSil()">🗑️ Sil</button>
+      <button class="sidebarMiniBtn" onclick="yeniGizliSohbet()"> Gizli sohbet başlat</button>
+      <button class="sidebarMiniBtn" onclick="aktifSohbetiSil()"> Sil</button>
 
-      <button class="sidebarMiniBtn klasorToggleBtn" onclick="klasorlerPanelToggle()">📁 Klasörler <span id="klasorOk">▶</span></button>
+      <button class="sidebarMiniBtn klasorToggleBtn" onclick="klasorlerPanelToggle()"> Klasörler <span id="klasorOk">▶</span></button>
       <div id="klasorPanel" class="klasorPanel"></div>
 
-      <button class="sidebarMiniBtn araclarToggleBtn" onclick="araclarAcKapat()">⚙️ Araçlar <span id="araclarOk">▼</span></button>
+      <button class="sidebarMiniBtn araclarToggleBtn" onclick="araclarAcKapat()"> Araçlar <span id="araclarOk">▼</span></button>
       <div id="araclarPanel" class="araclarPanel">
         <button onclick="profilPanelAc()">👤 Profil</button>
         <button onclick="modPanelAc()"> Modlar</button>
@@ -1555,7 +1555,7 @@ document.body.style.background = "#050505";
     </div>
     <div id="ozelAiListesi" class="sohbetListesi"></div>
 
-    <div class="gecmisBaslik">⭐ Favori Sohbetler</div>
+    <div class="gecmisBaslik"> Favori Sohbetler</div>
     <div id="favoriListesi" class="sohbetListesi"></div>
 
     <div class="gecmisBaslik">💬 Sohbetler</div>
@@ -1627,8 +1627,8 @@ document.body.style.background = "#050505";
       <div class="codexAlt">Kodunu gönder, ne istediğini normal cümleyle yaz. Codex hata bulur, açıklar, optimize eder ve hangi dosyada ne değişeceğini söyler.</div>
     </div>
     <div class="ustButonlar">
-      <button onclick="codexHafizaKaydet()">🧠 Kod hafızasına kaydet</button>
-      <button onclick="codexCevapKopyala()">📋 Son cevabı kopyala</button>
+      <button onclick="codexHafizaKaydet()"> Kod hafızasına kaydet</button>
+      <button onclick="codexCevapKopyala()"> Son cevabı kopyala</button>
       <button onclick="naiDon()"> NeuraAI’ye dön</button>
     </div>
   </div>
@@ -1645,7 +1645,7 @@ document.body.style.background = "#050505";
           <div class="codexAksiyonMini">
             <label for="codexDosyaInput"> Dosya seç</label>
             <input type="file" id="codexDosyaInput" accept=".txt,.html,.css,.js,.json,.md,.py,.java,.c,.cpp" onchange="codexDosyaOku(event)" style="display:none">
-            <button onclick="codexKod.value=''; codexChatMesajEkle('Kod alanı temizlendi.', 'ai')">🧹 Kodu temizle</button>
+            <button onclick="codexKod.value=''; codexChatMesajEkle('Kod alanı temizlendi.', 'ai')"> Kodu temizle</button>
           </div>
           <textarea id="codexKod" class="codexTextarea" placeholder="Kodunu buraya yapıştır veya dosya seç..."></textarea>
         </div>
@@ -1721,11 +1721,11 @@ display:none;
     <h2>NeuraAI Modlar</h2>
 
     <button onclick="modSec('samimi')">
-      😎 Samimi Mod
+       Samimi Mod
     </button>
 
     <button onclick="modSec('resmi')">
-      🏢 Resmi Mod
+       Resmi Mod
     </button>
 
 
@@ -1803,11 +1803,11 @@ display:none;
   <div class="popup">
     <h2>⚙️ NeuraAI Araçları</h2>
     <div class="ozellikGrid">
-      <button onclick="gorselAyarPanelAc()">🖼️ Görsel Ayarları</button>
-      <button onclick="gorselGecmisiAc()">🎨 Görsel Geçmişi</button>
-      <button onclick="gizlilikPanelAc()">🔒 Gizlilik</button>
-      <button onclick="sesAyarPanelAc()">🎤 Ses Ayarları</button>
-      <button onclick="arsivModuDegistir()">🗄️ Arşivi Göster/Gizle</button>
+      <button onclick="gorselAyarPanelAc()"> Görsel Ayarları</button>
+      <button onclick="gorselGecmisiAc()"> Görsel Geçmişi</button>
+      <button onclick="gizlilikPanelAc()"> Gizlilik</button>
+      <button onclick="sesAyarPanelAc()"> Ses Ayarları</button>
+      <button onclick="arsivModuDegistir()"> Arşivi Göster/Gizle</button>
       <button onclick="ozellikPanelKapat()">Kapat</button>
     </div>
   </div>
@@ -1836,7 +1836,7 @@ display:none;
 
 <div class="popupArka" id="gizlilikPopup">
   <div class="popup">
-    <h2>🔒 Gizlilik</h2>
+    <h2> Gizlilik</h2>
     <div class="ozellikGrid">
       <button onclick="aktifGizliSifreDegistir()">Gizli sohbet şifresini değiştir</button>
       <button onclick="aktifGizliKilitle()">Gizli sohbeti kilitle</button>
@@ -1971,7 +1971,7 @@ display:none;
 <div class="popupArka" id="klasorTasiPopup">
   <div class="popup">
     <button class="merkezKapatX" onclick="klasorTasiPanelKapat()">✖</button>
-    <h2>📂 Sohbeti Taşı</h2>
+    <h2> Sohbeti Taşı</h2>
     <div class="sosyalPopupMini">Nereye taşımak istiyorsun?</div>
     <div id="klasorTasiListe"></div>
     <button onclick="yeniKlasorOlusturVeTasi()">➕ Yeni Klasör</button>
@@ -2226,17 +2226,17 @@ localStorage.getItem("neura_ai_model_tipi")
 || "akilli";
 
 function aiModelAdiYaz(tip){
-  if(tip === "hizli") return "⚡ 1.1 Hızlı";
-  if(tip === "yaratici") return "🎨 1.2 Yaratıcı";
-  if(tip === "kod") return "💻 1.3 Kod";
-  return "🧠 1.4 Akıllı";
+  if(tip === "hizli") return " 1.1 Hızlı";
+  if(tip === "yaratici") return " 1.2 Yaratıcı";
+  if(tip === "kod") return " 1.3 Kod";
+  return " 1.4 Akıllı";
 }
 
 function aiModelDegisti(){
   const sec = document.getElementById("aiModelSec");
   aiModelTipi = sec ? sec.value : "akilli";
   localStorage.setItem("neura_ai_model_tipi", aiModelTipi);
-  sistemMesaji("🤖 AI modeli değişti: " + aiModelAdiYaz(aiModelTipi));
+  sistemMesaji(" AI modeli değişti: " + aiModelAdiYaz(aiModelTipi));
 }
 
 setTimeout(() => {
@@ -2275,8 +2275,8 @@ function ozelAiListeGoster(){
   render(liste, false);
   render(panelListe, true);
   const aktif = aktifOzelAiBul();
-  if(aktif){ durumYazi.innerText = `🤖 Özel AI aktif: ${aktif.name}`; }
-  else if(durumYazi.innerText.startsWith("🤖 Özel AI aktif:")){ durumYazi.innerText = ""; }
+  if(aktif){ durumYazi.innerText = ` Özel AI aktif: ${aktif.name}`; }
+  else if(durumYazi.innerText.startsWith(" Özel AI aktif:")){ durumYazi.innerText = ""; }
 }
 function ozelAiPanelAc(){ document.getElementById("ozelAiPopup").style.display = "flex"; ozelAiListeGoster(); }
 function ozelAiPanelKapat(){ document.getElementById("ozelAiPopup").style.display = "none"; }
