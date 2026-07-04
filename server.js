@@ -515,7 +515,150 @@ function hafizaPromptu(key){
     ". Bu notları sadece cevap kalitesini artırmak için kullan. "
   );
 }
+/* =========================
+   NeuraAI Hafızası V2.1
+========================= */
 
+function neuraHafizaListeAl(key){
+  if(!neuraData.neuraMemory || typeof neuraData.neuraMemory !== "object"){
+    neuraData.neuraMemory = {};
+  }
+
+  if(!Array.isArray(neuraData.neuraMemory[key])){
+    neuraData.neuraMemory[key] = [];
+  }
+
+  return neuraData.neuraMemory[key];
+}
+
+function neuraHafizaMetinTemizle(text){
+  return temizMesaj(text || "", 500)
+    .replace(/bunu\s+(hatırla|hatirla|kaydet|unutma)/gi, "")
+    .replace(/belleğe\s+kaydet/gi, "")
+    .replace(/hafızaya\s+kaydet/gi, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function neuraHafizaKaydet(key, text){
+  const temiz = neuraHafizaMetinTemizle(text);
+
+  if(!temiz || temiz.length < 3){
+    return { ok:false, reply:"Kaydedilecek net bir bilgi bulamadım." };
+  }
+
+  const list = neuraHafizaListeAl(key);
+  const ayniVar = list.some(x => String(x.text || "").toLowerCase() === temiz.toLowerCase());
+
+  if(ayniVar){
+    return { ok:true, reply:"Bu bilgi zaten NeuraAI Hafızası'nda kayıtlı.", memory:list };
+  }
+
+  const item = {
+    id:"mem_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2,8),
+    text:temiz.slice(0, 500),
+    time:Date.now()
+  };
+
+  list.push(item);
+  neuraData.neuraMemory[key] = list.slice(-60);
+  veriKaydet();
+
+  return { ok:true, reply:"NeuraAI Hafızası'na kaydedildi.", item, memory:neuraData.neuraMemory[key] };
+}
+
+function neuraHafizaPromptu(key){
+  const list = neuraHafizaListeAl(key).filter(x => x && x.text).slice(-30);
+  if(list.length === 0) return "";
+
+  return (
+    "NeuraAI Hafızası kayıtları: " +
+    list.map((m,i) => `${i + 1}) ${m.text}`).join(" | ") +
+    ". Kullanıcı hatırlama sorusu sorarsa önce bu kayıtları dikkate al. "
+  );
+}
+/* =========================
+   NeuraAI Hafızası API
+========================= */
+
+app.post("/api/memory/list", (req, res) => {
+  try{
+    const key = kullaniciKey(req);
+
+    res.json({
+      ok: true,
+      memory: neuraHafizaListeAl(key)
+    });
+  }catch(err){
+    console.error(err);
+    res.json({
+      ok:false,
+      reply:"Bellek alınamadı."
+    });
+  }
+});
+
+app.post("/api/memory/save", (req, res) => {
+  try{
+    const key = kullaniciKey(req);
+    const text = req.body?.text || req.body?.message || "";
+
+    const result = neuraHafizaKaydet(key, text);
+
+    res.json(result);
+  }catch(err){
+    console.error(err);
+    res.json({
+      ok:false,
+      reply:"Bellek kaydedilemedi."
+    });
+  }
+});
+
+app.post("/api/memory/delete", (req, res) => {
+  try{
+    const key = kullaniciKey(req);
+    const id = String(req.body?.id || "");
+
+    const list = neuraHafizaListeAl(key).filter(x => x.id !== id);
+
+    neuraData.neuraMemory[key] = list;
+    veriKaydet();
+
+    res.json({
+      ok:true,
+      reply:"Bilgi unutuldu.",
+      memory:list
+    });
+  }catch(err){
+    console.error(err);
+    res.json({
+      ok:false,
+      reply:"Silinemedi."
+    });
+  }
+});
+
+app.post("/api/memory/clear", (req, res) => {
+  try{
+    const key = kullaniciKey(req);
+
+    neuraData.neuraMemory[key] = [];
+
+    veriKaydet();
+
+    res.json({
+      ok:true,
+      reply:"NeuraAI Hafızası temizlendi."
+    });
+  }catch(err){
+    console.error(err);
+    res.json({
+      ok:false,
+      reply:"Temizlenemedi."
+    });
+  }
+});
 /* =========================
    Model / Prompt
 ========================= */
@@ -598,9 +741,10 @@ function sistemPrompt({ modeName, aiModelTipi, customAi, userKey }){
   let temel =
     "Sen NeuraAI adında net, yardımcı ve güvenli bir yapay zekasın. " +
 "Kullanıcı sana 'Kimsin?', 'Seni kim yaptı?', 'Seni kim geliştirdi?' gibi sorular sorarsa şu anlama gelen bir cevap ver: 'Ben NeuraAI'yım. Geliştiricim Göktürk Arslan. Amacım hızlı, akıllı ve doğal bir yapay zekâ deneyimi sunmak.' Kendini ChatGPT veya başka bir isimle tanıtma. " +
-    cokDilliZekaKurallari() +
-    hafizaPromptu(userKey) +
-    baglamsalEmojiKurallari() +
+cokDilliZekaKurallari() +
+hafizaPromptu(userKey) +
+neuraHafizaPromptu(userKey) +
+baglamsalEmojiKurallari() +
     "Önceki konuşmaları güçlü şekilde dikkate al. Kullanıcıya teknik sistem açıklaması yapma. " +
     "Seçili model modu: " + profil.ad + ". " + profil.prompt + " " +
     ozelAiPrompt(customAi);
@@ -698,6 +842,33 @@ app.post("/chat", async (req,res) => {
     const userKey = kullaniciKey(req);
     const ip = ipAl(req);
     const now = Date.now();
+const lowerMsg = msg.toLowerCase();
+
+if (
+  lowerMsg.includes("bunu hatırla") ||
+  lowerMsg.includes("bunu kaydet") ||
+  lowerMsg.includes("bunu unutma")
+){
+  const result = neuraHafizaKaydet(userKey, msg);
+
+  return res.json({
+    ok: true,
+    reply: " " + result.reply
+  });
+}
+if (
+  lowerMsg.includes("belleği göster") ||
+  lowerMsg.includes("hafızamı göster") ||
+  lowerMsg.includes("ben sana ne demiştim")
+){
+  const memory = neuraHafizaListeAl(userKey);
+
+  return res.json({
+    ok: true,
+    memory,
+    reply: " NeuraAI Hafızası gönderildi."
+  });
+}
 
     if(!msg) return res.json({ reply:"Boş mesaj gönderme." });
 
@@ -748,6 +919,8 @@ app.post("/chat", async (req,res) => {
         ...hafiza
       ]
     });
+
+
 
     const finalCevap = await kendiniKontrolEt({
       soru: msg,
