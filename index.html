@@ -1509,6 +1509,56 @@ body::before{
   .voiceKapat{ right:14px; top:14px; }
 }
 
+
+
+/* === NeuraAI Profesyonel Arayüz === */
+html,body{width:100%;height:100%;}
+body{align-items:stretch;justify-content:stretch;background:#0b0b10;}
+body::before{display:none;}
+.kutu{
+  width:100%;max-width:none;height:100vh;
+  border-radius:0;border:none;box-shadow:none;
+  background:#0b0b10;backdrop-filter:none;
+}
+.solPanel{
+  width:20%;min-width:220px;max-width:300px;
+  background:#08080c;border-right:1px solid rgba(255,255,255,.08);
+  padding:16px 12px;gap:10px;
+}
+.anaAlan{width:80%;background:#0f0f14;}
+.ust{padding:14px 22px;min-height:72px;}
+.baslikAlan{width:auto;flex:1;order:1;}
+.baslikAlan .baslik{width:auto;font-size:22px;}
+.ustButonlar{width:auto;order:2;margin-left:auto;justify-content:flex-end;}
+.chat{padding:28px max(5vw,32px) 130px;gap:16px;}
+.balon{max-width:min(78%,820px);font-size:15px;}
+.alt{padding:16px max(5vw,32px);background:#0f0f14;}
+#input{min-height:52px;border-radius:16px;background:#17171f;}
+.guvenlikYazi{position:absolute;bottom:4px;}
+
+/* Kaldırılan oyunlaştırılmış / gereksiz bölümler */
+.karakterBtn,.miniAracBtn,
+.ozelAiBaslikSatir,#ozelAiListesi,
+.klasorToggleBtn,#klasorPanel,
+.araclarToggleBtn,#araclarPanel,
+#favoriListesi,#gizliListesi,
+.kurucuDurumKutusu,.sosyalTelefonBtn,#aiModelSec,#aiSure,
+#sosyalPopup,#modPopup,#ozellikPopup,#miniAracPopup,#klasorTasiPopup,#ozelAiPopup,
+.gecmisBaslik:not(.sohbetlerBaslik){display:none!important;}
+.sohbetlerBaslik{display:block!important;margin:10px 4px 2px;color:#9a9aa5;text-transform:uppercase;letter-spacing:.08em;font-size:11px;}
+.profilDirektBtn{display:block!important;text-align:left;font-weight:700;}
+.sohbetItem.sabit{border-color:rgba(255,255,255,.06);background:rgba(255,255,255,.05);}
+
+@media(max-width:700px){
+  .kutu{height:100dvh;}
+  .solPanel{width:260px;max-width:none;min-width:0;}
+  .anaAlan{width:100%;}
+  .ustButonlar{margin-left:auto!important;}
+  .chat{padding:18px 14px 120px;}
+  .alt{padding:10px 12px;}
+  .balon{max-width:90%;}
+}
+
 </style>
 </head>
 
@@ -1516,22 +1566,24 @@ body::before{
   <script>
 document.body.style.background = "#050505";
 </script>
-<button class="karakterBtn" onclick="ozelAiPanelAc()">🤖 AI Oluştur</button>
 
-<button class="miniAracBtn" onclick="miniAracPanelAc()" title="Mini Araçlar"></button>
+
+
 <div class="splashScreen">
   <img src="./splash.png" alt="NeuraAI Açılış">
 </div>
 <div class="kutu">
   <div class="solPanel">
     <div class="solUst">
-      <button class="yeniSohbetBtn" onclick="yeniSohbet()">+ Yeni Sohbet</button>
+      <button class="yeniSohbetBtn" onclick="yeniSohbet()">Yeni Sohbet</button>
 
       <input
         id="sohbetAramaInput"
         class="profilInput"
-        placeholder="🔍 Sohbet ara..."
+        placeholder="Sohbet ara..."
         oninput="sohbetleriGoster()">
+
+      <button class="sidebarMiniBtn profilDirektBtn" onclick="profilPanelAc()">Profil</button>
 
       <button class="sidebarMiniBtn" onclick="yeniGizliSohbet()"> Gizli sohbet başlat</button>
       <button class="sidebarMiniBtn" onclick="aktifSohbetiSil()"> Sil</button>
@@ -1558,7 +1610,7 @@ document.body.style.background = "#050505";
     <div class="gecmisBaslik"> Favori Sohbetler</div>
     <div id="favoriListesi" class="sohbetListesi"></div>
 
-    <div class="gecmisBaslik">💬 Sohbetler</div>
+    <div class="gecmisBaslik sohbetlerBaslik">Sohbetler</div>
     <div id="sohbetListesi" class="sohbetListesi"></div>
 
     <div class="gecmisBaslik">🔒 Gizli Sohbetler</div>
@@ -1593,8 +1645,8 @@ document.body.style.background = "#050505";
           <option value="yaratici"> Yaratıcı</option>
           <option value="kod"> Kod</option>
         </select>
-        <button onclick="sesAcKapat()" id="sesBtn">🔊</button>
-        <button onclick="codexAc()">💻 Codex</button>
+        <button onclick="sesAcKapat()" id="sesBtn">Ses</button>
+        <button onclick="codexAc()">Codex</button>
       </div>
     </div>
 
@@ -3202,17 +3254,17 @@ function sohbetleriKaydet(){
 function yerelAkilliBaslik(text){
   const t = (text || "").toLowerCase();
 
-  if(t.includes("roblox")) return "🎮 Roblox Projesi";
-  if(t.includes("minecraft")) return "⛏️ Minecraft Sohbeti";
-  if(t.includes("python")) return "🐍 Python";
-  if(t.includes("html") || t.includes("css") || t.includes("javascript") || t.includes("js")) return "💻 Kodlama";
-  if(t.includes("hata") || t.includes("bug")) return "🐞 Hata Çözümü";
-  if(t.includes("yapay zeka") || t.includes("ai") || t.includes("neuraai")) return "🤖 Yapay Zeka";
-  if(t.includes("ders") || t.includes("ödev") || t.includes("odev")) return "📚 Ders Yardımı";
-  if(t.includes("reklam") || t.includes("youtube")) return "🎬 Reklam Planı";
-  if(t.includes("plus") || t.includes("pro")) return "💎 Plan Sistemi";
-  if(t.includes("görsel") || t.includes("gorsel") || t.includes("çiz") || t.includes("ciz")) return "🎨 Görsel";
-  if(t.includes("selam") || t.includes("merhaba")) return "👋 Selamlaşma";
+  if(t.includes("roblox")) return "Roblox Projesi";
+  if(t.includes("minecraft")) return "Minecraft Sohbeti";
+  if(t.includes("python")) return "Python";
+  if(t.includes("html") || t.includes("css") || t.includes("javascript") || t.includes("js")) return "Kodlama";
+  if(t.includes("hata") || t.includes("bug")) return "Hata Çözümü";
+  if(t.includes("yapay zeka") || t.includes("ai") || t.includes("neuraai")) return "Yapay Zeka";
+  if(t.includes("ders") || t.includes("ödev") || t.includes("odev")) return "Ders Yardımı";
+  if(t.includes("reklam") || t.includes("youtube")) return "Reklam Planı";
+  if(t.includes("plus") || t.includes("pro")) return "Plan Sistemi";
+  if(t.includes("görsel") || t.includes("gorsel") || t.includes("çiz") || t.includes("ciz")) return "Görsel Çalışması";
+  if(t.includes("selam") || t.includes("merhaba")) return "Genel Sohbet";
 
   const temiz = (text || "")
     .replace(/[^\p{L}\p{N}\s]/gu, " ")
@@ -3245,7 +3297,7 @@ async function akilliBaslikOlustur(ilkMesaj, aiCevap){
     const data = await res.json();
 
     if(data.ok && data.title){
-      aktif.baslik = data.title.slice(0, 38);
+      aktif.baslik = String(data.title).replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, "").replace(/\s+/g, " ").trim().slice(0, 38) || "Yeni Sohbet";
       aktif.akilliBaslik = true;
       sohbetleriKaydet();
       sohbetleriGoster();
@@ -3396,10 +3448,8 @@ function sohbetMenuAc(e, sohbetId){
   sohbetMenuElemani = document.createElement("div");
   sohbetMenuElemani.className = "sohbetMenu";
   sohbetMenuElemani.innerHTML = `
-    <button onclick="sohbetiKlasoreTasiPanelAc(${sohbetId})">📂 Klasöre Taşı</button>
-    <button onclick="sohbetiSabitle(${sohbetId})">📌 Sabitle</button>
-    <button onclick="sohbetiYenidenAdlandirId(${sohbetId})">✏️ Yeniden Adlandır</button>
-    <button onclick="sohbetiSilId(${sohbetId})">🗑️ Sil</button>
+    <button onclick="sohbetiYenidenAdlandirId(${sohbetId})">Yeniden Adlandır</button>
+    <button onclick="sohbetiSilId(${sohbetId})">Sil</button>
   `;
 
   document.body.appendChild(sohbetMenuElemani);
