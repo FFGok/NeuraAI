@@ -1559,6 +1559,597 @@ body::before{display:none;}
   .balon{max-width:90%;}
 }
 
+
+/* === Welcome Screen V2 === */
+.welcomeScreen{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:40px}
+.welcomeScreen h1{font-size:40px;margin:0 0 10px}
+.welcomeScreen p{color:#bdbdbd;margin:0 0 30px}
+.welcomeGrid{display:grid;grid-template-columns:repeat(2,minmax(180px,240px));gap:16px}
+.welcomeCard{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:22px;cursor:pointer;font-weight:bold;transition:.2s}
+.welcomeCard:hover{background:rgba(123,44,255,.2)}
+@media(max-width:700px){.welcomeGrid{grid-template-columns:1fr;width:100%}.welcomeCard{width:100%}}
+
+
+/* === NeuraAI V2 Özellik 4: Yeni Sol Menü === */
+.solPanel{
+  padding:18px 14px;
+  gap:14px;
+}
+
+.solUst{
+  gap:9px;
+}
+
+.sidebarAramaSarma{
+  position:relative;
+  margin-bottom:4px;
+}
+
+.sidebarArama{
+  margin:0;
+  height:44px;
+  padding:0 13px;
+  border-radius:12px;
+  background:#121218;
+  border:1px solid rgba(255,255,255,.09);
+  font-size:13px;
+}
+
+.sidebarArama:focus{
+  border-color:rgba(123,44,255,.75);
+  box-shadow:0 0 0 3px rgba(123,44,255,.12);
+}
+
+.sidebarBolumBaslik{
+  margin:10px 5px 2px;
+  color:#7f7f8b;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+
+.sidebarNavBtn{
+  width:100%;
+  min-height:43px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:0 13px;
+  border:1px solid transparent;
+  border-radius:12px;
+  background:transparent;
+  color:#ededf2;
+  cursor:pointer;
+  font-size:13px;
+  font-weight:650;
+  text-align:left;
+  transition:background .16s ease,border-color .16s ease,transform .16s ease;
+}
+
+.sidebarNavBtn:hover{
+  background:rgba(255,255,255,.065);
+  border-color:rgba(255,255,255,.07);
+}
+
+.sidebarNavBtn:active{
+  transform:scale(.985);
+}
+
+.sidebarNavIsim{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.sidebarNavOk{
+  color:#747480;
+  font-size:20px;
+  font-weight:400;
+  line-height:1;
+}
+
+.sidebarUyumluluk{
+  display:none!important;
+}
+
+.sohbetlerBaslik{
+  margin-top:14px!important;
+  padding:0 5px;
+}
+
+#sohbetListesi{
+  min-height:80px;
+}
+
+@media(max-width:700px){
+  .solPanel{
+    padding:14px 12px;
+    width:min(84vw,290px);
+  }
+
+  .sidebarNavBtn{
+    min-height:46px;
+    font-size:14px;
+  }
+
+  .sidebarArama{
+    height:46px;
+    font-size:16px;
+  }
+}
+
+
+/* =========================================================
+   NeuraAI V2 - Özellik 5, 6 ve 7
+   5: Dengeli mesaj kutusu
+   6: Codex %20 menü / %80 çalışma alanı
+   7: Geliştirilmiş mobil görünüm
+   ========================================================= */
+
+/* 5. Mesaj kutusu: ekran boyunca uzanmak yerine ortalanmış, dengeli alan */
+.alt{
+  width:min(980px, calc(100% - 48px));
+  margin:0 auto 14px;
+  padding:10px;
+  gap:8px;
+  border:1px solid rgba(255,255,255,.085);
+  border-radius:18px;
+  background:#15151c;
+  box-shadow:0 12px 34px rgba(0,0,0,.22);
+  position:relative;
+  bottom:auto;
+}
+
+#input{
+  min-width:0;
+  min-height:46px;
+  height:46px;
+  padding:0 14px;
+  border-radius:13px;
+  background:#1b1b23;
+}
+
+.alt button,
+.alt .dosyaLabel{
+  min-height:44px;
+  height:44px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 13px;
+  border-radius:12px;
+  white-space:nowrap;
+}
+
+.chat{
+  padding-bottom:36px;
+}
+
+.onizleme{
+  width:min(980px, calc(100% - 48px));
+  margin:0 auto 8px;
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:16px;
+}
+
+/* 6. Codex ana yerleşim */
+.codexSayfa.codexYeniEkran{
+  width:100%;
+  max-width:none;
+  height:100vh;
+  border:0;
+  border-radius:0;
+  box-shadow:none;
+  backdrop-filter:none;
+  background:#0b0b10;
+  grid-template-columns:minmax(220px,20%) minmax(0,80%);
+  grid-template-rows:auto minmax(0,1fr);
+  overflow:hidden;
+}
+
+.codexSolMenu{
+  grid-column:1;
+  grid-row:1 / 3;
+  min-width:220px;
+  padding:18px 14px;
+  background:#08080c;
+  border-right:1px solid rgba(255,255,255,.08);
+  display:flex;
+  flex-direction:column;
+  gap:9px;
+  overflow-y:auto;
+}
+
+.codexSolMarka{
+  padding:4px 8px 14px;
+  font-size:21px;
+  font-weight:850;
+  letter-spacing:-.02em;
+}
+
+.codexSolAlt{
+  color:#858590;
+  font-size:11px;
+  line-height:1.45;
+  padding:0 8px 8px;
+}
+
+.codexMenuBaslik{
+  margin:12px 7px 3px;
+  color:#70707b;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+
+.codexMenuBtn{
+  width:100%;
+  min-height:43px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 13px;
+  border:1px solid transparent;
+  border-radius:12px;
+  background:transparent;
+  color:#ededf2;
+  cursor:pointer;
+  font-size:13px;
+  font-weight:650;
+  text-align:left;
+  transition:.16s ease;
+}
+
+.codexMenuBtn:hover{
+  background:rgba(255,255,255,.065);
+  border-color:rgba(255,255,255,.07);
+}
+
+.codexMenuBtn.ana{
+  background:linear-gradient(135deg,rgba(123,44,255,.30),rgba(61,124,255,.22));
+  border-color:rgba(123,44,255,.32);
+}
+
+.codexMenuAltButon{
+  margin-top:auto;
+}
+
+.codexYeniEkran .codexUst{
+  grid-column:2;
+  grid-row:1;
+  min-width:0;
+  padding:14px 22px;
+  min-height:72px;
+  background:#0f0f14;
+}
+
+.codexYeniEkran .codexGovde{
+  grid-column:2;
+  grid-row:2;
+  min-width:0;
+  min-height:0;
+  padding:18px clamp(18px,4vw,54px);
+  overflow:auto;
+  background:#0f0f14;
+}
+
+.codexTekPanel{
+  width:min(1120px,100%);
+  min-height:100%;
+  margin:0 auto;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+}
+
+.codexAnaSohbet{
+  min-height:310px;
+  max-height:46vh;
+  border-radius:18px;
+}
+
+.codexKodKutusu{
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+}
+
+.codexKomutSatiri{
+  width:min(980px,100%);
+  margin:0 auto;
+}
+
+.codexKomutSatiri textarea{
+  min-height:62px;
+  max-height:120px;
+}
+
+/* 7. Mobil görünüm */
+@media(max-width:700px){
+  html,body{
+    height:100%;
+    min-height:100%;
+  }
+
+  .kutu{
+    height:100dvh;
+    min-height:100dvh;
+  }
+
+  .ust{
+    min-height:62px;
+    padding:10px 12px;
+    flex-wrap:nowrap;
+  }
+
+  .baslikAlan{
+    min-width:0;
+  }
+
+  .baslikAlan .baslik{
+    font-size:19px;
+  }
+
+  .canliKullaniciKutusu{
+    padding:6px 8px;
+    font-size:10px;
+  }
+
+  .ustButonlar{
+    width:auto!important;
+    flex-wrap:nowrap;
+    gap:6px;
+  }
+
+  .ustButonlar button{
+    padding:8px 10px;
+    font-size:12px;
+  }
+
+  .menuBtn{
+    flex:0 0 auto;
+    padding:7px 10px;
+    font-size:18px;
+  }
+
+  .solPanel{
+    width:min(86vw,300px)!important;
+    left:min(-86vw,-300px);
+    box-shadow:24px 0 60px rgba(0,0,0,.55);
+    overflow-y:auto;
+  }
+
+  .solPanel.acik{
+    left:0;
+  }
+
+  .chat{
+    padding:15px 12px 20px;
+    gap:11px;
+  }
+
+  .balon{
+    max-width:92%;
+    padding:11px 12px;
+    font-size:14px;
+    border-radius:15px;
+  }
+
+  .welcomeScreen{
+    justify-content:flex-start;
+    padding:clamp(32px,10vh,78px) 16px 24px;
+    overflow-y:auto;
+  }
+
+  .welcomeScreen h1{
+    font-size:clamp(27px,8vw,36px);
+  }
+
+  .welcomeScreen p{
+    margin-bottom:20px;
+    font-size:14px;
+  }
+
+  .welcomeGrid{
+    width:100%;
+    max-width:500px;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+
+  .welcomeCard{
+    min-height:86px;
+    padding:14px 10px;
+    border-radius:15px;
+    font-size:13px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .onizleme{
+    width:calc(100% - 20px);
+    margin:0 auto 7px;
+    padding:8px 10px;
+  }
+
+  .onizleme img{
+    width:52px;
+    height:52px;
+  }
+
+  .alt{
+    width:calc(100% - 16px);
+    margin:0 8px calc(8px + env(safe-area-inset-bottom));
+    padding:7px;
+    gap:6px;
+    border-radius:16px;
+  }
+
+  #input{
+    height:44px;
+    min-height:44px;
+    padding:0 11px;
+    font-size:16px;
+  }
+
+  .alt button,
+  .alt .dosyaLabel{
+    min-width:42px;
+    width:auto;
+    height:42px;
+    min-height:42px;
+    padding:0 10px;
+    border-radius:11px;
+    font-size:12px;
+  }
+
+  .dosyaLabel{
+    display:none!important;
+  }
+
+  #gonderBtn{
+    padding:0 12px;
+  }
+
+  .guvenlikYazi{
+    display:none;
+  }
+
+  .popup{
+    max-height:88dvh;
+    overflow-y:auto;
+    padding:18px;
+    border-radius:18px;
+  }
+
+  /* Codex mobilde menü üst şeride dönüşür */
+  .codexSayfa.codexYeniEkran{
+    height:100dvh;
+    grid-template-columns:1fr;
+    grid-template-rows:auto auto minmax(0,1fr);
+    overflow:hidden;
+  }
+
+  .codexSolMenu{
+    grid-column:1;
+    grid-row:1;
+    min-width:0;
+    width:100%;
+    padding:8px 10px;
+    flex-direction:row;
+    align-items:center;
+    overflow-x:auto;
+    border-right:0;
+    border-bottom:1px solid rgba(255,255,255,.08);
+    gap:6px;
+  }
+
+  .codexSolMarka{
+    flex:0 0 auto;
+    padding:0 8px;
+    font-size:17px;
+  }
+
+  .codexSolAlt,
+  .codexMenuBaslik{
+    display:none;
+  }
+
+  .codexMenuBtn{
+    flex:0 0 auto;
+    width:auto;
+    min-height:38px;
+    padding:0 11px;
+    font-size:12px;
+    white-space:nowrap;
+  }
+
+  .codexMenuAltButon{
+    margin-top:0;
+    margin-left:auto;
+  }
+
+  .codexYeniEkran .codexUst{
+    grid-column:1;
+    grid-row:2;
+    min-height:auto;
+    padding:10px 12px;
+  }
+
+  .codexYeniEkran .codexUst .ustButonlar{
+    display:none;
+  }
+
+  .codexBaslik{
+    font-size:20px;
+  }
+
+  .codexAlt{
+    font-size:11px;
+  }
+
+  .codexYeniEkran .codexGovde{
+    grid-column:1;
+    grid-row:3;
+    padding:10px;
+  }
+
+  .codexTekPanel{
+    gap:10px;
+  }
+
+  .codexAnaSohbet{
+    min-height:220px;
+    max-height:35dvh;
+    padding:10px;
+  }
+
+  .codexKodKutusu{
+    grid-template-columns:1fr;
+  }
+
+  .codexKodKart{
+    padding:10px;
+  }
+
+  .codexYeniEkran .codexTextarea{
+    min-height:125px;
+  }
+
+  .codexKomutSatiri{
+    position:sticky;
+    bottom:0;
+    padding-top:4px;
+    background:#0f0f14;
+  }
+
+  .codexKomutSatiri textarea{
+    min-height:54px;
+  }
+}
+
+@media(max-width:390px){
+  .welcomeGrid{
+    grid-template-columns:1fr;
+  }
+
+  .welcomeCard{
+    min-height:64px;
+  }
+
+  .canliKullaniciKutusu{
+    display:none;
+  }
+
+  .alt button,
+  .alt .dosyaLabel{
+    padding:0 8px;
+  }
+}
+
 </style>
 </head>
 
@@ -1577,27 +2168,44 @@ document.body.style.background = "#050505";
     <div class="solUst">
       <button class="yeniSohbetBtn" onclick="yeniSohbet()">Yeni Sohbet</button>
 
-      <input
-        id="sohbetAramaInput"
-        class="profilInput"
-        placeholder="Sohbet ara..."
-        oninput="sohbetleriGoster()">
+      <div class="sidebarAramaSarma">
+        <input
+          id="sohbetAramaInput"
+          class="profilInput sidebarArama"
+          placeholder="Sohbet ara..."
+          oninput="sohbetleriGoster()">
+      </div>
 
-      <button class="sidebarMiniBtn profilDirektBtn" onclick="profilPanelAc()">Profil</button>
+      <div class="sidebarBolumBaslik">Hesap</div>
 
-      <button class="sidebarMiniBtn" onclick="yeniGizliSohbet()"> Gizli sohbet başlat</button>
-      <button class="sidebarMiniBtn" onclick="aktifSohbetiSil()"> Sil</button>
+      <button class="sidebarNavBtn" onclick="profilPanelAc()">
+        <span class="sidebarNavIsim">Profil</span>
+        <span class="sidebarNavOk">›</span>
+      </button>
 
-      <button class="sidebarMiniBtn klasorToggleBtn" onclick="klasorlerPanelToggle()"> Klasörler <span id="klasorOk">▶</span></button>
-      <div id="klasorPanel" class="klasorPanel"></div>
+      <button class="sidebarNavBtn" onclick="hafizaMenuAc()">
+        <span class="sidebarNavIsim">Hafıza</span>
+        <span class="sidebarNavOk">›</span>
+      </button>
 
-      <button class="sidebarMiniBtn araclarToggleBtn" onclick="araclarAcKapat()"> Araçlar <span id="araclarOk">▼</span></button>
-      <div id="araclarPanel" class="araclarPanel">
-        <button onclick="profilPanelAc()">👤 Profil</button>
-        <button onclick="modPanelAc()"> Modlar</button>
-        <button onclick="profilPanelAc()"> İstatistikler</button>
-        <button onclick="sohbetiDisaAktar()"> Dışa Aktar</button>
-        <button onclick="sohbetiPdfIndir()"> PDF</button>
+      <button class="sidebarNavBtn" onclick="istatistikPanelAc()">
+        <span class="sidebarNavIsim">İstatistikler</span>
+        <span class="sidebarNavOk">›</span>
+      </button>
+
+      <button class="sidebarNavBtn" onclick="sohbetListesineGit()">
+        <span class="sidebarNavIsim">Sohbetler</span>
+        <span class="sidebarNavOk">›</span>
+      </button>
+
+      <!-- Eski sistem fonksiyonlarının hata vermemesi için görünmez uyumluluk alanı -->
+      <div class="sidebarUyumluluk" aria-hidden="true">
+        <button onclick="yeniGizliSohbet()">Gizli sohbet başlat</button>
+        <button onclick="aktifSohbetiSil()">Sil</button>
+        <button class="klasorToggleBtn" onclick="klasorlerPanelToggle()">Klasörler</button>
+        <div id="klasorPanel" class="klasorPanel"></div>
+        <button class="araclarToggleBtn" onclick="araclarAcKapat()">Araçlar</button>
+        <div id="araclarPanel" class="araclarPanel"></div>
       </div>
     </div>
 
@@ -1650,7 +2258,19 @@ document.body.style.background = "#050505";
       </div>
     </div>
 
-    <div id="chat" class="chat"></div>
+    
+<div id="welcomeScreen" class="welcomeScreen">
+<h1>Merhaba 👋</h1>
+<p>Bugün ne yapmak istersin?</p>
+<div class="welcomeGrid">
+<div class="welcomeCard" onclick="welcomeSelect('Bir soru sor')">💬<br>Bir soru sor</div>
+<div class="welcomeCard" onclick="welcomeSelect('Kod yaz')">💻<br>Kod yaz</div>
+<div class="welcomeCard" onclick="welcomeSelect('Görsel oluştur')">🎨<br>Görsel oluştur</div>
+<div class="welcomeCard" onclick="welcomeSelect('İnternette araştır')">🌐<br>İnternette araştır</div>
+</div>
+</div>
+
+<div id="chat" class="chat" style="display:none"></div>
 
     <div class="onizleme" id="onizleme">
       <img id="onizlemeResim" src="" alt="Önizleme">
@@ -1673,6 +2293,32 @@ document.body.style.background = "#050505";
 
 
 <div class="codexSayfa codexYeniEkran" id="codexSayfa">
+  <aside class="codexSolMenu">
+    <div class="codexSolMarka">Codex</div>
+    <div class="codexSolAlt">Kod yazma, analiz, hata düzeltme ve proje hafızası.</div>
+
+    <div class="codexMenuBaslik">Çalışma Alanı</div>
+
+    <button class="codexMenuBtn ana" onclick="codexBolumeGit('codexChatLog')">
+      <span>Sohbet</span><span>›</span>
+    </button>
+
+    <button class="codexMenuBtn" onclick="codexBolumeGit('codexKod')">
+      <span>Kod Alanı</span><span>›</span>
+    </button>
+
+    <button class="codexMenuBtn" onclick="codexBolumeGit('projeHafizaBaslik')">
+      <span>Proje Hafızası</span><span>›</span>
+    </button>
+
+    <button class="codexMenuBtn" onclick="codexDosyaSecAc()">
+      <span>Dosya Yükle</span><span>›</span>
+    </button>
+
+    <button class="codexMenuBtn codexMenuAltButon" onclick="naiDon()">
+      <span>NeuraAI'ye Dön</span><span>›</span>
+    </button>
+  </aside>
   <div class="codexUst">
     <div>
       <div class="codexBaslik"> Codex Chat</div>
@@ -1785,6 +2431,35 @@ display:none;
     <button onclick="modPanelKapat()">
       Kapat
     </button>
+  </div>
+</div>
+
+
+<div class="popupArka" id="istatistikPopup">
+  <div class="popup">
+    <h2>İstatistikler</h2>
+
+    <div class="profilSatir">
+      Toplam Sohbet:
+      <b id="istatistikSohbet">0</b>
+    </div>
+
+    <div class="profilSatir">
+      Codex Kullanımı:
+      <b id="istatistikCodex">0</b>
+    </div>
+
+    <div class="profilSatir">
+      Görsel Analizi:
+      <b id="istatistikFoto">0</b>
+    </div>
+
+    <div class="profilSatir">
+      Görsel Üretimi:
+      <b id="istatistikResim">0</b>
+    </div>
+
+    <button onclick="istatistikPanelKapat()">Kapat</button>
   </div>
 </div>
 
@@ -4406,7 +5081,7 @@ function gelirHesapla(){
 let codexHafiza=JSON.parse(localStorage.getItem("neura_codex_hafiza"))||[], projeHafizasi=JSON.parse(localStorage.getItem("neura_proje_hafizasi"))||[], todoListesi=JSON.parse(localStorage.getItem("neura_codex_todo"))||[];
 function codexAc(){
   document.querySelector(".kutu").style.display = "none";
-  document.getElementById("codexSayfa").style.display = "flex";
+  document.getElementById("codexSayfa").style.display = "grid";
 
   document.getElementById("miniAracPopup").style.display = "none";
   document.getElementById("guncellemePopup").style.display = "none";
@@ -5330,6 +6005,95 @@ function sosyalPanelKapat(){
 }
 
 </script>
+
+<script>
+function welcomeSelect(t){
+ document.getElementById('welcomeScreen').style.display='none';
+ document.getElementById('chat').style.display='flex';
+ const i=document.getElementById('input');
+ if(i){i.value=t+" ";i.focus();}
+}
+const _oldYeni=window.yeniSohbet;
+window.addEventListener('load',()=>{
+ const c=document.getElementById('chat');
+ if(c && c.children.length>0){
+  document.getElementById('welcomeScreen').style.display='none';
+  c.style.display='flex';
+ }
+});
+
+function sohbetListesineGit(){
+  const liste = document.getElementById("sohbetListesi");
+  if(liste){
+    liste.scrollIntoView({behavior:"smooth", block:"nearest"});
+  }
+
+  const panel = document.querySelector(".solPanel");
+  if(window.innerWidth <= 700 && panel){
+    panel.classList.remove("acik");
+  }
+}
+
+function hafizaMenuAc(){
+  if(typeof hafizaPanelAc === "function"){
+    hafizaPanelAc();
+    return;
+  }
+
+  if(typeof sistemMesaji === "function"){
+    sistemMesaji("Hafıza bölümü uzun süreli hafıza sistemiyle birlikte kullanılacak.");
+    return;
+  }
+
+  alert("Hafıza bölümü uzun süreli hafıza sistemiyle birlikte kullanılacak.");
+}
+
+function istatistikPanelAc(){
+  const popup = document.getElementById("istatistikPopup");
+  if(!popup) return;
+
+  const profil = window.profilVerisi || {};
+
+  const sohbet = document.getElementById("istatistikSohbet");
+  const codex = document.getElementById("istatistikCodex");
+  const foto = document.getElementById("istatistikFoto");
+  const resim = document.getElementById("istatistikResim");
+
+  if(sohbet) sohbet.innerText = Number(profil.toplamSohbet || 0);
+  if(codex) codex.innerText = Number(profil.toplamCodex || 0);
+  if(foto) foto.innerText = Number(profil.toplamFoto || 0);
+  if(resim) resim.innerText = Number(profil.toplamResim || 0);
+
+  popup.style.display = "flex";
+}
+
+function istatistikPanelKapat(){
+  const popup = document.getElementById("istatistikPopup");
+  if(popup) popup.style.display = "none";
+}
+
+
+function codexBolumeGit(id){
+  const hedef = document.getElementById(id);
+  if(!hedef) return;
+
+  hedef.scrollIntoView({
+    behavior:"smooth",
+    block:"center"
+  });
+
+  if(typeof hedef.focus === "function"){
+    setTimeout(() => hedef.focus(), 280);
+  }
+}
+
+function codexDosyaSecAc(){
+  const input = document.getElementById("codexDosyaInput");
+  if(input) input.click();
+}
+
+</script>
+
 </body>
 </html>
 
