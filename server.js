@@ -1,5 +1,5 @@
 /*
-NEURAAI SERVER V2 - HTML 7 ÖZELLİK UYUMLU
+NEURAAI SERVER V2 - PROFESYONEL SVG MENÜ UYUMLU
 
 Gerekli Render ortam değişkenleri:
 - OPENROUTER_API_KEY
@@ -98,6 +98,7 @@ function veriOku(){
     console.error("Veri okuma hatası:", err);
     return {
       memories: {},
+      neuraMemory: {},
       worldStats: {},
       profileStats: {},
       codexMemories: {},
@@ -871,16 +872,40 @@ function webKaynaklariniAyikla(message){
 }
 
 function kaynaklariCevabaEkle(reply, sources){
-  const temizReply = temizMesaj(reply, 12000).trim();
+  let temizReply = temizMesaj(reply, 12000).trim();
+
+  // Model cevabın içinde zaten kaynak listesi yazdıysa,
+  // sunucunun ekleyeceği tek ve düzenli kaynak bölümü için onu kaldır.
+  temizReply = temizReply
+    .replace(/\n{1,3}(?:Kaynaklar|Daha fazla bilgi için kaynaklar)[\s\S]*$/i, "")
+    .replace(/\n{1,3}-\s*\[[^\]]+\]\([^)]+\)(?:\s*\n-\s*\[[^\]]+\]\([^)]+\))*\s*$/i, "")
+    .trim();
+
   if(!Array.isArray(sources) || sources.length === 0){
     return temizReply;
   }
 
-  const satirlar = sources.map((s, i) => {
-    const baslik = temizMesaj(s.title || "Kaynak", 180).replace(/\n/g, " ").trim();
-    const url = temizMesaj(s.url || "", 1500).trim();
-    return `${i + 1}. ${baslik}\n${url}`;
-  });
+  const benzersiz = [];
+  const gorulen = new Set();
+
+  for(const source of sources){
+    const url = temizMesaj(source?.url || "", 1500).trim();
+    if(!url || gorulen.has(url)) continue;
+
+    gorulen.add(url);
+    benzersiz.push({
+      title: temizMesaj(source?.title || "Kaynak", 180).replace(/\n/g, " ").trim() || "Kaynak",
+      url
+    });
+
+    if(benzersiz.length >= 6) break;
+  }
+
+  if(benzersiz.length === 0){
+    return temizReply;
+  }
+
+  const satirlar = benzersiz.map((s, i) => `${i + 1}. ${s.title}\n${s.url}`);
 
   return `${temizReply}\n\nKaynaklar\n\n${satirlar.join("\n\n")}`;
 }
