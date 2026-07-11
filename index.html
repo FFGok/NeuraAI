@@ -2150,6 +2150,171 @@ body::before{display:none;}
   }
 }
 
+
+/* === Profesyonel mesaj görünümü === */
+.miniAksiyonlar{display:none!important;}
+.balon{box-shadow:none;}
+.ai .balon{background:#24242b;border:1px solid rgba(255,255,255,.035);}
+.user .balon{background:linear-gradient(135deg,#6f35ff,#4968ff);}
+
+/* === NeuraAI Profesyonel SVG Sol Menü === */
+.sidebarAramaSarma{
+  position:relative;
+  display:flex;
+  align-items:center;
+}
+.sidebarAramaIkon{
+  position:absolute;
+  left:13px;
+  width:17px;
+  height:17px;
+  color:#888894;
+  pointer-events:none;
+  z-index:2;
+}
+.sidebarAramaIkon svg,
+.sidebarSvg svg{
+  width:100%;
+  height:100%;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.sidebarArama{
+  padding-left:40px!important;
+  margin:0!important;
+}
+.sidebarNavBtn{
+  min-height:44px;
+  padding:0 12px;
+  justify-content:flex-start;
+  border-radius:10px;
+}
+.sidebarNavSol{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  min-width:0;
+}
+.sidebarSvg{
+  width:19px;
+  height:19px;
+  color:#c9c9d2;
+  flex:0 0 auto;
+}
+.sidebarNavBtn:hover .sidebarSvg{
+  color:white;
+}
+.sidebarNavBtn:hover{
+  background:#17171d;
+}
+.sidebarBolumBaslik{
+  margin-top:12px;
+}
+.sohbetItem{
+  border-radius:10px;
+}
+.sohbetItem.aktif{
+  background:#24242c;
+  border-color:rgba(255,255,255,.08);
+}
+.solPanel{
+  background:#09090d;
+}
+.sidebarUyumluluk{
+  display:none!important;
+}
+
+/* Hafıza paneli */
+.hafizaPopupKart{
+  max-width:620px;
+}
+.popupBaslikSatir{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:18px;
+}
+.popupBaslikSatir h2{
+  margin:0 0 5px;
+}
+.popupBaslikSatir p{
+  margin:0;
+  color:#9d9da7;
+  font-size:13px;
+}
+.popupKapatBtn{
+  margin:0!important;
+  width:38px;
+  height:38px;
+  padding:0!important;
+  border-radius:10px!important;
+  background:rgba(255,255,255,.07)!important;
+  color:white!important;
+  font-size:22px;
+}
+.hafizaListe{
+  display:flex;
+  flex-direction:column;
+  gap:9px;
+  max-height:48vh;
+  overflow-y:auto;
+}
+.hafizaItem{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  padding:13px 14px;
+  border-radius:12px;
+  background:#1a1a20;
+  border:1px solid rgba(255,255,255,.06);
+}
+.hafizaItemMetin{
+  color:#ececf1;
+  font-size:14px;
+  line-height:1.5;
+  word-break:break-word;
+}
+.hafizaSilBtn{
+  flex:0 0 auto;
+  margin:0!important;
+  padding:7px 10px!important;
+  border-radius:9px!important;
+  background:rgba(255,255,255,.07)!important;
+  color:#dedee5!important;
+  font-size:12px;
+}
+.hafizaBos{
+  padding:26px 14px;
+  text-align:center;
+  color:#8f8f99;
+}
+.hafizaAltAksiyon{
+  display:flex;
+  justify-content:flex-end;
+  margin-top:14px;
+}
+.hafizaTemizleBtn{
+  margin:0!important;
+  background:#2a1518!important;
+  color:#ffb6bd!important;
+  border:1px solid rgba(255,80,95,.18)!important;
+}
+@media(max-width:700px){
+  .sidebarNavBtn{
+    min-height:46px;
+    font-size:14px;
+  }
+  .sidebarSvg{
+    width:20px;
+    height:20px;
+  }
+}
+
 </style>
 </head>
 
@@ -2169,36 +2334,36 @@ document.body.style.background = "#050505";
       <button class="yeniSohbetBtn" onclick="yeniSohbet()">Yeni Sohbet</button>
 
       <div class="sidebarAramaSarma">
+        <span class="sidebarAramaIkon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg></span>
         <input
           id="sohbetAramaInput"
           class="profilInput sidebarArama"
-          placeholder="Sohbet ara..."
+          placeholder="Sohbetlerde ara"
           oninput="sohbetleriGoster()">
       </div>
 
-      <div class="sidebarBolumBaslik">Hesap</div>
+      <div class="sidebarBolumBaslik">Araçlar</div>
 
       <button class="sidebarNavBtn" onclick="profilPanelAc()">
-        <span class="sidebarNavIsim">Profil</span>
-        <span class="sidebarNavOk">›</span>
+        <span class="sidebarNavSol"><span class="sidebarSvg"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4.2 3.6-7 8-7s8 2.8 8 7"></path></svg></span><span>Profil</span></span>
       </button>
 
-      <button class="sidebarNavBtn" onclick="hafizaMenuAc()">
-        <span class="sidebarNavIsim">Hafıza</span>
-        <span class="sidebarNavOk">›</span>
+      <button class="sidebarNavBtn" onclick="hafizaPanelAc()">
+        <span class="sidebarNavSol"><span class="sidebarSvg"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="16" rx="3"></rect><path d="M9 8h6M9 12h6M9 16h4"></path></svg></span><span>Hafızam</span></span>
       </button>
 
       <button class="sidebarNavBtn" onclick="istatistikPanelAc()">
-        <span class="sidebarNavIsim">İstatistikler</span>
-        <span class="sidebarNavOk">›</span>
+        <span class="sidebarNavSol"><span class="sidebarSvg"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"></path></svg></span><span>İstatistikler</span></span>
       </button>
 
       <button class="sidebarNavBtn" onclick="sohbetListesineGit()">
-        <span class="sidebarNavIsim">Sohbetler</span>
-        <span class="sidebarNavOk">›</span>
+        <span class="sidebarNavSol"><span class="sidebarSvg"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8 8 0 0 1-8 8H6l-4 2 1.5-4.5A9 9 0 1 1 21 12Z"></path></svg></span><span>Sohbetler</span></span>
       </button>
 
-      <!-- Eski sistem fonksiyonlarının hata vermemesi için görünmez uyumluluk alanı -->
+      <button class="sidebarNavBtn" onclick="sohbetiDisaAktar()">
+        <span class="sidebarNavSol"><span class="sidebarSvg"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5"></path><path d="M5 13v6h14v-6"></path></svg></span><span>Sohbeti Dışa Aktar</span></span>
+      </button>
+
       <div class="sidebarUyumluluk" aria-hidden="true">
         <button onclick="yeniGizliSohbet()">Gizli sohbet başlat</button>
         <button onclick="aktifSohbetiSil()">Sil</button>
@@ -2460,6 +2625,27 @@ display:none;
     </div>
 
     <button onclick="istatistikPanelKapat()">Kapat</button>
+  </div>
+</div>
+
+
+<div class="popupArka" id="hafizaPopup">
+  <div class="popup hafizaPopupKart">
+    <div class="popupBaslikSatir">
+      <div>
+        <h2>Hafızam</h2>
+        <p>NeuraAI'nin senin hakkında kaydettiği bilgiler.</p>
+      </div>
+      <button class="popupKapatBtn" onclick="hafizaPanelKapat()" aria-label="Kapat">×</button>
+    </div>
+
+    <div id="hafizaListe" class="hafizaListe">
+      <div class="hafizaBos">Hafıza yükleniyor...</div>
+    </div>
+
+    <div class="hafizaAltAksiyon">
+      <button class="hafizaTemizleBtn" onclick="tumHafizayiTemizle()">Tümünü Temizle</button>
+    </div>
   </div>
 </div>
 
@@ -6090,6 +6276,103 @@ function codexBolumeGit(id){
 function codexDosyaSecAc(){
   const input = document.getElementById("codexDosyaInput");
   if(input) input.click();
+}
+
+
+function neuraUserKeyAl(){
+  try{
+    const profil = JSON.parse(localStorage.getItem("neuraProfil") || "{}");
+    return profil.id || profil.nick || localStorage.getItem("neuraUserKey") || "browser-user";
+  }catch{
+    return localStorage.getItem("neuraUserKey") || "browser-user";
+  }
+}
+
+async function hafizaPanelAc(){
+  const popup = document.getElementById("hafizaPopup");
+  if(!popup) return;
+
+  popup.style.display = "flex";
+  await hafizaListele();
+}
+
+function hafizaPanelKapat(){
+  const popup = document.getElementById("hafizaPopup");
+  if(popup) popup.style.display = "none";
+}
+
+async function hafizaListele(){
+  const liste = document.getElementById("hafizaListe");
+  if(!liste) return;
+
+  liste.innerHTML = '<div class="hafizaBos">Hafıza yükleniyor...</div>';
+
+  try{
+    const r = await fetch("/api/memory/list", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({userKey:neuraUserKeyAl()})
+    });
+
+    const data = await r.json();
+    const memory = Array.isArray(data.memory) ? data.memory : [];
+
+    if(memory.length === 0){
+      liste.innerHTML = '<div class="hafizaBos">Henüz kaydedilmiş bir bilgi yok.</div>';
+      return;
+    }
+
+    liste.innerHTML = "";
+
+    memory.slice().reverse().forEach(item => {
+      const satir = document.createElement("div");
+      satir.className = "hafizaItem";
+
+      const metin = document.createElement("div");
+      metin.className = "hafizaItemMetin";
+      metin.textContent = item.text || "";
+
+      const sil = document.createElement("button");
+      sil.className = "hafizaSilBtn";
+      sil.textContent = "Sil";
+      sil.onclick = () => hafizaKaydiSil(item.id);
+
+      satir.appendChild(metin);
+      satir.appendChild(sil);
+      liste.appendChild(satir);
+    });
+  }catch(err){
+    console.error("Hafıza listeleme hatası:", err);
+    liste.innerHTML = '<div class="hafizaBos">Hafıza yüklenemedi.</div>';
+  }
+}
+
+async function hafizaKaydiSil(id){
+  try{
+    await fetch("/api/memory/delete", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({id,userKey:neuraUserKeyAl()})
+    });
+    await hafizaListele();
+  }catch(err){
+    console.error("Hafıza silme hatası:", err);
+  }
+}
+
+async function tumHafizayiTemizle(){
+  if(!confirm("Tüm hafıza kayıtları silinsin mi?")) return;
+
+  try{
+    await fetch("/api/memory/clear", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({userKey:neuraUserKeyAl()})
+    });
+    await hafizaListele();
+  }catch(err){
+    console.error("Hafıza temizleme hatası:", err);
+  }
 }
 
 </script>
