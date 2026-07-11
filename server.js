@@ -1,3 +1,19 @@
+/*
+NEURAAI SERVER V2 - HTML 7 ÖZELLİK UYUMLU
+
+Gerekli Render ortam değişkenleri:
+- OPENROUTER_API_KEY
+- POLLINATIONS_API_KEY (görsel üretim kullanılıyorsa)
+- ELEVENLABS_API_KEY (ElevenLabs ses kullanılıyorsa)
+- NEURA_DATA_DIR veya RENDER_DISK_PATH (kalıcı veri için)
+
+Web araması:
+- Ek bir arama API anahtarı istemez.
+- Mevcut OPENROUTER_API_KEY üzerinden OpenRouter web_search kullanır.
+- Kullanıcı "internette ara", "webde araştır", "güncel olarak bak" gibi bir ifade yazınca otomatik çalışır.
+- /api/web-search endpointi de ayrıca kullanılabilir.
+*/
+
 const fetch = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
 
@@ -12,7 +28,7 @@ app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.set("trust proxy", true);
 
 /* =========================
-   NeuraAI Server.js - V2 PATCH
+   NeuraAI Server.js - V2 HTML 7 Özellik Uyumlu
    Eklenenler:
    - path.join hatası düzeltildi
    - Canlı kullanıcı sayacı
@@ -55,6 +71,7 @@ function veriOku(){
     if(!fs.existsSync(DATA_FILE)){
       return {
         memories: {},
+        neuraMemory: {},
         worldStats: {},
         profileStats: {},
         codexMemories: {},
@@ -69,6 +86,7 @@ function veriOku(){
 
     return {
       memories: data.memories && typeof data.memories === "object" ? data.memories : {},
+      neuraMemory: data.neuraMemory && typeof data.neuraMemory === "object" ? data.neuraMemory : {},
       worldStats: data.worldStats && typeof data.worldStats === "object" ? data.worldStats : {},
       profileStats: data.profileStats && typeof data.profileStats === "object" ? data.profileStats : {},
       codexMemories: data.codexMemories && typeof data.codexMemories === "object" ? data.codexMemories : {},
@@ -788,6 +806,200 @@ async function openrouterChat({ model, max_tokens, messages }){
   return data.choices?.[0]?.message?.content || "";
 }
 
+
+/* =========================
+   Gerçek İnternet Araması
+   - Mevcut OPENROUTER_API_KEY ile çalışır
+   - OpenRouter web_search server tool kullanır
+   - Gerekirse eski web plugin yöntemine düşer
+   - Kaynakları hem JSON hem de cevap sonunda döndürür
+========================= */
+
+function internetAramaIstegiMi(message, body = {}){
+  if(body.webSearch === true || body.internetSearch === true || body.searchWeb === true){
+    return true;
+  }
+
+  const m = temizMesaj(message, 4000).toLowerCase();
+
+  const kaliplar = [
+    /internette\s+(ara|arama|araştır|arastir|bak)/i,
+    /web(?:'de|de|den)?\s+(ara|arama|araştır|arastir|bak)/i,
+    /internet(?:ten|te|de)?\s+(ara|araştır|arastir|bak)/i,
+    /güncel\s+(olarak\s+)?(ara|araştır|arastir|bak)/i,
+    /kaynak(?:ları|lari)?\s+(bul|göster|goster)/i,
+    /arama\s+yap/i
+  ];
+
+  return kaliplar.some(k => k.test(m));
+}
+
+function webAramaSorgusuTemizle(message){
+  let q = temizMesaj(message, 1200)
+    .replace(/internette\s+(ara|arama|araştır|arastir|bak)/gi, " ")
+    .replace(/web(?:'de|de|den)?\s+(ara|arama|araştır|arastir|bak)/gi, " ")
+    .replace(/internet(?:ten|te|de)?\s+(ara|araştır|arastir|bak)/gi, " ")
+    .replace(/güncel\s+(olarak\s+)?(ara|araştır|arastir|bak)/gi, " ")
+    .replace(/kaynak(?:ları|lari)?\s+(bul|göster|goster)/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  return q || temizMesaj(message, 1200).trim();
+}
+
+function webKaynaklariniAyikla(message){
+  const annotations = Array.isArray(message?.annotations) ? message.annotations : [];
+  const seen = new Set();
+  const sources = [];
+
+  for(const ann of annotations){
+    const c = ann?.url_citation || ann?.citation || {};
+    const url = temizMesaj(c.url || ann?.url || "", 1500).trim();
+    if(!url || seen.has(url)) continue;
+
+    seen.add(url);
+    sources.push({
+      title: temizMesaj(c.title || ann?.title || "Kaynak", 240).trim() || "Kaynak",
+      url,
+      content: temizMesaj(c.content || ann?.content || "", 700).trim()
+    });
+
+    if(sources.length >= 8) break;
+  }
+
+  return sources;
+}
+
+function kaynaklariCevabaEkle(reply, sources){
+  const temizReply = temizMesaj(reply, 12000).trim();
+  if(!Array.isArray(sources) || sources.length === 0){
+    return temizReply;
+  }
+
+  const satirlar = sources.map((s, i) => {
+    const baslik = temizMesaj(s.title || "Kaynak", 180).replace(/\n/g, " ").trim();
+    const url = temizMesaj(s.url || "", 1500).trim();
+    return `${i + 1}. ${baslik}\n${url}`;
+  });
+
+  return `${temizReply}\n\nKaynaklar\n\n${satirlar.join("\n\n")}`;
+}
+
+async function openrouterWebSearch({ model, max_tokens, messages }){
+  if(!process.env.OPENROUTER_API_KEY){
+    throw new Error("OPENROUTER_API_KEY yok.");
+  }
+
+  const ortak = {
+    model,
+    max_tokens,
+    messages
+  };
+
+  async function istek(body){
+    const r = await fetch(OPENROUTER_API_URL, {
+      method:"POST",
+      headers:{
+        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        "Content-Type":"application/json",
+        "HTTP-Referer": process.env.APP_URL || "https://neuraai.com",
+        "X-OpenRouter-Title": "NeuraAI"
+      },
+      body:JSON.stringify(body)
+    });
+
+    const data = await r.json().catch(() => ({}));
+
+    if(!r.ok){
+      const hata = new Error("OpenRouter web arama hatası: " + r.status);
+      hata.data = data;
+      throw hata;
+    }
+
+    return data;
+  }
+
+  let data;
+
+  try{
+    data = await istek({
+      ...ortak,
+      tools:[
+        {
+          type:"openrouter:web_search",
+          parameters:{
+            max_results:5,
+            max_total_results:8,
+            search_context_size:"medium"
+          }
+        }
+      ],
+      tool_choice:"auto"
+    });
+  }catch(toolErr){
+    console.error("OpenRouter server tool başarısız, plugin deneniyor:", toolErr.message);
+
+    data = await istek({
+      ...ortak,
+      plugins:[
+        {
+          id:"web",
+          max_results:5
+        }
+      ]
+    });
+  }
+
+  const message = data.choices?.[0]?.message || {};
+  const reply = typeof message.content === "string"
+    ? message.content
+    : Array.isArray(message.content)
+      ? message.content.map(x => x?.text || "").join("\n")
+      : "";
+
+  return {
+    reply: temizMesaj(reply, 12000).trim(),
+    sources: webKaynaklariniAyikla(message),
+    rawMessage: message
+  };
+}
+
+async function webAramaliCevapUret({ query, userKey, selectedMode, aiModelTipi, customAi, mode, messages }){
+  const profil = modelProfili(aiModelTipi);
+  const hafiza = Array.isArray(messages) && messages.length > 0
+    ? messages.slice(-40)
+    : [];
+
+  const sistem =
+    sistemPrompt({
+      modeName:selectedMode,
+      aiModelTipi,
+      customAi,
+      userKey
+    }) +
+    " Kullanıcı gerçek internet araması istiyor. Güncel bilgiyi web aramasıyla doğrula. " +
+    "Kaynaklara dayanmayan güncel iddiaları kesinmiş gibi yazma. " +
+    "Cevabı doğrudan ver; 'internette aranıyor' gibi süreç anlatımı ekleme. " +
+    "Kaynak bağlantıları ayrıca sistem tarafından cevabın sonunda gösterilecek. ";
+
+  const sonuc = await openrouterWebSearch({
+    model: profil.model,
+    max_tokens: mode === "uzun" ? profil.maxUzun : Math.max(profil.maxKisa, 1200),
+    messages:[
+      { role:"system", content:sistem },
+      ...hafiza,
+      {
+        role:"user",
+        content:
+          "Web üzerinde araştır ve güncel kaynaklara göre cevapla.\n\n" +
+          "Arama konusu: " + temizMesaj(query, 1200)
+      }
+    ]
+  });
+
+  return sonuc;
+}
+
 async function kendiniKontrolEt({ soru, cevap, model, mode }){
   try{
     const ilk = temizMesaj(cevap, 8000).trim();
@@ -835,7 +1047,10 @@ app.post("/chat", async (req,res) => {
       mode,
       konusmaModu,
       aiModelTipi,
-      customAi
+      customAi,
+      webSearch,
+      internetSearch,
+      searchWeb
     } = req.body || {};
 
     const msg = temizMesaj(message, 4000).trim();
@@ -853,7 +1068,7 @@ if (
 
   return res.json({
     ok: true,
-    reply: " " + result.reply
+    reply: result.reply
   });
 }
 if (
@@ -866,7 +1081,7 @@ if (
   return res.json({
     ok: true,
     memory,
-    reply: " NeuraAI Hafızası gönderildi."
+    reply: "NeuraAI Hafızası gönderildi."
   });
 }
 
@@ -898,6 +1113,41 @@ if (
       : "samimi";
 
     const profil = modelProfili(aiModelTipi);
+
+    const webIstegi = internetAramaIstegiMi(msg, {
+      webSearch,
+      internetSearch,
+      searchWeb
+    });
+
+    if(webIstegi){
+      const query = webAramaSorgusuTemizle(msg);
+
+      const webSonuc = await webAramaliCevapUret({
+        query,
+        userKey,
+        selectedMode,
+        aiModelTipi,
+        customAi,
+        mode,
+        messages
+      });
+
+      const kaynakliCevap = kaynaklariCevabaEkle(
+        webSonuc.reply || "Arama sonucunda cevap üretilemedi.",
+        webSonuc.sources
+      );
+
+      return res.json({
+        ok:true,
+        reply:kaynakliCevap,
+        searchedWeb:true,
+        webSearch:true,
+        query,
+        sources:webSonuc.sources,
+        kalanMesaj:999
+      });
+    }
 
     const hafiza = Array.isArray(messages) && messages.length > 0
       ? messages.slice(-80)
@@ -940,6 +1190,83 @@ if (
   }
 });
 
+
+/* =========================
+   Web Arama API
+   Yeni HTML veya ilerideki arama sayfası doğrudan bunu çağırabilir.
+========================= */
+
+app.get("/api/web-search/status", (req,res) => {
+  res.json({
+    ok:true,
+    available:!!process.env.OPENROUTER_API_KEY,
+    provider:"OpenRouter web_search",
+    message:process.env.OPENROUTER_API_KEY
+      ? "İnternet araması hazır."
+      : "OPENROUTER_API_KEY ayarlanmamış."
+  });
+});
+
+app.post("/api/web-search", async (req,res) => {
+  try{
+    const message = temizMesaj(
+      req.body?.query || req.body?.message || req.body?.prompt || "",
+      1200
+    ).trim();
+
+    if(!message){
+      return res.json({
+        ok:false,
+        reply:"Aranacak bir konu yaz."
+      });
+    }
+
+    if(!process.env.OPENROUTER_API_KEY){
+      return res.json({
+        ok:false,
+        reply:"İnternet araması için OPENROUTER_API_KEY ayarlanmamış."
+      });
+    }
+
+    const userKey = kullaniciKey(req);
+    const selectedMode = ["samimi","resmi","profesor"].includes(req.body?.konusmaModu)
+      ? req.body.konusmaModu
+      : "samimi";
+
+    const sonuc = await webAramaliCevapUret({
+      query:webAramaSorgusuTemizle(message),
+      userKey,
+      selectedMode,
+      aiModelTipi:req.body?.aiModelTipi || "akilli",
+      customAi:req.body?.customAi,
+      mode:req.body?.mode || "kisa",
+      messages:req.body?.messages
+    });
+
+    res.json({
+      ok:true,
+      searchedWeb:true,
+      webSearch:true,
+      query:webAramaSorgusuTemizle(message),
+      sources:sonuc.sources,
+      reply:kaynaklariCevabaEkle(sonuc.reply, sonuc.sources)
+    });
+  }catch(err){
+    console.error("/api/web-search hata:", err);
+    res.json({
+      ok:false,
+      searchedWeb:false,
+      sources:[],
+      reply:"İnternet araması şu anda tamamlanamadı. Biraz sonra tekrar dene."
+    });
+  }
+});
+
+app.post("/web-search", (req,res) => {
+  req.url = "/api/web-search";
+  app._router.handle(req,res);
+});
+
 /* =========================
    Smart Title
 ========================= */
@@ -964,7 +1291,7 @@ app.post("/smart-title", async (req,res) => {
       messages:[
         {
           role:"system",
-          content:"Sadece kısa Türkçe sohbet başlığı üret. En fazla 4 kelime. Tırnak, nokta, açıklama yazma."
+          content:"Sadece kısa ve resmi Türkçe sohbet başlığı üret. En fazla 4 kelime. Emoji, sembol, tırnak, nokta veya açıklama yazma."
         },
         {
           role:"user",
