@@ -688,7 +688,7 @@ function modelProfili(tip){
   if(t === "hizli"){
     return {
       ad:"Hızlı",
-      model: process.env.OPENROUTER_FAST_MODEL || "openai/gpt-4o-mini",
+      model: process.env.OPENROUTER_FAST_MODEL || "openai/gpt-5",
       maxKisa:650,
       maxUzun:1600,
       prompt:"Hızlı, kısa, net ve pratik cevap ver."
@@ -698,7 +698,7 @@ function modelProfili(tip){
   if(t === "yaratici"){
     return {
       ad:"Yaratıcı",
-      model: process.env.OPENROUTER_CREATIVE_MODEL || "openai/gpt-4o-mini",
+      model: process.env.OPENROUTER_CREATIVE_MODEL || "openai/gpt-5",
       maxKisa:1200,
       maxUzun:2600,
       prompt:"Yaratıcı, özgün ve fikir odaklı cevap ver."
@@ -708,7 +708,7 @@ function modelProfili(tip){
   if(t === "kod"){
     return {
       ad:"Kod",
-      model: process.env.OPENROUTER_CODE_MODEL || "openai/gpt-4o-mini",
+      model: process.env.OPENROUTER_CODE_MODEL || "openai/gpt-5",
       maxKisa:1800,
       maxUzun:4200,
       prompt:"Kod ve hata çözümüne odaklan. Uygulanabilir, net ve dosya konumlarını belirten cevap ver."
@@ -717,7 +717,7 @@ function modelProfili(tip){
 
   return {
     ad:"Akıllı",
-    model: process.env.OPENROUTER_SMART_MODEL || "openai/gpt-4o-mini",
+    model: process.env.OPENROUTER_SMART_MODEL || "openai/gpt-5",
     maxKisa:1200,
     maxUzun:3200,
     prompt:"Dengeli, akıllı, bağlamı takip eden ve kaliteli cevap ver."
