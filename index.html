@@ -2315,6 +2315,171 @@ body::before{display:none;}
   }
 }
 
+
+/* === NeuraAI V3: Ses Seçimi Arayüzü === */
+.voiceSeslerBtn{
+  margin-top:-4px;
+  padding:10px 16px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.065);
+  color:#f4f4f6;
+  font-weight:800;
+  cursor:pointer;
+  transition:.18s ease;
+}
+.voiceSeslerBtn:hover{
+  background:rgba(255,255,255,.11);
+  transform:translateY(-1px);
+}
+.voiceSeciliMini{
+  color:#9f9fa9;
+  font-size:12px;
+  margin-top:-8px;
+}
+.voiceSesPanelArka{
+  position:fixed;
+  inset:0;
+  z-index:2100000;
+  display:none;
+  align-items:flex-end;
+  justify-content:center;
+  padding:22px;
+  background:rgba(0,0,0,.68);
+  backdrop-filter:blur(10px);
+}
+.voiceSesPanelArka.acik{
+  display:flex;
+  animation:voicePanelFade .2s ease;
+}
+.voiceSesPanel{
+  width:min(560px,100%);
+  border:1px solid rgba(255,255,255,.11);
+  border-radius:26px;
+  background:
+    radial-gradient(circle at top,rgba(123,44,255,.17),transparent 42%),
+    #111116;
+  box-shadow:0 30px 90px rgba(0,0,0,.58);
+  padding:18px;
+  animation:voicePanelYuksel .25s ease;
+}
+.voiceSesPanelUst{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+  margin-bottom:14px;
+}
+.voiceSesPanelBaslik{
+  font-size:21px;
+  font-weight:900;
+}
+.voiceSesPanelAlt{
+  margin-top:4px;
+  color:#9696a2;
+  font-size:13px;
+}
+.voiceSesPanelKapat{
+  width:38px;
+  height:38px;
+  flex:0 0 38px;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,.11);
+  background:rgba(255,255,255,.07);
+  color:white;
+  font-size:18px;
+  cursor:pointer;
+}
+.voiceSesListe{
+  display:flex;
+  flex-direction:column;
+  gap:9px;
+}
+.voiceSesKart{
+  width:100%;
+  display:grid;
+  grid-template-columns:46px minmax(0,1fr) auto;
+  align-items:center;
+  gap:12px;
+  padding:12px;
+  border-radius:17px;
+  border:1px solid rgba(255,255,255,.075);
+  background:rgba(255,255,255,.045);
+  color:white;
+  text-align:left;
+  cursor:pointer;
+  transition:.18s ease;
+}
+.voiceSesKart:hover{
+  background:rgba(255,255,255,.08);
+}
+.voiceSesKart.secili{
+  border-color:rgba(139,81,255,.75);
+  background:linear-gradient(135deg,rgba(123,44,255,.24),rgba(61,124,255,.13));
+  box-shadow:0 0 0 3px rgba(123,44,255,.08);
+}
+.voiceSesAvatar{
+  width:46px;
+  height:46px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  font-size:18px;
+  font-weight:900;
+  background:linear-gradient(135deg,#7b2cff,#3d7cff);
+  box-shadow:0 8px 20px rgba(0,0,0,.26);
+}
+.voiceSesKart:nth-child(2) .voiceSesAvatar{
+  background:linear-gradient(135deg,#2e6eea,#1c9cbf);
+}
+.voiceSesKart:nth-child(3) .voiceSesAvatar{
+  background:linear-gradient(135deg,#cf4cff,#ff5f98);
+}
+.voiceSesIsim{
+  font-size:15px;
+  font-weight:900;
+}
+.voiceSesBilgi{
+  margin-top:3px;
+  color:#9c9ca8;
+  font-size:12px;
+  line-height:1.35;
+}
+.voiceSesSecimIsaret{
+  width:23px;
+  height:23px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid rgba(255,255,255,.18);
+  color:transparent;
+  font-size:13px;
+}
+.voiceSesKart.secili .voiceSesSecimIsaret{
+  color:white;
+  border-color:#8c56ff;
+  background:#7540ef;
+}
+@keyframes voicePanelFade{
+  from{opacity:0}
+  to{opacity:1}
+}
+@keyframes voicePanelYuksel{
+  from{transform:translateY(22px) scale(.98);opacity:0}
+  to{transform:translateY(0) scale(1);opacity:1}
+}
+@media(max-width:700px){
+  .voiceSesPanelArka{
+    padding:10px;
+  }
+  .voiceSesPanel{
+    border-radius:23px 23px 18px 18px;
+    padding:15px;
+  }
+}
+
 </style>
 </head>
 
@@ -2905,8 +3070,55 @@ display:none;
     <div class="voiceAltYazi" id="voiceAltYazi">Konuşmaya başlayabilirsin. Sustuktan 2 saniye sonra NeuraAI cevap verir.</div>
     <div class="voiceSure" id="voiceSure">00:00</div>
     <button class="voiceBaslatBtn" id="voiceBaslatBtn" onclick="sesliSohbetBaslatButonu()">🎙️ Dinlemeyi Başlat</button>
+
+    <button class="voiceSeslerBtn" id="voiceSeslerBtn" type="button" onclick="voiceSesPanelAc()">🎙️ Sesler</button>
+    <div class="voiceSeciliMini" id="voiceSeciliMini">Seçili ses: NeuraAI</div>
+
   </div>
 </div>
+
+<!-- === NeuraAI V3 Ses Seçim Paneli === -->
+<div class="voiceSesPanelArka" id="voiceSesPanelArka" onclick="voiceSesPanelArkaTikla(event)">
+  <div class="voiceSesPanel" role="dialog" aria-modal="true" aria-labelledby="voiceSesPanelBaslik">
+    <div class="voiceSesPanelUst">
+      <div>
+        <div class="voiceSesPanelBaslik" id="voiceSesPanelBaslik">Sesler</div>
+        <div class="voiceSesPanelAlt">NeuraAI'ın konuşacağı sesi seç.</div>
+      </div>
+      <button class="voiceSesPanelKapat" type="button" onclick="voiceSesPanelKapat()" aria-label="Kapat">×</button>
+    </div>
+
+    <div class="voiceSesListe">
+      <button class="voiceSesKart" type="button" data-voice-key="neuraai" onclick="voiceSesSec('neuraai')">
+        <span class="voiceSesAvatar">N</span>
+        <span>
+          <span class="voiceSesIsim">NeuraAI</span>
+          <span class="voiceSesBilgi">Türkçe • Doğal, sıcak ve dengeli</span>
+        </span>
+        <span class="voiceSesSecimIsaret">✓</span>
+      </button>
+
+      <button class="voiceSesKart" type="button" data-voice-key="lucian" onclick="voiceSesSec('lucian')">
+        <span class="voiceSesAvatar">L</span>
+        <span>
+          <span class="voiceSesIsim">Lucian</span>
+          <span class="voiceSesBilgi">İngilizce • Derin ve sofistike erkek sesi</span>
+        </span>
+        <span class="voiceSesSecimIsaret">✓</span>
+      </button>
+
+      <button class="voiceSesKart" type="button" data-voice-key="lyra" onclick="voiceSesSec('lyra')">
+        <span class="voiceSesAvatar">L</span>
+        <span>
+          <span class="voiceSesIsim">Lyra</span>
+          <span class="voiceSesBilgi">İngilizce • Yumuşak ve net kadın sesi</span>
+        </span>
+        <span class="voiceSesSecimIsaret">✓</span>
+      </button>
+    </div>
+  </div>
+</div>
+
 <script>
 const NEURAAI_V2_AKILLI_HAFIZA = true;
 const NEURAAI_V2_KENDINI_KONTROL = true;
@@ -3364,7 +3576,7 @@ async function elevenLabsOku(text){
     const res = await fetch("/api/voice", {
       method:"POST",
       headers:{ "Content-Type":"application/json" },
-      body:JSON.stringify({ text })
+      body:JSON.stringify({ text, voiceKey: neuraSeciliSes })
     });
 
     if(!res.ok){
@@ -6374,6 +6586,74 @@ async function tumHafizayiTemizle(){
     console.error("Hafıza temizleme hatası:", err);
   }
 }
+
+
+
+/* === NeuraAI V3 Ses Seçimi === */
+const NEURA_VOICE_LIST = {
+  neuraai:{ key:"neuraai", name:"NeuraAI", language:"tr" },
+  lucian:{ key:"lucian", name:"Lucian", language:"en" },
+  lyra:{ key:"lyra", name:"Lyra", language:"en" }
+};
+
+let neuraSeciliSes = localStorage.getItem("neura_voice_key") || "neuraai";
+if(!NEURA_VOICE_LIST[neuraSeciliSes]) neuraSeciliSes = "neuraai";
+
+function voiceSesArayuzGuncelle(){
+  const bilgi = NEURA_VOICE_LIST[neuraSeciliSes] || NEURA_VOICE_LIST.neuraai;
+  const mini = document.getElementById("voiceSeciliMini");
+  if(mini) mini.textContent = "Seçili ses: " + bilgi.name;
+
+  document.querySelectorAll(".voiceSesKart").forEach(kart => {
+    kart.classList.toggle("secili", kart.dataset.voiceKey === neuraSeciliSes);
+  });
+}
+
+function voiceSesPanelAc(){
+  const panel = document.getElementById("voiceSesPanelArka");
+  if(!panel) return;
+  voiceSesArayuzGuncelle();
+  panel.classList.add("acik");
+}
+
+function voiceSesPanelKapat(){
+  const panel = document.getElementById("voiceSesPanelArka");
+  if(panel) panel.classList.remove("acik");
+}
+
+function voiceSesPanelArkaTikla(event){
+  if(event.target && event.target.id === "voiceSesPanelArka"){
+    voiceSesPanelKapat();
+  }
+}
+
+function voiceSesSec(key){
+  if(!NEURA_VOICE_LIST[key]) return;
+  neuraSeciliSes = key;
+  localStorage.setItem("neura_voice_key", key);
+  voiceSesArayuzGuncelle();
+
+  const bilgi = NEURA_VOICE_LIST[key];
+  voiceDurumAyar(
+    "dinliyor",
+    "🎙️ " + bilgi.name + " seçildi",
+    "Yeni cevaplarda bu ses kullanılacak."
+  );
+
+  setTimeout(() => {
+    if(document.getElementById("voiceSesPanelArka")?.classList.contains("acik")){
+      voiceSesPanelKapat();
+    }
+  }, 250);
+}
+
+document.addEventListener("keydown", event => {
+  if(event.key === "Escape"){
+    voiceSesPanelKapat();
+  }
+});
+
+document.addEventListener("DOMContentLoaded", voiceSesArayuzGuncelle);
 
 </script>
 
