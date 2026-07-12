@@ -54,6 +54,17 @@ const FOUNDER_NAME = "NeuraAI";
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 const ELEVENLABS_API_URL = "https://api.elevenlabs.io/v1/text-to-speech";
 const ELEVENLABS_VOICE_ID = "i9eiTMiCnVBQnQk0lBUU";
+
+const ELEVENLABS_VOICES = {
+  neuraai: "i9eiTMiCnVBQnQk0lBUU",
+  lucian: "TceJOAWuoXRhINmFAg2h",
+  lyra: "icqujMIurqCR58LBNwi1"
+};
+
+function getVoiceId(key){
+  return ELEVENLABS_VOICES[key] || ELEVENLABS_VOICES.neuraai;
+}
+
 /* =========================
    Veri
 ========================= */
@@ -1717,6 +1728,8 @@ app.post("/voice-chat", (req,res) => {
 app.post("/api/voice", async (req, res) => {
   try{
     const text = temizMesaj(req.body?.text || req.body?.message || "", 2500).trim();
+    const voiceKey = String(req.body?.voiceKey || "neuraai").toLowerCase();
+    const selectedVoiceId = getVoiceId(voiceKey);
 
     if(!text){
       return res.json({
@@ -1740,7 +1753,7 @@ app.post("/api/voice", async (req, res) => {
     }
 
     const elevenRes = await fetch(
-      `${ELEVENLABS_API_URL}/${ELEVENLABS_VOICE_ID}`,
+      `${ELEVENLABS_API_URL}/${selectedVoiceId}`,
       {
         method:"POST",
         headers:{
