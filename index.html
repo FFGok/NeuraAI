@@ -3482,6 +3482,36 @@ let cevapYaziliyor = false;
 let recognition;
 let sesliSohbetAktif = false;
 let mikrofonCalisiyor = false;
+
+/* V3 Sesli Sohbet FIX */
+let voiceAudioPlaying = false;
+let voiceCurrentAudio = null;
+let voiceAudioContext = null;
+
+function voiceAudioKilidiniAc(){
+  try{
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if(!AudioContextClass) return;
+
+    if(!voiceAudioContext){
+      voiceAudioContext = new AudioContextClass();
+    }
+
+    if(voiceAudioContext.state === "suspended"){
+      voiceAudioContext.resume().catch(() => {});
+    }
+  }catch(err){
+    console.log("Ses motoru açılamadı:", err);
+  }
+}
+
+function voiceSesCalisiyorMu(){
+  return Boolean(
+    voiceAudioPlaying ||
+    (voiceCurrentAudio && !voiceCurrentAudio.paused && !voiceCurrentAudio.ended) ||
+    ("speechSynthesis" in window && speechSynthesis.speaking)
+  );
+}
 let sesliCevapBekleniyor = false;
 let gorselStil = localStorage.getItem("neura_gorsel_stil") || "realistic";
 let gorselBoyut = localStorage.getItem("neura_gorsel_boyut") || "1024x1024";
@@ -3565,22 +3595,91 @@ function sesSec(lang){
   sesler[0] ||
   null;
 }
+async function tarayiciSesiyleOku(text){
+  return new Promise((resolve, reject) => {
+    try{
+      if(!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)){
+        reject(new Error("Tarayıcı sesli okumayı desteklemiyor."));
+        return;
+      }
+
+      const yedekSes = new SpeechSynthesisUtterance(text);
+      yedekSes.lang = dilAlgila(text);
+      yedekSes.rate = sesHizi;
+      yedekSes.pitch = 0.92;
+      yedekSes.volume = 1;
+
+      const iyiSes = sesSec(yedekSes.lang);
+      if(iyiSes) yedekSes.voice = iyiSes;
+
+      voiceAudioPlaying = true;
+
+      yedekSes.onstart = () => {
+        if(sesliSohbetAktif){
+          voiceDurumAyar("aiKonusuyor", "🔵 NeuraAI konuşuyor...", "Tarayıcı sesi oynatılıyor.");
+        }
+      };
+
+      yedekSes.onend = () => {
+        voiceAudioPlaying = false;
+        if(sesliSohbetAktif){
+          voiceDurumAyar("dinliyor", "🟢 Dinleniyor...", "Tekrar konuşabilirsin.");
+        }
+        if(sesliSohbetAktif && !cevapYaziliyor && !sesliCevapBekleniyor){
+          setTimeout(() => mikrofonuDinle(), 650);
+        }
+        resolve();
+      };
+
+      yedekSes.onerror = event => {
+        voiceAudioPlaying = false;
+        reject(new Error("Tarayıcı TTS hatası: " + (event.error || "bilinmiyor")));
+      };
+
+      speechSynthesis.cancel();
+      speechSynthesis.speak(yedekSes);
+    }catch(err){
+      voiceAudioPlaying = false;
+      reject(err);
+    }
+  });
+}
+
 async function elevenLabsOku(text){
-  if(!text) return;
+  if(!text) return false;
+
+  voiceAudioKilidiniAc();
 
   try{
     if(sesliSohbetAktif){
-      voiceDurumAyar("aiKonusuyor", "🔵 NeuraAI konuşuyor...", "ElevenLabs sesi hazırlanıyor.");
+      voiceDurumAyar("aiKonusuyor", "🔵 NeuraAI konuşuyor...", "Seçilen ses hazırlanıyor.");
     }
 
     const res = await fetch("/api/voice", {
       method:"POST",
       headers:{ "Content-Type":"application/json" },
-      body:JSON.stringify({ text, voiceKey: neuraSeciliSes })
+      body:JSON.stringify({
+        text,
+        voiceKey: typeof neuraSeciliSes === "string" ? neuraSeciliSes : "neuraai"
+      })
     });
 
-    if(!res.ok){
-      throw new Error("Ses isteği başarısız: " + res.status);
+    const contentType = String(res.headers.get("content-type") || "").toLowerCase();
+
+    if(!res.ok || !contentType.includes("audio/")){
+      let hataMesaji = "Ses isteği başarısız: " + res.status;
+
+      try{
+        const data = await res.json();
+        hataMesaji = data.reply || data.error || hataMesaji;
+      }catch(_){
+        try{
+          const raw = await res.text();
+          if(raw) hataMesaji = raw.slice(0, 250);
+        }catch(__){}
+      }
+
+      throw new Error(hataMesaji);
     }
 
     const blob = await res.blob();
@@ -3589,97 +3688,87 @@ async function elevenLabsOku(text){
       throw new Error("Ses dosyası boş geldi.");
     }
 
+    if(voiceCurrentAudio){
+      try{
+        voiceCurrentAudio.pause();
+        voiceCurrentAudio.src = "";
+      }catch(_){}
+    }
+
     const audioUrl = URL.createObjectURL(blob);
     const audio = new Audio(audioUrl);
+    voiceCurrentAudio = audio;
+    audio.preload = "auto";
+    audio.volume = 1;
 
-    audio.onplay = () => {
-      if(sesliSohbetAktif){
-        voiceDurumAyar("aiKonusuyor", "🔵 NeuraAI konuşuyor...", "ElevenLabs sesi oynatılıyor.");
-      }
-    };
+    return await new Promise((resolve, reject) => {
+      audio.onplay = () => {
+        voiceAudioPlaying = true;
+        if(sesliSohbetAktif){
+          voiceDurumAyar("aiKonusuyor", "🔵 NeuraAI konuşuyor...", "Seçilen ses oynatılıyor.");
+        }
+      };
 
-    audio.onended = () => {
-      URL.revokeObjectURL(audioUrl);
+      audio.onended = () => {
+        voiceAudioPlaying = false;
+        voiceCurrentAudio = null;
+        URL.revokeObjectURL(audioUrl);
 
-      if(sesliSohbetAktif){
-        voiceDurumAyar("dinliyor", "🟢 Dinleniyor...", "Tekrar konuşabilirsin.");
-      }
+        if(sesliSohbetAktif){
+          voiceDurumAyar("dinliyor", "🟢 Dinleniyor...", "Tekrar konuşabilirsin.");
+        }
 
-      if(sesliSohbetAktif && !cevapYaziliyor){
-        setTimeout(() => mikrofonuDinle(), 650);
-      }
-    };
+        if(sesliSohbetAktif && !cevapYaziliyor && !sesliCevapBekleniyor){
+          setTimeout(() => mikrofonuDinle(), 650);
+        }
 
-    audio.onerror = () => {
-      URL.revokeObjectURL(audioUrl);
-      throw new Error("Ses oynatılamadı.");
-    };
+        resolve(true);
+      };
 
-    await audio.play();
+      audio.onerror = () => {
+        voiceAudioPlaying = false;
+        voiceCurrentAudio = null;
+        URL.revokeObjectURL(audioUrl);
+        reject(new Error("Ses dosyası tarayıcıda oynatılamadı."));
+      };
+
+      audio.play().catch(reject);
+    });
   }catch(err){
-    console.log("ElevenLabs okuma hatası:", err);
+    voiceAudioPlaying = false;
+    console.error("ElevenLabs okuma hatası:", err);
 
-    if("speechSynthesis" in window && "SpeechSynthesisUtterance" in window){
-      const yedekSes = new SpeechSynthesisUtterance(text);
-      yedekSes.lang = dilAlgila(text);
-      yedekSes.rate = sesHizi;
-      yedekSes.pitch = 0.92;
-      yedekSes.volume = 1;
-      speechSynthesis.speak(yedekSes);
+    if(sesliSohbetAktif){
+      voiceDurumAyar("aiKonusuyor", "🔵 NeuraAI konuşuyor...", "Ana ses açılamadı, yedek ses kullanılıyor.");
+    }
+
+    try{
+      await tarayiciSesiyleOku(text);
+      return true;
+    }catch(yedekErr){
+      console.error("Yedek ses hatası:", yedekErr);
+      if(sesliSohbetAktif){
+        voiceDurumAyar("dinliyor", "⚠️ Ses çalınamadı", "Yanıt yazılı sohbete eklendi. Ses ayarlarını kontrol et.");
+      }
+      return false;
     }
   }
 }
-async function sesliOku(text){
-  if(!sesAcik || !text) return;
 
-  if(!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)){
-    durumYazi.innerText = "Bu tarayıcı sesli okumayı desteklemiyor.";
-    setTimeout(() => {
-      if(!cooldownTimer) durumYazi.innerText = "";
-    }, 1800);
-    return;
-  }
+async function sesliOku(text){
+  /* Sesli sohbet açıksa, genel hoparlör ayarı kapalı olsa bile konuş. */
+  if((!sesAcik && !sesliSohbetAktif) || !text) return false;
 
   const okunacak = sesiTemizle(text);
-  if(!okunacak) return;
+  if(!okunacak) return false;
 
-  speechSynthesis.cancel();
-  sesleriYukle();
-
-  const lang = dilAlgila(okunacak);
-  const ses = new SpeechSynthesisUtterance(okunacak);
-
-  ses.lang = lang;
-  ses.rate = sesHizi;
-  ses.pitch = 0.92;
-  ses.volume = 1;
-
-  const iyiSes = sesSec(lang);
-
-  if(iyiSes){
-    ses.voice = iyiSes;
-    ses.voiceURI = iyiSes.voiceURI;
-  }
-
-  ses.onstart = () => {
-    if(sesliSohbetAktif){
-      voiceDurumAyar("aiKonusuyor", "🔵 NeuraAI konuşuyor...", "Cevap sesli okunuyor.");
-    }
-  };
-
-  ses.onend = () => {
-    if(sesliSohbetAktif){
-      voiceDurumAyar("dinliyor", "🟢 Dinleniyor...", "Tekrar konuşabilirsin.");
-    }
-    if(sesliSohbetAktif && !cevapYaziliyor){
-      setTimeout(() => mikrofonuDinle(), 650);
-    }
-  };
+  voiceAudioKilidiniAc();
 
   try{
-    await elevenLabsOku(okunacak);
+    return await elevenLabsOku(okunacak);
   }catch(err){
-    console.log("Sesli okuma hatası:", err);
+    console.error("Sesli okuma hatası:", err);
+    return false;
   }
 }
 
@@ -3727,6 +3816,13 @@ function voiceSureDurdur(){
 }
 
 function sesliSohbetAc(){
+  voiceAudioKilidiniAc();
+  sesAcik = true;
+  localStorage.setItem("neura_ses", "acik");
+
+  const sesBtnEl = document.getElementById("sesBtn");
+  if(sesBtnEl) sesBtnEl.innerText = "🔊";
+
   const ekran = document.getElementById("voiceScreen");
   if(ekran){
     ekran.style.display = "flex";
@@ -3751,6 +3847,14 @@ function sesliSohbetKapat(){
 
   try{ if(recognition) recognition.stop(); }catch(err){}
   try{ speechSynthesis.cancel(); }catch(err){}
+  try{
+    if(voiceCurrentAudio){
+      voiceCurrentAudio.pause();
+      voiceCurrentAudio.src = "";
+      voiceCurrentAudio = null;
+    }
+    voiceAudioPlaying = false;
+  }catch(err){}
 
   const ekran = document.getElementById("voiceScreen");
   if(ekran){
@@ -3771,6 +3875,8 @@ function sesliSohbetKapat(){
 }
 
 function sesliSohbetBaslatButonu(){
+  voiceAudioKilidiniAc();
+
   if(!sesliSohbetAktif){
     sesliSohbetAc();
     return;
@@ -3799,7 +3905,7 @@ function mikrofonuDinle(){
     return;
   }
 
-  if(mikrofonCalisiyor || cevapYaziliyor || sesliCevapBekleniyor) return;
+  if(mikrofonCalisiyor || cevapYaziliyor || sesliCevapBekleniyor || voiceSesCalisiyorMu()) return;
 
   if(!recognition){
     recognition = new SpeechRecognition();
@@ -3833,6 +3939,19 @@ function mikrofonuDinle(){
         try{ if(recognition) recognition.stop(); }catch(err){}
         sesliSohbetMetniGonder();
       }, 2000);
+    };
+
+    recognition.onend = function(){
+      mikrofonCalisiyor = false;
+
+      if(
+        sesliSohbetAktif &&
+        !cevapYaziliyor &&
+        !sesliCevapBekleniyor &&
+        !voiceSesCalisiyorMu()
+      ){
+        setTimeout(() => mikrofonuDinle(), 700);
+      }
     };
 
     recognition.onerror = function(event){
@@ -4455,14 +4574,14 @@ async function cevap(text, kaydet = true){
   sesliCevapBekleniyor = false;
 
   if(sesliSohbetAktif){
-    if(speechSynthesis.speaking){
+    if(voiceSesCalisiyorMu()){
       voiceDurumAyar("aiKonusuyor", "🔵 NeuraAI konuşuyor...", "Cevap sesli okunuyor.");
     }else{
       voiceDurumAyar("dinliyor", "🟢 Dinleniyor...", "Tekrar konuşabilirsin.");
     }
   }
 
-  if(sesliSohbetAktif && !speechSynthesis.speaking){
+  if(sesliSohbetAktif && !voiceSesCalisiyorMu()){
     setTimeout(() => mikrofonuDinle(), 700);
   }
 }
