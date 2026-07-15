@@ -2480,6 +2480,32 @@ body::before{display:none;}
   }
 }
 
+
+/* === NeuraAI V3 Akıllı Zeka Durumu === */
+.v3ZekaDurumu{
+  display:none;
+  width:min(980px,calc(100% - 48px));
+  margin:0 auto 8px;
+  padding:9px 12px;
+  border-radius:14px;
+  border:1px solid rgba(139,92,246,.24);
+  background:linear-gradient(135deg,rgba(123,44,255,.10),rgba(61,124,255,.07));
+  color:#cfc8ff;
+  font-size:12px;
+  line-height:1.4;
+}
+.v3ZekaDurumu.goster{
+  display:block;
+  animation:fadeIn .18s ease;
+}
+@media(max-width:700px){
+  .v3ZekaDurumu{
+    width:calc(100% - 20px);
+    margin-bottom:6px;
+    font-size:11px;
+  }
+}
+
 </style>
 </head>
 
@@ -2602,7 +2628,9 @@ document.body.style.background = "#050505";
 
 <div id="chat" class="chat" style="display:none"></div>
 
-    <div class="onizleme" id="onizleme">
+    <div class="v3ZekaDurumu" id="v3ZekaDurumu"></div>
+
+<div class="onizleme" id="onizleme">
       <img id="onizlemeResim" src="" alt="Önizleme">
       <div class="onizlemeYazi" id="onizlemeYazi">Fotoğraf seçildi</div>
       <button type="button" onclick="fotoTemizle()">Kaldır</button>
@@ -4257,11 +4285,15 @@ aiBaslangic = performance.now();
         v2AkilliHafiza:NEURAAI_V2_AKILLI_HAFIZA,
         v2KendiniKontrol:NEURAAI_V2_KENDINI_KONTROL,
         v2CokDilliZeka:NEURAAI_V2_COK_DILLI_ZEKA,
+        v3AkilliArastirma:true,
+        v3AkilliSorular:true,
+        v3HedefAnalizi:true,
         messages:sohbetGecmisi
       })
     });
 
     const data = await res.json();
+    v3ZekaDurumuGoster(data);
     const aiBitis = performance.now();
     const aiSureEl = document.getElementById("aiSure");
     if(aiSureEl){
@@ -5185,6 +5217,7 @@ async function fotografAnalizEt(kullaniciMesaji){
     });
 
     const data = await res.json();
+    v3ZekaDurumuGoster(data);
     const aiBitis = performance.now();
     const aiSureEl = document.getElementById("aiSure");
     if(aiSureEl){
@@ -5356,6 +5389,9 @@ async function gonder(){
         v2AkilliHafiza:NEURAAI_V2_AKILLI_HAFIZA,
         v2KendiniKontrol:NEURAAI_V2_KENDINI_KONTROL,
         v2CokDilliZeka:NEURAAI_V2_COK_DILLI_ZEKA,
+        v3AkilliArastirma:true,
+        v3AkilliSorular:true,
+        v3HedefAnalizi:true,
         messages:sohbetGecmisi
       })
     });
@@ -6773,6 +6809,50 @@ document.addEventListener("keydown", event => {
 });
 
 document.addEventListener("DOMContentLoaded", voiceSesArayuzGuncelle);
+
+
+
+/* === NeuraAI V3 Akıllı Zeka Arayüzü === */
+let v3ZekaDurumTimer = null;
+
+function v3ZekaDurumuGoster(data){
+  const el = document.getElementById("v3ZekaDurumu");
+  if(!el) return;
+
+  const v3 = data?.v3;
+  if(!v3){
+    el.classList.remove("goster");
+    el.textContent = "";
+    return;
+  }
+
+  let metin = "";
+  const hedef = v3.target?.ad && v3.target?.id !== "genel"
+    ? " • Hedef: " + v3.target.ad
+    : "";
+
+  if(v3.action === "research"){
+    metin = (v3.automaticResearch ? "🔎 NeuraAI güncel bilgi gerektiğini anlayıp araştırdı" : "🔎 İnternet araştırması yapıldı") + hedef;
+  }else if(v3.action === "clarify"){
+    metin = "❓ NeuraAI isteği doğru yapmak için gerekli ayrıntıları soruyor" + hedef;
+  }else if(v3.action === "answer" && hedef){
+    metin = "🎯 Cevap kullanıcının amacına göre uyarlandı" + hedef;
+  }
+
+  if(!metin){
+    el.classList.remove("goster");
+    el.textContent = "";
+    return;
+  }
+
+  clearTimeout(v3ZekaDurumTimer);
+  el.textContent = metin;
+  el.classList.add("goster");
+
+  v3ZekaDurumTimer = setTimeout(() => {
+    el.classList.remove("goster");
+  }, 9000);
+}
 
 </script>
 
