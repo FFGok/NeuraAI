@@ -2102,3 +2102,7 @@ app.get("/", (req,res) => {
 app.listen(PORT, () => {
   console.log("NeuraAI server çalışıyor. PORT:", PORT);
 });
+
+
+/* V3 Manuel Uzun Süreli Hafıza */
+app.post("/api/memory/manual-save",(req,res)=>{try{const key=kullaniciKey(req);const text=neuraHafizaMetinTemizle(req.body?.text||"");if(!text)return res.json({ok:false,reply:"Bilgi boş."});const result=neuraHafizaKaydet(key,text);return res.json(result);}catch(e){return res.json({ok:false,reply:"Kaydedilemedi."});}});
