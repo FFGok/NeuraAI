@@ -1000,7 +1000,7 @@ async function openrouterWebSearch({ model, max_tokens, messages }){
   };
 }
 
-async function webAramaliCevapUret({ query, userKey, selectedMode, aiModelTipi, customAi, mode, messages }){
+async function webAramaliCevapUret({ query, userKey, selectedMode, aiModelTipi, customAi, mode, messages, v3Hedef }){
   const profil = modelProfili(aiModelTipi);
   const hafiza = Array.isArray(messages) && messages.length > 0
     ? messages.slice(-40)
@@ -1016,7 +1016,8 @@ async function webAramaliCevapUret({ query, userKey, selectedMode, aiModelTipi, 
     " Kullanıcı gerçek internet araması istiyor. Güncel bilgiyi web aramasıyla doğrula. " +
     "Kaynaklara dayanmayan güncel iddiaları kesinmiş gibi yazma. " +
     "Cevabı doğrudan ver; 'internette aranıyor' gibi süreç anlatımı ekleme. " +
-    "Kaynak bağlantıları ayrıca sistem tarafından cevabın sonunda gösterilecek. ";
+    "Kaynak bağlantıları ayrıca sistem tarafından cevabın sonunda gösterilecek. " +
+    v3HedefPromptu(v3Hedef);
 
   const sonuc = await openrouterWebSearch({
     model: profil.model,
@@ -1068,6 +1069,189 @@ async function kendiniKontrolEt({ soru, cevap, model, mode }){
   }
 }
 
+
+/* =========================
+   NeuraAI V3 Akıllı Zeka
+   1) Kendi kendine araştırma kararı
+   2) Eksik istekte doğru soruları sorma
+   3) Kullanıcının hedefini anlayıp cevabı uyarlama
+========================= */
+
+function v3MetinNormalize(text){
+  return temizMesaj(text, 5000)
+    .toLocaleLowerCase("tr-TR")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function v3HedefAnalizEt(message){
+  const m = v3MetinNormalize(message);
+
+  const hedefler = [
+    {
+      id:"ogrenme",
+      ad:"Öğrenmek",
+      kaliplar:["öğrenmek istiyorum","bana öğret","anlatır mısın","nasıl çalışır","mantığını anlat","ders için","konuyu öğren"]
+    },
+    {
+      id:"hizli_cozum",
+      ad:"Hızlı çözüm",
+      kaliplar:["acil","hemen","hızlıca","kısa çözüm","direkt çöz","uzatma","sadece çözüm"]
+    },
+    {
+      id:"kendi_projesi",
+      ad:"Kendi projesini geliştirmek",
+      kaliplar:["benim projem","projemde","uygulamamda","sitemde","neur…","neurai","neuraai","kendi projem"]
+    },
+    {
+      id:"musteri",
+      ad:"Müşteri işi",
+      kaliplar:["müşteri","müşterim","client","teslim edeceğim","freelance","iş için"]
+    },
+    {
+      id:"gelir",
+      ad:"Gelir elde etmek",
+      kaliplar:["para kazan","gelir elde","satmak istiyorum","ticari","monetize","kazanç"]
+    },
+    {
+      id:"odev",
+      ad:"Ödev veya okul",
+      kaliplar:["ödev","proje ödevi","okul için","sunum için","ders için","öğretmen"]
+    },
+    {
+      id:"karar",
+      ad:"Karar vermek",
+      kaliplar:["hangisini seç","hangisi daha iyi","karar veremiyorum","önerir misin","seçmeliyim"]
+    }
+  ];
+
+  for(const hedef of hedefler){
+    if(hedef.kaliplar.some(k => m.includes(k))){
+      return hedef;
+    }
+  }
+
+  return {
+    id:"genel",
+    ad:"Genel yardım"
+  };
+}
+
+function v3GuncelArastirmaGerekliMi(message){
+  const m = v3MetinNormalize(message);
+
+  const guncelKaliplar = [
+    "bugün", "şu an", "şimdi", "güncel", "son durum", "en yeni",
+    "bu hafta", "bu ay", "2026", "fiyatı", "kaç tl", "ne kadar",
+    "kimdir şu an", "başkanı kim", "ceo kim", "son sürüm", "son haber",
+    "hava durumu", "maç sonucu", "puan durumu", "kur", "dolar", "euro",
+    "çıktı mı", "yayınlandı mı", "hala geçerli mi", "değişti mi"
+  ];
+
+  const zamanaDuyarliKonular = [
+    "fiyat", "haber", "sürüm", "model", "telefon", "laptop", "yasa",
+    "kural", "takvim", "etkinlik", "maç", "borsa", "kripto", "hava"
+  ];
+
+  const acikGuncellik = guncelKaliplar.some(k => m.includes(k));
+  const zamanKonusu = zamanaDuyarliKonular.some(k => m.includes(k));
+  const soruGuncel = /\b(en iyi|en ucuz|en hızlı|en güncel|son)\b/i.test(m);
+
+  return acikGuncellik || (zamanKonusu && soruGuncel);
+}
+
+function v3CevaplanmadanOnceSoruGerekliMi(message){
+  const temiz = temizMesaj(message, 4000).trim();
+  const m = v3MetinNormalize(message);
+
+  if(!temiz || temiz.length < 3) return false;
+
+  // Kullanıcı önceki sorulara cevap veriyorsa tekrar soru sorma.
+  const cevapGibi = [
+    "amacım", "hedefim", "şöyle olsun", "böyle olsun", "html", "react",
+    "node", "mobil", "masaüstü", "koyu tema", "açık tema", "evet", "hayır",
+    "1.", "2.", "3.", "birincisi", "ikincisi"
+  ].some(k => m.includes(k));
+
+  if(cevapGibi && temiz.length > 12) return false;
+
+  const cokBelirsizKomutlar = [
+    /^site (yap|oluştur|hazırla)$/i,
+    /^uygulama (yap|oluştur|hazırla)$/i,
+    /^logo (yap|oluştur|tasarla)$/i,
+    /^bot (yap|oluştur|hazırla)$/i,
+    /^kod (yaz|yap|oluştur)$/i,
+    /^bunu (yap|düzelt|geliştir)$/i,
+    /^proje (yap|oluştur|hazırla)$/i
+  ];
+
+  if(cokBelirsizKomutlar.some(r => r.test(temiz))) return true;
+
+  const uretimIstegi = /\b(yap|oluştur|hazırla|tasarla|geliştir|yaz)\b/i.test(m);
+  const nesneVar = /\b(site|uygulama|bot|logo|sistem|proje|api|oyun|tasarım|kod)\b/i.test(m);
+  const ayrintiVar = /\b(html|css|javascript|node|react|vue|mobil|masaüstü|renk|özellik|amaç|hedef|kullanıcı|sayfa|veritabanı)\b/i.test(m);
+
+  return uretimIstegi && nesneVar && !ayrintiVar && temiz.length < 70;
+}
+
+function v3HedefPromptu(hedef){
+  if(!hedef || hedef.id === "genel") return "";
+
+  const kurallar = {
+    ogrenme:
+      "Kullanıcının hedefi öğrenmek. Sadece sonucu verme; mantığı aşamalı ve anlaşılır biçimde öğret, küçük örnekler kullan. ",
+    hizli_cozum:
+      "Kullanıcının hedefi hızlı çözüm. Önce doğrudan uygulanabilir çözümü ver; gereksiz arka planı uzatma. ",
+    kendi_projesi:
+      "Kullanıcının hedefi kendi projesini geliştirmek. Mevcut yapıyı koruyan, entegrasyon ve geriye dönük uyumluluğu gözeten öneriler ver. ",
+    musteri:
+      "Kullanıcının hedefi müşteri işi. Profesyonellik, teslim edilebilirlik, bakım kolaylığı ve hata riskini önceliklendir. ",
+    gelir:
+      "Kullanıcının hedefi gelir elde etmek. Yasal, güvenli ve gerçekçi yolları; maliyet, değer ve sürdürülebilirliği dikkate al. ",
+    odev:
+      "Kullanıcının hedefi okul veya ödev. Öğretici ol; kullanıcı yerine ödevi tamamen üstlenmekten çok anlamasını ve kendi çalışmasını destekle. ",
+    karar:
+      "Kullanıcının hedefi karar vermek. Seçenekleri kısa karşılaştır, ölçütleri açıkla ve gerekçeli tek bir öneri sun. "
+  };
+
+  return kurallar[hedef.id] || "";
+}
+
+async function v3NetlestirmeSorulariUret({ message, hedef, model }){
+  try{
+    const cevap = await openrouterChat({
+      model: model || process.env.OPENROUTER_FAST_MODEL || "openai/gpt-4.1-mini",
+      max_tokens: 260,
+      messages:[
+        {
+          role:"system",
+          content:
+            "Sen NeuraAI'ın istek netleştirme sistemisin. " +
+            "Kullanıcı isteğini doğru yapmak için yalnızca gerçekten gerekli 1-3 kısa soru sor. " +
+            "Selamlama, açıklama, cevap veya çözüm verme. " +
+            "Soruları numaralı yaz. Kullanıcının dilinde yaz. " +
+            "Gereksiz ayrıntı isteme ve aynı şeyi tekrar sorma."
+        },
+        {
+          role:"user",
+          content:
+            "Kullanıcı isteği: " + temizMesaj(message, 3000) +
+            "\nTahmini hedef: " + (hedef?.ad || "Genel yardım")
+        }
+      ]
+    });
+
+    return temizMesaj(cevap, 1200).trim();
+  }catch(err){
+    console.error("V3 netleştirme soruları hata:", err.message);
+    return (
+      "Bunu doğru hazırlamam için iki şeyi netleştirelim:\n" +
+      "1. Tam olarak nasıl bir sonuç istiyorsun?\n" +
+      "2. Hangi teknoloji, platform veya kullanım amacı için olacak?"
+    );
+  }
+}
+
 /* =========================
    Chat
 ========================= */
@@ -1086,7 +1270,10 @@ app.post("/chat", async (req,res) => {
       customAi,
       webSearch,
       internetSearch,
-      searchWeb
+      searchWeb,
+      v3AkilliArastirma = true,
+      v3AkilliSorular = true,
+      v3HedefAnalizi = true
     } = req.body || {};
 
     const msg = temizMesaj(message, 4000).trim();
@@ -1127,6 +1314,36 @@ if (
       return res.json({ reply:"AI API key ayarlanmamış." });
     }
 
+    const v3Hedef = v3HedefAnalizi
+      ? v3HedefAnalizEt(msg)
+      : { id:"genel", ad:"Genel yardım" };
+
+    const v3SoruGerekli = Boolean(
+      v3AkilliSorular &&
+      v3CevaplanmadanOnceSoruGerekliMi(msg)
+    );
+
+    if(v3SoruGerekli){
+      const profil = modelProfili(aiModelTipi);
+      const sorular = await v3NetlestirmeSorulariUret({
+        message:msg,
+        hedef:v3Hedef,
+        model:profil.model
+      });
+
+      return res.json({
+        ok:true,
+        reply:sorular,
+        v3:{
+          action:"clarify",
+          askedQuestions:true,
+          target:v3Hedef,
+          researched:false
+        },
+        kalanMesaj:999
+      });
+    }
+
     if(!kullaniciLimit[ip]) kullaniciLimit[ip] = [];
     kullaniciLimit[ip].push(now);
     kullaniciLimit[ip] = kullaniciLimit[ip].filter(t => now - t < 60000);
@@ -1150,7 +1367,12 @@ if (
 
     const profil = modelProfili(aiModelTipi);
 
-    const webIstegi = internetAramaIstegiMi(msg, {
+    const v3OtomatikArastirma = Boolean(
+      v3AkilliArastirma &&
+      v3GuncelArastirmaGerekliMi(msg)
+    );
+
+    const webIstegi = v3OtomatikArastirma || internetAramaIstegiMi(msg, {
       webSearch,
       internetSearch,
       searchWeb
@@ -1166,7 +1388,8 @@ if (
         aiModelTipi,
         customAi,
         mode,
-        messages
+        messages,
+        v3Hedef
       });
 
       const kaynakliCevap = kaynaklariCevabaEkle(
@@ -1181,6 +1404,13 @@ if (
         webSearch:true,
         query,
         sources:webSonuc.sources,
+        v3:{
+          action:"research",
+          askedQuestions:false,
+          target:v3Hedef,
+          researched:true,
+          automaticResearch:v3OtomatikArastirma
+        },
         kalanMesaj:999
       });
     }
@@ -1195,12 +1425,16 @@ if (
       messages:[
         {
           role:"system",
-          content:sistemPrompt({
-            modeName:selectedMode,
-            aiModelTipi,
-            customAi,
-            userKey
-          })
+          content:
+            sistemPrompt({
+              modeName:selectedMode,
+              aiModelTipi,
+              customAi,
+              userKey
+            }) +
+            v3HedefPromptu(v3Hedef) +
+            " Kullanıcının isteği yeterince açıksa doğrudan cevap ver. " +
+            "Eksik ayrıntı varsa tahmin uydurmak yerine yalnızca gerekli soruları sor. "
         },
         ...hafiza
       ]
@@ -1218,6 +1452,12 @@ if (
     res.json({
       ok:true,
       reply: finalCevap,
+      v3:{
+        action:"answer",
+        askedQuestions:false,
+        target:v3Hedef,
+        researched:false
+      },
       kalanMesaj: 999
     });
   }catch(err){
